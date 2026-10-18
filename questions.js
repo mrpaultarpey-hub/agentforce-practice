@@ -131,7 +131,9 @@ const SRC = {
   useCase: help('Define an Agentforce Use Case', 'ai.agent_plan_use_case_define'),
   voiceConsiderations: help('Agentforce Voice Considerations', 'ai.agentforce_voice_considerations'),
   promptTemplateTests: help('Test Prompt Templates', 'ai.agent_studio_testing_center_prompt_templates'),
-  agentApiLifecycle: { title: 'Agentforce Developer Guide: Agent API Session Lifecycle', url: 'https://developer.salesforce.com/docs/ai/agentforce/guide/agent-api-lifecycle.html' }
+  agentApiLifecycle: { title: 'Agentforce Developer Guide: Agent API Session Lifecycle', url: 'https://developer.salesforce.com/docs/ai/agentforce/guide/agent-api-lifecycle.html' },
+  agentTypes: help('Agent Types and Considerations', 'ai.agent_setup_explore_types'),
+  defaultAgent: help('Agentforce (Default) Considerations', 'ai.agent_default_considerations')
 };
 
 window.QUESTIONS = [
@@ -1775,6 +1777,77 @@ window.QUESTIONS = [
     ],
     explanation: 'The agent keeps track of context throughout the session. There is also an endpoint for submitting feedback on a response.',
     source: SRC.agentApiLifecycle
+  },
+
+  {
+    id: 'AG-093',
+    section: 'agents',
+    objective: 'Identify when to use an Employee or Service agent',
+    group: 'agent-types-help',
+    stem: [
+      'A company still uses Agentforce (Default) for its employees. What does Salesforce recommend?',
+      'Which statement about Agentforce (Default) is true?'
+    ],
+    options: [
+      { correct: true, text: 'It has been retired from new features since 17 June 2025. Migrate to an Agentforce Employee agent.', why: 'Not available in new environments either.' },
+      { correct: false, text: 'It is the recommended agent for all new projects', why: 'It is retired.' },
+      { correct: false, text: 'It is the newest employee agent with Agent Script', why: 'Employee agents replace it.' },
+      { correct: false, text: 'It is a service agent for customers', why: 'It served employees.' }
+    ],
+    explanation: 'Plan the migration ahead of any licence change to avoid downtime. Agentforce (Default) also isn\'t supported by the Agent API.',
+    source: SRC.agentTypes
+  },
+
+  {
+    id: 'AG-094',
+    section: 'agents',
+    objective: 'Explain the security context the agent runs in and how it affects actions',
+    stem: [
+      'Why should the Manage AI Agents permission be assigned with care?',
+      'An admin assigns the Manage Agentforce Service Agents permission set to a team lead. What access does the lead get?'
+    ],
+    options: [
+      { correct: true, text: 'Org-wide management of all agents: manage, activate and deactivate any agent, customise subagents and actions, and monitor activity', why: 'Not limited to one agent type.' },
+      { correct: false, text: 'Access only to service agents they created', why: 'It covers all agents.' },
+      { correct: false, text: 'Read-only access to agent analytics', why: 'It allows full management.' },
+      { correct: false, text: 'Access to chat with agents only', why: 'It allows management.' }
+    ],
+    explanation: 'The Manage Agentforce Service Agents permission set includes Manage AI Agents, which is needed for Agentforce Builder. Assign it only to people who need org-wide agent management.',
+    source: SRC.agentTypes
+  },
+
+  {
+    id: 'AG-095',
+    section: 'agents',
+    objective: 'Identify when to use an Employee or Service agent',
+    group: 'agent-types-help',
+    stem: [
+      'Service reps want case summaries and step-by-step resolution guidance while they work cases. Which Agentforce agent type fits?',
+      'What is the difference between Service Assistant and a Service Agent?'
+    ],
+    options: [
+      { correct: true, text: 'Service Assistant helps reps resolve cases. A Service Agent talks to customers directly.', why: 'Rep-facing versus customer-facing.' },
+      { correct: false, text: 'Service Agent helps reps. Service Assistant talks to customers.', why: 'The other way round.' },
+      { correct: false, text: 'They are the same product', why: 'They serve different users.' },
+      { correct: false, text: 'Sales Coach', why: 'Gives feedback on sales pitches.' }
+    ],
+    explanation: 'Other agent types: Employee Agent (internal work), Lead Nurturing (formerly SDR), Sales Coach (feedback on pitches and role-play) and Setup with Agentforce (helps admins, created automatically and not customisable in the builder).',
+    source: SRC.agentTypes
+  },
+
+  {
+    id: 'AG-096',
+    section: 'agents',
+    objective: 'Explain how an agent works and the building blocks of Agent Script',
+    stem: 'An older agent keeps context from earlier turns in a conversation. How many recent turns does Agentforce (Default) use as context?',
+    options: [
+      { correct: true, text: 'Up to the six most recent turns, from the current session only', why: 'Stated consideration.' },
+      { correct: false, text: 'Every message the user has ever sent', why: 'Current session only.' },
+      { correct: false, text: 'Only the latest message', why: 'Up to six turns.' },
+      { correct: false, text: 'Fifty turns', why: 'Six turns.' }
+    ],
+    explanation: 'Greetings such as "hello" aren\'t included, to keep the context on CRM tasks. A refreshed browser tab starts a new session. Lists show up to 50 records under View More.',
+    source: SRC.defaultAgent
   },
 
   // ---------------- Prompt Engineering (20%) ----------------
