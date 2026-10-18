@@ -1497,10 +1497,10 @@ window.QUESTIONS = [
     group: 'required-flow',
     stem: 'Where should a required conditional transition go in a subagent\'s instructions, and why?',
     options: [
-      { correct: true, text: 'At the top, because anything run before the transition is discarded and only adds latency and cost', why: 'Earlier instructions aren\'t used once the agent transitions.' },
-      { correct: false, text: 'At the bottom, so all actions run first', why: 'Wastes time and money.' },
+      { correct: true, text: 'At the top, so nothing runs before it', why: 'Earlier instructions aren\'t used once the agent transitions.' },
+      { correct: false, text: 'At the bottom, so that all actions and variables are set first', why: 'Wastes time and money.' },
       { correct: false, text: 'In the `config` block', why: 'Transitions belong in reasoning logic.' },
-      { correct: false, text: 'Anywhere. Order doesn\'t matter.', why: 'Instructions resolve top to bottom.' }
+      { correct: false, text: 'Anywhere, because the agent always reads every instruction anyway', why: 'Instructions resolve top to bottom.' }
     ],
     explanation: 'Name transition tools with a `go_to_` prefix, such as `go_to_orders`, so the LLM knows they move to another subagent. Avoid names like `tool1`.',
     source: SRC.requiredFlow
@@ -1516,9 +1516,9 @@ window.QUESTIONS = [
       'What does adding a `system` block inside a subagent do?'
     ],
     options: [
-      { correct: true, text: 'Add a `system` block to that subagent. Its instructions override the agent-level system instructions for that subagent only.', why: 'A system override removes the conflict.' },
-      { correct: false, text: 'Add a conflicting `|` instruction and let the LLM decide', why: 'Conflicts can make the agent hang or behave unpredictably.' },
-      { correct: false, text: 'Delete the global instruction for every subagent', why: 'The rule is still needed elsewhere.' },
+      { correct: true, text: 'Add a `system` block to that subagent to override the global rule', why: 'A system override removes the conflict.' },
+      { correct: false, text: 'Add a conflicting `|` instruction in that subagent and let the LLM decide', why: 'Conflicts can make the agent hang or behave unpredictably.' },
+      { correct: false, text: 'Delete the global instruction so no subagent has the alcohol rule at all', why: 'The rule is still needed elsewhere.' },
       { correct: false, text: 'Create a second agent', why: 'An override is simpler.' }
     ],
     explanation: 'Subagent-level system instructions take priority. Without them, the agent-level instructions apply. Overrides also let one agent take different personas or tones, such as formal for compliance and casual for FAQs.',
@@ -1535,10 +1535,10 @@ window.QUESTIONS = [
       'When actions run in reasoning instructions, how are their inputs and outputs handled?'
     ],
     options: [
-      { correct: true, text: 'Set variables by hand: `set` the first output into a variable and pass it with `with` into the second', why: 'Actions in instructions run before reasoning, so nothing is inferred.' },
+      { correct: true, text: '`set` the first output into a variable, then pass it with `with`', why: 'Actions in instructions run before reasoning, so nothing is inferred.' },
       { correct: false, text: 'Nothing. The LLM passes outputs between them.', why: 'No LLM is involved at this stage.' },
-      { correct: false, text: 'Use a `|` instruction asking the LLM to pass the value', why: 'Logic needs explicit variables.' },
-      { correct: false, text: 'Mark the second action `require_user_confirmation`', why: 'Unrelated.' }
+      { correct: false, text: 'Use a `|` instruction asking the LLM to pass the value to the second action', why: 'Logic needs explicit variables.' },
+      { correct: false, text: 'Mark the second action `require_user_confirmation` so the user supplies the value', why: 'Unrelated.' }
     ],
     explanation: 'Actions run in instructions are deterministic and run before the prompt goes to the LLM. Store outputs with `set @variables.x = @outputs.y` and pass them on with `with`.',
     source: SRC.actionChaining
@@ -1554,9 +1554,9 @@ window.QUESTIONS = [
       'What does a `run @actions.other_action` line under a tool in `reasoning.actions` do?'
     ],
     options: [
-      { correct: true, text: 'Add `run @actions.check_return_eligibility` under the `get_order` tool, so it runs automatically after the LLM calls it', why: 'A chained reasoning action.' },
-      { correct: false, text: 'Ask the LLM in the instructions to remember to call both', why: 'Not guaranteed.' },
-      { correct: false, text: 'Put both actions in one prompt template', why: 'Doesn\'t chain actions.' },
+      { correct: true, text: 'Add `run @actions.check_return_eligibility` under the `get_order` tool', why: 'A chained reasoning action.' },
+      { correct: false, text: 'Ask the LLM in the instructions to always remember to call both actions', why: 'Not guaranteed.' },
+      { correct: false, text: 'Put both actions in one prompt template that the agent calls as an action', why: 'Doesn\'t chain actions.' },
       { correct: false, text: 'Use `@utils.escalate` between them', why: 'Escalates to a human.' }
     ],
     explanation: 'Chaining makes multi-step workflows reliable without the LLM having to remember each step. A tool can also end with `transition to @subagent.x` to move on once it has run.',
@@ -1569,10 +1569,10 @@ window.QUESTIONS = [
     objective: 'Explain how an agent works and the building blocks of Agent Script',
     stem: 'Which two match Salesforce\'s general guidance for building agents with Agent Script?',
     options: [
-      { correct: true, text: 'Start with the fewest instructions needed, then add more as testing shows, checking for regressions each time', why: 'Simple first, then refine.' },
-      { correct: true, text: 'Use the same term everywhere, for example "customer" in both "Get Customer Info" and "Verify Customer"', why: 'Mixed terms cause inconsistent behaviour.' },
-      { correct: false, text: 'Write as many instructions as possible up front', why: 'Start small.' },
-      { correct: false, text: 'Use technical terms rather than the words customers use', why: 'Plain customer language matches requests better.' },
+      { correct: true, text: 'Start with few instructions and add more as testing shows a need', why: 'Simple first, then refine.' },
+      { correct: true, text: 'Use one term consistently, such as "customer" in every action name', why: 'Mixed terms cause inconsistent behaviour.' },
+      { correct: false, text: 'Write as many instructions as possible up front to cover every case', why: 'Start small.' },
+      { correct: false, text: 'Use technical field names rather than the words customers actually use', why: 'Plain customer language matches requests better.' },
       { correct: false, text: 'Avoid referencing actions and variables in instructions', why: 'Referencing them makes the agent more likely to use them.' }
     ],
     explanation: 'Also: give subagents, actions and variables specific, distinct names and descriptions, add determinism for business workflows, and reference resources directly (for example `{!@actions.lookup_order}`).',
@@ -1589,9 +1589,9 @@ window.QUESTIONS = [
       'Which statement about the Query Records standard action is true?'
     ],
     options: [
-      { correct: true, text: 'Query Records can\'t combine data from multiple objects in one request', why: 'One object per query.' },
+      { correct: true, text: 'It can\'t query several objects in one request', why: 'One object per query.' },
       { correct: false, text: 'Query Records only works on custom objects', why: 'It works on searchable standard and custom objects.' },
-      { correct: false, text: 'Query Records needs a prompt template for each object', why: 'It doesn\'t run prompt templates.' },
+      { correct: false, text: 'It needs a separate prompt template for each object it queries', why: 'It doesn\'t run prompt templates.' },
       { correct: false, text: 'The rep must use SOQL in the request', why: 'It takes natural language.' }
     ],
     explanation: 'Query Records supports English only, doesn\'t support external objects, and can filter across up to one parent-child relationship. It shows at most 50 results, even when more match.',
@@ -1608,9 +1608,9 @@ window.QUESTIONS = [
       'Why might Query Records miss a record whose field value is stored in a different format?'
     ],
     options: [
-      { correct: true, text: 'There is no field normalisation, so matching depends on the exact format stored', why: 'Formats must match.' },
-      { correct: false, text: 'Phone fields can never be queried', why: 'They can, in the same format.' },
-      { correct: false, text: 'The Trust Layer masked the number', why: 'Masking doesn\'t affect the query.' },
+      { correct: true, text: 'Matching depends on the exact stored format', why: 'Formats must match.' },
+      { correct: false, text: 'Phone fields can never be used as filters in Query Records', why: 'They can, in the same format.' },
+      { correct: false, text: 'The Trust Layer masked the number before the query ran', why: 'Masking doesn\'t affect the query.' },
       { correct: false, text: 'Query Records only searches names', why: 'It filters on field values.' }
     ],
     explanation: 'Help also advises naming the exact field and value, for example "accounts that have an Industry of Technology" rather than "my technology accounts". Ambiguous words like "top" are interpreted by the LLM. Check the plan in Agentforce Builder to see how.',
@@ -1624,9 +1624,9 @@ window.QUESTIONS = [
     group: 'query-records',
     stem: 'A user asks Query Records to filter on two fields, but can only access one of them. What happens?',
     options: [
-      { correct: true, text: 'The query returns an error. Partial results aren\'t supported.', why: 'All criteria must be met.' },
+      { correct: true, text: 'It returns an error instead of partial results.', why: 'All criteria must be met.' },
       { correct: false, text: 'It returns results filtered on the one accessible field', why: 'Partial results aren\'t supported.' },
-      { correct: false, text: 'It ignores field-level security', why: 'Access is respected.' },
+      { correct: false, text: 'It ignores field-level security for fields used in filters', why: 'Access is respected.' },
       { correct: false, text: 'It escalates to a human', why: 'It returns an error.' }
     ],
     explanation: 'Displayed fields combine up to three fields from the query with up to ten from the object\'s search layout, with duplicates counted once.',
@@ -1643,9 +1643,9 @@ window.QUESTIONS = [
       'An agent answers from knowledge articles. A user without access to an internal article asks about its subject. What does the action do?'
     ],
     options: [
-      { correct: true, text: 'It only uses knowledge articles the requesting user can access, respecting permissions and sharing', why: 'Stated consideration.' },
-      { correct: false, text: 'It uses every article, regardless of access', why: 'Access is respected.' },
-      { correct: false, text: 'It needs no Data 360 or Data Library setup', why: 'Both are required.' },
+      { correct: true, text: 'It only uses articles the requesting user can access.', why: 'Stated consideration.' },
+      { correct: false, text: 'It uses every article in the org, whatever the user\'s access', why: 'Access is respected.' },
+      { correct: false, text: 'It works without any Data 360 or Data Library setup', why: 'Both are required.' },
       { correct: false, text: 'It can read URL and encrypted text fields', why: 'Those field types aren\'t supported.' }
     ],
     explanation: 'It uses Text, Text Area, Text Area (Long) and Text Area (Rich) knowledge fields. File sources can be text, HTML (4 MB) or PDF (100 MB). It calls the Answer Questions with Knowledge prompt template through an internal invocable action.',
@@ -1662,9 +1662,9 @@ window.QUESTIONS = [
       'Can the prompt template behind the Search the Web action be edited?'
     ],
     options: [
-      { correct: true, text: 'No. Create a new version of the General Web Search subagent with updated instructions, or add instructions in the subagent that uses the action.', why: 'The internal template can\'t be edited.' },
-      { correct: false, text: 'Yes. Edit it in Prompt Builder.', why: 'It is internal-only.' },
-      { correct: false, text: 'Change the search provider to You.com', why: 'Providers don\'t control formatting.' },
+      { correct: true, text: 'No. Change the General Web Search subagent\'s instructions instead.', why: 'The internal template can\'t be edited.' },
+      { correct: false, text: 'Yes. Open the Search the Web template in Prompt Builder and edit it.', why: 'It is internal-only.' },
+      { correct: false, text: 'Change the search provider to You.com, which returns bullet points', why: 'Providers don\'t control formatting.' },
       { correct: false, text: 'Set Excluded Domains', why: 'Controls sources, not format.' }
     ],
     explanation: 'Search the Web retrieves current external information, such as news and competitor details, with citations. Providers include OpenAI, BrightData and You.com. It isn\'t supported in Government Cloud.',
@@ -1678,8 +1678,8 @@ window.QUESTIONS = [
     group: 'search-web',
     stem: 'An agent\'s Search the Web action should use only five trusted industry sites. What should the admin set?',
     options: [
-      { correct: true, text: 'Allowed Domains with those five sites, and no Excluded Domains', why: 'Allowed Domains restricts searches. Using both can return few or no results.' },
-      { correct: false, text: 'Excluded Domains listing every other site', why: 'Use Allowed Domains to restrict.' },
+      { correct: true, text: 'Allowed Domains with the five sites', why: 'Allowed Domains restricts searches. Using both can return few or no results.' },
+      { correct: false, text: 'Excluded Domains listing every other site on the web', why: 'Use Allowed Domains to restrict.' },
       { correct: false, text: 'Both Allowed and Excluded Domains for extra safety', why: 'Help warns against using both.' },
       { correct: false, text: 'A Data Library with those sites', why: 'New web search libraries aren\'t supported.' }
     ],
@@ -1694,13 +1694,13 @@ window.QUESTIONS = [
     group: 'context-eng',
     stem: [
       'An agent has many subagents and tools it rarely needs, and it now behaves inconsistently and slowly. Which context problem is this?',
-      'What is "context confusion" in Salesforce\'s context engineering guide?'
+      'An agent is loaded with far more instructions, content and tools than its jobs need. Which context problem does Salesforce call this?'
     ],
     options: [
-      { correct: true, text: 'Context confusion: too much irrelevant content or too many unnecessary tools', why: 'Causes inconsistency and latency.' },
-      { correct: false, text: 'Context clash: conflicting instructions', why: 'That is about contradictions.' },
-      { correct: false, text: 'Context poisoning: incorrect or outdated information', why: 'That is about bad data.' },
-      { correct: false, text: 'Context overflow: running out of storage', why: 'Not one of the named problems.' }
+      { correct: true, text: 'Context confusion', why: 'Causes inconsistency and latency.' },
+      { correct: false, text: 'Context clash', why: 'That is about contradictions.' },
+      { correct: false, text: 'Context poisoning', why: 'That is about bad data.' },
+      { correct: false, text: 'Context overflow', why: 'Not one of the named problems.' }
     ],
     explanation: 'The three problems are context clash (conflicting instructions), context confusion (too much irrelevant content or too many tools) and context poisoning (wrong or outdated information). Limit subagents and actions to the essentials, add them gradually, and use filters and routing.',
     source: SRC.contextEngineering
@@ -1713,9 +1713,9 @@ window.QUESTIONS = [
     group: 'context-eng',
     stem: 'Which two statements match Salesforce\'s context engineering guidance?',
     options: [
-      { correct: true, text: 'Flows, Apex and APIs are more deterministic actions. Prompt template actions are more probabilistic.', why: 'Choose the right kind of action for the job.' },
-      { correct: true, text: 'Re-test agents whenever part of the solution changes, including a model update', why: 'Context depends on every part.' },
-      { correct: false, text: 'Give every agent as many subagents as possible from the start', why: 'Start with the essentials.' },
+      { correct: true, text: 'Flows and Apex are more deterministic than prompt template actions.', why: 'Choose the right kind of action for the job.' },
+      { correct: true, text: 'Re-test agents after any change, including a model update.', why: 'Context depends on every part.' },
+      { correct: false, text: 'Give every agent as many subagents as possible from the start.', why: 'Start with the essentials.' },
       { correct: false, text: 'Keep all business logic in natural-language prompts', why: 'Use logic for critical workflows.' },
       { correct: false, text: 'Outdated knowledge articles don\'t affect agents', why: 'That is context poisoning.' }
     ],
@@ -1733,8 +1733,8 @@ window.QUESTIONS = [
       'Which statement about languages for Agentforce Voice agents is true?'
     ],
     options: [
-      { correct: true, text: 'The voice agent only listens and responds in its default language. Allowed Languages applies to text agents only.', why: 'Voice agents are monolingual.' },
-      { correct: false, text: 'It switches to French automatically', why: 'Voice agents don\'t switch language.' },
+      { correct: true, text: 'It only uses its default language, English.', why: 'Voice agents are monolingual.' },
+      { correct: false, text: 'It switches to French automatically because French is allowed', why: 'Voice agents don\'t switch language.' },
       { correct: false, text: 'It responds in all three languages', why: 'One language only.' },
       { correct: false, text: 'It hands the call to a French-speaking agent automatically', why: 'Not described behaviour.' }
     ],
@@ -1766,10 +1766,10 @@ window.QUESTIONS = [
     group: 'voice-limits',
     stem: 'Testing of a voice agent in a sandbox suddenly stops working because Omni-Channel has stopped. What is the likely cause and fix?',
     options: [
-      { correct: true, text: 'Call recordings filled the 200 MB sandbox storage. Turn off call recording in sandboxes and bulk delete recordings.', why: 'Recordings fill sandbox storage quickly.' },
-      { correct: false, text: 'Voice agents can\'t be tested in sandboxes', why: 'They can.' },
+      { correct: true, text: 'Call recordings filled the sandbox storage', why: 'Recordings fill sandbox storage quickly.' },
+      { correct: false, text: 'Voice agents can\'t be tested in any kind of sandbox', why: 'They can.' },
       { correct: false, text: 'The agent needs a new version', why: 'Storage is the issue.' },
-      { correct: false, text: 'The telephony provider blocked the sandbox', why: 'Storage is the issue.' }
+      { correct: false, text: 'The telephony provider blocked calls from the sandbox org', why: 'Storage is the issue.' }
     ],
     explanation: 'Turn off "Record Voice Calls with Agents" on the Agentforce Voice setup page in sandboxes. For production-like voice testing, Salesforce suggests a Full or Partial Copy sandbox with more storage.',
     source: SRC.voiceConsiderations
@@ -1784,10 +1784,10 @@ window.QUESTIONS = [
       'What are the stages of an Agent API conversation?'
     ],
     options: [
-      { correct: true, text: 'Start a session, send messages (streaming for word-by-word display, synchronous for a single reply), then end the session', why: 'The session lifecycle.' },
+      { correct: true, text: 'Start a session, send messages (streaming or synchronous), end it', why: 'The session lifecycle.' },
       { correct: false, text: 'Send one message with no session', why: 'A session is created first.' },
-      { correct: false, text: 'Open a session per message and never end it', why: 'One session holds the conversation context.' },
-      { correct: false, text: 'Only synchronous messages are supported', why: 'Streaming is also available.' }
+      { correct: false, text: 'Open a new session for every message and never end any of them', why: 'One session holds the conversation context.' },
+      { correct: false, text: 'Only synchronous messages are supported, so stream it yourself', why: 'Streaming is also available.' }
     ],
     explanation: 'The agent keeps track of context throughout the session. There is also an endpoint for submitting feedback on a response.',
     source: SRC.agentApiLifecycle
@@ -1803,8 +1803,8 @@ window.QUESTIONS = [
       'Which statement about Agentforce (Default) is true?'
     ],
     options: [
-      { correct: true, text: 'It has been retired from new features since 17 June 2025. Migrate to an Agentforce Employee agent.', why: 'Not available in new environments either.' },
-      { correct: false, text: 'It is the recommended agent for all new projects', why: 'It is retired.' },
+      { correct: true, text: 'It is retired. Migrate to an Agentforce Employee agent.', why: 'Not available in new environments either.' },
+      { correct: false, text: 'It is the recommended agent for all new employee projects', why: 'It is retired.' },
       { correct: false, text: 'It is the newest employee agent with Agent Script', why: 'Employee agents replace it.' },
       { correct: false, text: 'It is a service agent for customers', why: 'It served employees.' }
     ],
@@ -1821,8 +1821,8 @@ window.QUESTIONS = [
       'An admin assigns the Manage Agentforce Service Agents permission set to a team lead. What access does the lead get?'
     ],
     options: [
-      { correct: true, text: 'Org-wide management of all agents: manage, activate and deactivate any agent, customise subagents and actions, and monitor activity', why: 'Not limited to one agent type.' },
-      { correct: false, text: 'Access only to service agents they created', why: 'It covers all agents.' },
+      { correct: true, text: 'Management of every agent in the org', why: 'Not limited to one agent type.' },
+      { correct: false, text: 'Access only to the service agents that the lead created', why: 'It covers all agents.' },
       { correct: false, text: 'Read-only access to agent analytics', why: 'It allows full management.' },
       { correct: false, text: 'Access to chat with agents only', why: 'It allows management.' }
     ],
@@ -1837,12 +1837,12 @@ window.QUESTIONS = [
     group: 'agent-types-help',
     stem: [
       'Service reps want case summaries and step-by-step resolution guidance while they work cases. Which Agentforce agent type fits?',
-      'What is the difference between Service Assistant and a Service Agent?'
+      'Which Agentforce product helps service reps, rather than customers, resolve cases faster?'
     ],
     options: [
-      { correct: true, text: 'Service Assistant helps reps resolve cases. A Service Agent talks to customers directly.', why: 'Rep-facing versus customer-facing.' },
-      { correct: false, text: 'Service Agent helps reps. Service Assistant talks to customers.', why: 'The other way round.' },
-      { correct: false, text: 'They are the same product', why: 'They serve different users.' },
+      { correct: true, text: 'Service Assistant', why: 'Rep-facing versus customer-facing.' },
+      { correct: false, text: 'Agentforce Service Agent', why: 'The other way round.' },
+      { correct: false, text: 'Agentforce (Default)', why: 'Retired, and not built for case resolution guidance.' },
       { correct: false, text: 'Sales Coach', why: 'Gives feedback on sales pitches.' }
     ],
     explanation: 'Other agent types: Employee Agent (internal work), Lead Nurturing (formerly SDR), Sales Coach (feedback on pitches and role-play) and Setup with Agentforce (helps admins, created automatically and not customisable in the builder).',
@@ -1855,10 +1855,10 @@ window.QUESTIONS = [
     objective: 'Explain how an agent works and the building blocks of Agent Script',
     stem: 'An older agent keeps context from earlier turns in a conversation. How many recent turns does Agentforce (Default) use as context?',
     options: [
-      { correct: true, text: 'Up to the six most recent turns, from the current session only', why: 'Stated consideration.' },
+      { correct: true, text: 'Up to six turns', why: 'Stated consideration.' },
       { correct: false, text: 'Every message the user has ever sent', why: 'Current session only.' },
       { correct: false, text: 'Only the latest message', why: 'Up to six turns.' },
-      { correct: false, text: 'Fifty turns', why: 'Six turns.' }
+      { correct: false, text: 'Up to fifty turns', why: 'Six turns.' }
     ],
     explanation: 'Greetings such as "hello" aren\'t included, to keep the context on CRM tasks. A refreshed browser tab starts a new session. Lists show up to 50 records under View More.',
     source: SRC.defaultAgent
@@ -1874,9 +1874,9 @@ window.QUESTIONS = [
       'Which statement about context variables in Enhanced Chat v2 is true?'
     ],
     options: [
-      { correct: true, text: 'Map the Messaging Session field to a context variable and use it in instructions and action inputs. Test it on a connected channel, not in the builder.', why: 'Context variables need a real Messaging Session record.' },
-      { correct: false, text: 'Use the context variable to authenticate the customer', why: 'Salesforce doesn\'t recommend context variables for authentication.' },
-      { correct: false, text: 'Test it in the builder preview', why: 'The preview has no Messaging Session record.' },
+      { correct: true, text: 'Map the field to a context variable and test on a connected channel', why: 'Context variables need a real Messaging Session record.' },
+      { correct: false, text: 'Use the context variable to authenticate the customer automatically', why: 'Salesforce doesn\'t recommend context variables for authentication.' },
+      { correct: false, text: 'Map the field to a context variable and test it in the builder preview', why: 'The preview has no Messaging Session record.' },
       { correct: false, text: 'Context variables only work for employee agents', why: 'They are for service agents on messaging.' }
     ],
     explanation: 'Deactivate the agent before adding context variables. Add custom fields to Messaging Session to expose more data. Website context, such as the current page, can be passed with context events through the Enhanced Web Chat API.',
@@ -1893,9 +1893,9 @@ window.QUESTIONS = [
       'An employee agent calls two standard actions and one custom action in a text conversation. How is that metered?'
     ],
     options: [
-      { correct: true, text: 'In Flex Credits per action called: each standard action and each custom action counts as one, whatever the token count', why: 'Per-action metering.' },
-      { correct: false, text: 'Per token, by length of the reply', why: 'Metered per action.' },
-      { correct: false, text: 'A fixed fee per user per month only', why: 'Usage is per action unless unmetered.' },
+      { correct: true, text: 'In Flex Credits, per action called', why: 'Per-action metering.' },
+      { correct: false, text: 'In Flex Credits, per token used in each reply', why: 'Metered per action.' },
+      { correct: false, text: 'A fixed fee per user per month, whatever the usage', why: 'Usage is per action unless unmetered.' },
       { correct: false, text: 'It is always free', why: 'Usage is metered unless the user has unmetered access.' }
     ],
     explanation: 'Usage is unmetered for users with the Unmetered User-Based AI permission. Related features, such as Data Libraries or Audit and Feedback, can use credits on other cards. Digital Wallet shows consumption.',
@@ -1908,10 +1908,10 @@ window.QUESTIONS = [
     objective: 'Identify when to use an Employee or Service agent',
     stem: 'A company plans several employee agents for HR, IT and Sales. Which two practices does Salesforce recommend?',
     options: [
-      { correct: true, text: 'Describe each agent\'s purpose, such as its department or function, so subagents don\'t overlap', why: 'Prevents overlap.' },
-      { correct: true, text: 'Grant access to each agent with permission sets or profiles by role or group', why: 'Users see the agents relevant to them.' },
-      { correct: false, text: 'Give every employee every agent', why: 'Grant by role.' },
-      { correct: false, text: 'Use one identical description for all agents', why: 'Causes overlap.' },
+      { correct: true, text: 'Describe each agent\'s purpose so subagents don\'t overlap', why: 'Prevents overlap.' },
+      { correct: true, text: 'Grant access to each agent by role with permission sets', why: 'Users see the agents relevant to them.' },
+      { correct: false, text: 'Give every employee access to every agent so nobody is blocked', why: 'Grant by role.' },
+      { correct: false, text: 'Use one identical description for all agents to keep them consistent', why: 'Causes overlap.' },
       { correct: false, text: 'Skip extra steps for Slack and mobile', why: 'They need extra authentication or licensing.' }
     ],
     explanation: 'Employee agents work in the Agentforce panel in Lightning Experience, Slack and the Salesforce mobile app. Keep a clear subagent structure as you scale.',
@@ -1925,12 +1925,12 @@ window.QUESTIONS = [
     group: 'agent-from-flow',
     stem: [
       'When a case is created, a flow should ask the service agent to summarise it and then draft a reply. What is the recommended way to call the agent?',
-      'What is the difference between custom agent invocable actions and standard Agent API invocable actions?'
+      'A flow needs to hand a task to an agent with the least configuration. Which option does Salesforce recommend for most cases?'
     ],
     options: [
-      { correct: true, text: 'Custom agent invocable actions, configured with clicks and recommended for most cases. Standard Agent API actions (Start Session, Send Message, End Session, Submit Feedback) give finer control for advanced cases.', why: 'Both are from Help.' },
-      { correct: false, text: 'Only the external Agent API with a connected app', why: 'Flows and Apex can call agents directly.' },
-      { correct: false, text: 'A prompt template action in the flow', why: 'That runs a template, not the agent.' },
+      { correct: true, text: 'A custom agent invocable action for that agent', why: 'Both are from Help.' },
+      { correct: false, text: 'The external Agent API through a connected app and Apex callout', why: 'Flows and Apex can call agents directly.' },
+      { correct: false, text: 'A prompt template action in the flow that drafts both outputs', why: 'That runs a template, not the agent.' },
       { correct: false, text: 'Agents can\'t be called from flows', why: 'They can.' }
     ],
     explanation: 'With a custom agent invocable action you give the agent a user message describing the task, and it picks subagents and actions as if chatting. You can call the same agent, or several agents, more than once in one flow.',
@@ -1944,10 +1944,10 @@ window.QUESTIONS = [
     group: 'agent-from-flow',
     stem: 'Which two statements about calling an agent from a flow are true?',
     options: [
-      { correct: true, text: 'Agent invocable actions can only be used in asynchronous paths, not paths that run immediately.', why: 'Stated limitation.' },
-      { correct: true, text: 'A flow calling a service agent runs as the agent user. A flow calling an employee agent runs as the authenticated user.', why: 'Context depends on the agent type.' },
-      { correct: false, text: 'Experience Cloud site users can trigger these actions.', why: 'Not supported for site users.' },
-      { correct: false, text: 'The Platform Integration User can call them.', why: 'Not supported.' },
+      { correct: true, text: 'Agent invocable actions only work in asynchronous paths.', why: 'Stated limitation.' },
+      { correct: true, text: 'A service agent called from a flow runs as the agent user.', why: 'Context depends on the agent type.' },
+      { correct: false, text: 'Experience Cloud site users can trigger these actions in flows.', why: 'Not supported for site users.' },
+      { correct: false, text: 'The Platform Integration User can call agents from scheduled flows.', why: 'Not supported.' },
       { correct: false, text: 'Custom variables are fully supported.', why: 'Custom agent invocable actions don\'t support custom variables.' }
     ],
     explanation: 'Standard subagents and actions are designed for conversations and might not work well this way, so consider custom actions. Give a service agent\'s user access to the records its actions need.',
@@ -1961,9 +1961,9 @@ window.QUESTIONS = [
     group: 'query-records',
     stem: 'A rep asks the Query Records action to "show my open deals". How does it handle "deals"?',
     options: [
-      { correct: true, text: 'It recognises "deal" as a synonym for Opportunity. Synonyms work for common standard objects and fields but can\'t be customised.', why: 'Built-in synonyms.' },
-      { correct: false, text: 'It fails, because no object is called Deal', why: 'Synonyms cover this.' },
-      { correct: false, text: 'It uses synonyms an admin set up in Setup', why: 'Synonym customisation isn\'t supported.' },
+      { correct: true, text: 'It treats "deal" as a synonym for Opportunity.', why: 'Built-in synonyms.' },
+      { correct: false, text: 'It fails, because there is no object called Deal in the org', why: 'Synonyms cover this.' },
+      { correct: false, text: 'It uses synonyms that an admin set up in Setup beforehand', why: 'Synonym customisation isn\'t supported.' },
       { correct: false, text: 'It searches every object for the word "deal"', why: 'It maps the word to Opportunity.' }
     ],
     explanation: 'Synonyms for custom objects and fields aren\'t always interpreted accurately. Only a limited set of default fields is supported for Account, Contact, Case, Opportunity and Lead. Other fields need to be on the default searchable layout and record page layout.',
@@ -1984,7 +1984,7 @@ window.QUESTIONS = [
     options: [
       { correct: true, text: 'Field Generation', why: 'Fills a specific field on a record page.' },
       { correct: false, text: 'Sales Email', why: 'Drafts an email, not a field value.' },
-      { correct: false, text: 'Flex', why: 'For custom uses with chosen inputs, invoked from flows, Apex or agents.' },
+      { correct: false, text: 'Knowledge Answers', why: 'Customises how agents answer from knowledge.' },
       { correct: false, text: 'Record Summary', why: 'Summarises a record for agents. It doesn\'t fill a field.' }
     ],
     explanation: 'A Field Generation template is tied to one field on one object. The field must be on a Lightning record page that uses Dynamic Forms so users see the AI option.',
@@ -2017,10 +2017,10 @@ window.QUESTIONS = [
       'An admin wants a user to create, edit and activate prompt templates in Prompt Builder. Which permission set is needed?'
     ],
     options: [
-      { correct: true, text: 'Prompt Template User for reps who run templates. Prompt Template Manager for people who build them.', why: 'Run versus build is split between these two permission sets.' },
-      { correct: false, text: 'Data Cloud Admin for both groups', why: 'Controls Data Cloud, not prompt templates.' },
+      { correct: true, text: 'Prompt Template User to run. Prompt Template Manager to build.', why: 'Run versus build is split between these two permission sets.' },
+      { correct: false, text: 'Data Cloud Admin for builders, Data Cloud User for runners', why: 'Controls Data Cloud, not prompt templates.' },
       { correct: false, text: 'Customize Application for both groups', why: 'Too broad, and doesn\'t control running templates.' },
-      { correct: false, text: 'Agentforce Service Agent User for both groups', why: 'That is for the service agent user, not for template access.' }
+      { correct: false, text: 'Agentforce Service Agent User for both groups of users', why: 'That is for the service agent user, not for template access.' }
     ],
     explanation: 'Prompt Template Manager lets users create and manage templates in Prompt Builder. Prompt Template User lets users run templates without editing them.',
     source: SRC.promptBuilder
@@ -2067,9 +2067,9 @@ window.QUESTIONS = [
     group: 'trust-layer',
     stem: 'What does zero data retention mean in the Einstein Trust Layer?',
     options: [
-      { correct: true, text: 'The external LLM provider doesn\'t store prompts or responses after the response is generated.', why: 'A contractual commitment with providers such as OpenAI.' },
+      { correct: true, text: 'The LLM provider doesn\'t keep prompts or responses.', why: 'A contractual commitment with providers such as OpenAI.' },
       { correct: false, text: 'Salesforce deletes the audit trail after every session.', why: 'The audit trail is kept for review.' },
-      { correct: false, text: 'CRM data never leaves the Salesforce org.', why: 'Prompts go to the LLM. They just aren\'t retained there.' },
+      { correct: false, text: 'CRM data never leaves the Salesforce org for any LLM call.', why: 'Prompts go to the LLM. They just aren\'t retained there.' },
       { correct: false, text: 'An admin setting that clears prompts from Data 360 each night.', why: 'It isn\'t a setting. It\'s an agreement with the provider.' }
     ],
     explanation: 'Zero data retention is an agreement between Salesforce and its LLM partners. Prompts and responses aren\'t kept by the provider or used to train its models. It isn\'t a switch you turn on or off.',
@@ -2082,8 +2082,8 @@ window.QUESTIONS = [
     objective: 'Explain creating, activating and executing prompt templates',
     stem: 'An admin edits a prompt template and saves it as a new version. Users still get the old output. Why?',
     options: [
-      { correct: true, text: 'The new version hasn\'t been activated. Only the active version runs.', why: 'Saving creates a version. Activating makes it the one used.' },
-      { correct: false, text: 'Template changes take 24 hours to reach users.', why: 'There is no delay once a version is active.' },
+      { correct: true, text: 'The new version hasn\'t been activated.', why: 'Saving creates a version. Activating makes it the one used.' },
+      { correct: false, text: 'Template changes take 24 hours to reach every user in the org.', why: 'There is no delay once a version is active.' },
       { correct: false, text: 'Users must be given Prompt Template Manager to see the new version.', why: 'Users only need to run templates.' },
       { correct: false, text: 'The Trust Layer caches the previous response for each record.', why: 'The Trust Layer doesn\'t cache responses.' }
     ],
@@ -2117,10 +2117,10 @@ window.QUESTIONS = [
       'Which two things must be true of an Apex method used as a prompt template resource?'
     ],
     options: [
-      { correct: true, text: 'It is annotated with `@InvocableMethod` and a `CapabilityType` matching the template type.', why: 'This is how Prompt Builder finds the method for that template.' },
-      { correct: true, text: 'It accepts a `List<Request>` whose inputs match the template\'s inputs.', why: 'The inputs must line up with the template.' },
-      { correct: false, text: 'It is declared `@future` so it runs asynchronously.', why: 'The template needs the result straight away.' },
-      { correct: false, text: 'It is annotated with `@AuraEnabled`.', why: 'That is for Lightning components.' },
+      { correct: true, text: '`@InvocableMethod` with a matching `CapabilityType`', why: 'This is how Prompt Builder finds the method for that template.' },
+      { correct: true, text: 'It takes a `List<Request>` matching the template inputs.', why: 'The inputs must line up with the template.' },
+      { correct: false, text: 'It is declared `@future` so that it runs asynchronously.', why: 'The template needs the result straight away.' },
+      { correct: false, text: 'It is annotated with `@AuraEnabled(Cacheable=true)`.', why: 'That is for Lightning components.' },
       { correct: false, text: 'It returns raw HTML for the LLM.', why: 'It returns text or data for the prompt.' }
     ],
     explanation: 'Apex suits grounding that needs SOQL, external API data, well-formatted JSON or programmatic filtering. Once the class exists, it appears in the template\'s Resources picker and is referenced as `{!$Apex:ClassName.Prompt}`.',
@@ -2135,7 +2135,7 @@ window.QUESTIONS = [
     stem: 'How is the output of an Apex class `ContactEvents` referenced in a prompt template?',
     options: [
       { correct: true, text: '`{!$Apex:ContactEvents.Prompt}`', why: 'Apex resources use the `$Apex` prefix.' },
-      { correct: false, text: '`{!@actions.ContactEvents}`', why: 'That is Agent Script syntax for actions.' },
+      { correct: false, text: '`{!$Apex.ContactEvents.Prompt}`', why: 'Wrong separator. Apex resources use `$Apex:`.' },
       { correct: false, text: '`{!ContactEvents.Prompt}`', why: 'Missing the `$Apex:` prefix.' },
       { correct: false, text: '`$Apex.ContactEvents()`', why: 'Not merge field syntax.' }
     ],
@@ -2153,7 +2153,7 @@ window.QUESTIONS = [
     ],
     options: [
       { correct: true, text: 'A Template-Triggered Prompt Flow', why: 'Built to supply data to a prompt template.' },
-      { correct: false, text: 'A Record-Triggered Flow', why: 'Runs on record changes, not as a template resource.' },
+      { correct: false, text: 'An Autolaunched Flow with no trigger', why: 'Not the flow type used to ground templates.' },
       { correct: false, text: 'A Screen Flow', why: 'For user-facing screens.' },
       { correct: false, text: 'A Platform Event-Triggered Flow', why: 'Runs on events.' }
     ],
@@ -2167,8 +2167,8 @@ window.QUESTIONS = [
     objective: 'Identify the appropriate grounding technique',
     stem: 'A template is grounded with a related list merge field. Which statement is true?',
     options: [
-      { correct: true, text: 'The fields come from the related list on the parent object\'s page layout for the current user, and record-level filters aren\'t applied.', why: 'Stated in the Help article.' },
-      { correct: false, text: 'You can add any filter, such as "priority is High".', why: 'Record-level filters aren\'t applied. Use a flow or Apex for filtering.' },
+      { correct: true, text: 'Fields come from the page layout, with no record filters.', why: 'Stated in the Help article.' },
+      { correct: false, text: 'You can add any record filter, such as "priority is High".', why: 'Record-level filters aren\'t applied. Use a flow or Apex for filtering.' },
       { correct: false, text: 'It always includes every field on the related object.', why: 'Only the fields on the layout\'s related list.' },
       { correct: false, text: 'It sends the data even if the user has no Read access to the related object.', why: 'Without the related list on their layout or Read permission, no related list data is sent.' }
     ],
@@ -2186,9 +2186,9 @@ window.QUESTIONS = [
       'What must happen before a Field Generation template can be assigned to a field in Lightning App Builder?'
     ],
     options: [
-      { correct: true, text: 'The template must be activated, and the page must use Dynamic Forms (a Field Section, or a Record Detail migrated to Dynamic Forms).', why: 'Both are needed for the field\'s AI option.' },
-      { correct: false, text: 'The template must be converted to a Flex template.', why: 'Field Generation is the right type.' },
-      { correct: false, text: 'The field must be read-only.', why: 'Field Generation needs a writable field.' },
+      { correct: true, text: 'It must be activated, and the page must use Dynamic Forms.', why: 'Both are needed for the field\'s AI option.' },
+      { correct: false, text: 'It must first be converted to a Flex template with one input.', why: 'Field Generation is the right type.' },
+      { correct: false, text: 'The target field must be read-only so users can\'t overwrite it.', why: 'Field Generation needs a writable field.' },
       { correct: false, text: 'The user needs Prompt Template Manager.', why: 'Users running templates need Prompt Template User.' }
     ],
     explanation: 'Save and Activate the template so it shows in Lightning App Builder. Then put the field in a Field Section, or migrate the Record Detail component to Dynamic Forms, and assign the template to the field.',
@@ -2202,8 +2202,8 @@ window.QUESTIONS = [
     group: 'field-gen',
     stem: 'Which field types can a Field Generation template fill?',
     options: [
-      { correct: true, text: 'Writable text, text area, long text area and rich text area fields', why: 'Text-based, writable fields.' },
-      { correct: false, text: 'Any field, including formula fields', why: 'Read-only fields such as formulas aren\'t supported.' },
+      { correct: true, text: 'Writable text and text area fields', why: 'Text-based, writable fields.' },
+      { correct: false, text: 'Any field type, including formula and roll-up fields', why: 'Read-only fields such as formulas aren\'t supported.' },
       { correct: false, text: 'Number and currency fields only', why: 'Field Generation fills text fields.' },
       { correct: false, text: 'Picklist fields only', why: 'Field Generation fills text fields.' }
     ],
@@ -2237,9 +2237,9 @@ window.QUESTIONS = [
       'A compliance team assumes data masking protects every Agentforce feature. What should the Agentforce Specialist tell them?'
     ],
     options: [
-      { correct: true, text: 'Data masking for LLMs is currently disabled for agents. It applies to embedded features such as Service Replies and Work Summaries once an admin turns it on.', why: 'Stated in the Trust Layer Trailhead module.' },
-      { correct: false, text: 'Masking is always on for every feature and can\'t be turned off.', why: 'An admin turns it on, and it doesn\'t cover agents.' },
-      { correct: false, text: 'Masking permanently deletes sensitive values from records.', why: 'It replaces values in the prompt with placeholders. Records aren\'t changed.' },
+      { correct: true, text: 'It is disabled for agents.', why: 'Stated in the Trust Layer Trailhead module.' },
+      { correct: false, text: 'It is always on for every feature and can\'t be turned off.', why: 'An admin turns it on, and it doesn\'t cover agents.' },
+      { correct: false, text: 'It permanently deletes sensitive values from the records.', why: 'It replaces values in the prompt with placeholders. Records aren\'t changed.' },
       { correct: false, text: 'Masking only works on fields marked encrypted with Shield.', why: 'It uses pattern matching and machine learning.' }
     ],
     explanation: 'Masking swaps sensitive values for placeholders before the prompt reaches the LLM. The LLM keeps the context without seeing the data, and values are put back (demasked) in the response.\n\nThe Trailhead module says masking is currently disabled for agents, so check this before relying on it for an agent.',
@@ -2256,9 +2256,9 @@ window.QUESTIONS = [
       'Which Trust Layer feature adds guardrail instructions to help protect against prompt injection?'
     ],
     options: [
-      { correct: true, text: 'Adds system guardrail instructions telling the LLM how to behave, such as not answering without a basis in data', why: 'Reduces harmful output and prompt injection.' },
-      { correct: false, text: 'Blocks users from writing prompt templates', why: 'Permissions do that.' },
-      { correct: false, text: 'Encrypts the prompt in transit', why: 'Not what prompt defense means.' },
+      { correct: true, text: 'Adds system guardrail instructions to the prompt', why: 'Reduces harmful output and prompt injection.' },
+      { correct: false, text: 'Blocks users from writing prompts that mention customers', why: 'Permissions do that.' },
+      { correct: false, text: 'Encrypts the prompt in transit to the LLM provider', why: 'Not what prompt defense means.' },
       { correct: false, text: 'Scores responses for toxicity', why: 'That is toxicity detection, after the response.' }
     ],
     explanation: 'Prompt defense adds guardrails to the prompt to reduce unintended or harmful output and help protect against prompt injection. It covers Prompt Builder, the Prompt Template Connect API and the Prompt Template invocable action.',
@@ -2272,8 +2272,8 @@ window.QUESTIONS = [
     group: 'trust-journey',
     stem: 'A user without access to the Salary field runs a prompt template that merges in that field. What happens?',
     options: [
-      { correct: true, text: 'Secure data retrieval respects the user\'s permissions, so the field isn\'t included.', why: 'Grounding uses the running user\'s object and field access.' },
-      { correct: false, text: 'The field is included but masked.', why: 'Data the user can\'t see isn\'t retrieved at all.' },
+      { correct: true, text: 'The field isn\'t included, because access is respected.', why: 'Grounding uses the running user\'s object and field access.' },
+      { correct: false, text: 'The field is included in the prompt, but masked first.', why: 'Data the user can\'t see isn\'t retrieved at all.' },
       { correct: false, text: 'The template runs in system mode and includes it.', why: 'Grounding respects existing permissions.' },
       { correct: false, text: 'The template fails and can\'t be activated.', why: 'It runs, without the inaccessible data.' }
     ],
@@ -2303,10 +2303,10 @@ window.QUESTIONS = [
     objective: 'Explain how to manage and prevent specific models from being accessed',
     stem: 'A company\'s policy forbids sending prompts to models hosted by one particular AI provider. How can an admin block them?',
     options: [
-      { correct: true, text: 'Turn off that model provider in the Einstein generative AI settings, which blocks access to its models', why: 'The settings have a switch per provider, such as OpenAI, Azure OpenAI, AWS Bedrock and Vertex AI.' },
+      { correct: true, text: 'Turn off that provider in Einstein Setup', why: 'The settings have a switch per provider, such as OpenAI, Azure OpenAI, AWS Bedrock and Vertex AI.' },
       { correct: false, text: 'Add an instruction to every template saying not to use that provider', why: 'Templates don\'t choose providers through instructions.' },
-      { correct: false, text: 'Remove Prompt Template User from all users', why: 'Blocks every template, not one provider.' },
-      { correct: false, text: 'Turn on data masking', why: 'Masks data. It doesn\'t block a provider.' }
+      { correct: false, text: 'Remove Prompt Template User from every user in the org', why: 'Blocks every template, not one provider.' },
+      { correct: false, text: 'Turn on data masking for every prompt template', why: 'Masks data. It doesn\'t block a provider.' }
     ],
     explanation: 'In Setup, open Einstein Setup and go to Configure Model Providers. Turn off a provider to block its models in agents, prompt templates, APIs and other generative AI features. It can take up to 10 minutes to take effect.\n\nThe same switches exist in the EinsteinGptSettings metadata type, for example for AWS Bedrock, Azure OpenAI, OpenAI and Vertex AI.',
     source: SRC.modelProviders
@@ -2318,7 +2318,7 @@ window.QUESTIONS = [
     objective: 'Explain how to manage and prevent specific models from being accessed',
     stem: 'An admin turns off a model provider in Einstein Setup. What should they expect?',
     options: [
-      { correct: true, text: 'Agents, prompt templates and other features using that provider\'s models can stop working, and the change can take up to 10 minutes.', why: 'Help warns about both.' },
+      { correct: true, text: 'Features using its models can stop working.', why: 'Help warns about both.' },
       { correct: false, text: 'Templates automatically switch to another provider\'s model.', why: 'Affected components stop running. Test in a sandbox first.' },
       { correct: false, text: 'Only new templates are affected. Existing ones keep using the provider.', why: 'Access is blocked for every feature.' },
       { correct: false, text: 'Nothing changes until the next Salesforce release.', why: 'It takes effect within about 10 minutes.' }
@@ -2358,7 +2358,7 @@ window.QUESTIONS = [
     options: [
       { correct: true, text: 'Knowledge Answers', why: 'Customises how agents answer questions.' },
       { correct: false, text: 'Flex', why: 'For needs other types don\'t cover.' },
-      { correct: false, text: 'Case Summary', why: 'Summarises a case.' },
+      { correct: false, text: 'Grounded Service Replies', why: 'Suggests replies to service reps in chat.' },
       { correct: false, text: 'Record Research', why: 'Researches records using web search.' }
     ],
     explanation: 'Knowledge Answers templates sit behind Answer Questions with Knowledge. Other types include Field Generation, Flex, Sales Emails, Record Summary, Work Summary, Case Summary and Record Research, which uses the Einstein Search Web Retriever.',
@@ -2391,9 +2391,9 @@ window.QUESTIONS = [
       'Which statement about activated prompt template versions is true?'
     ],
     options: [
-      { correct: true, text: 'Any version that was ever active is immutable. Save it as a new version to make changes.', why: 'Activation makes a version permanent.' },
-      { correct: false, text: 'Deactivating a version unlocks it for editing.', why: 'It stays immutable even after deactivation.' },
-      { correct: false, text: 'Only the Prompt Template User can edit it.', why: 'Nobody can edit it.' },
+      { correct: true, text: 'It can\'t be edited. Save it as a new version.', why: 'Activation makes a version permanent.' },
+      { correct: false, text: 'Deactivating a version unlocks it for editing again.', why: 'It stays immutable even after deactivation.' },
+      { correct: false, text: 'Only users with Prompt Template User can still edit it.', why: 'Nobody can edit it.' },
       { correct: false, text: 'Edits are allowed but don\'t save until the next release.', why: 'It can\'t be edited at all.' }
     ],
     explanation: 'The first save creates Version 1. Use Save As > Save as a New Version for more versions. A new version isn\'t available to users until it is activated.\n\nSave As > Save as a New Template creates a separate template, but that option isn\'t supported for Flex templates.',
@@ -2407,10 +2407,10 @@ window.QUESTIONS = [
     group: 'versions',
     stem: 'Two versions of a prompt template use different LLMs. Version 1 is active and Version 2 is the latest draft. Which model generates responses for users?',
     options: [
-      { correct: true, text: 'Version 1\'s model, because only the active version\'s model configuration is used', why: 'Each version can have its own model.' },
-      { correct: false, text: 'Version 2\'s model, because the latest version always wins', why: 'Only the active version runs.' },
+      { correct: true, text: 'Version 1\'s model', why: 'Each version can have its own model.' },
+      { correct: false, text: 'Version 2\'s model', why: 'Only the active version runs.' },
       { correct: false, text: 'Both, alternating between users', why: 'Only one version is active.' },
-      { correct: false, text: 'The org\'s default model, ignoring both versions', why: 'The active version\'s model is used.' }
+      { correct: false, text: 'The org\'s default model', why: 'The active version\'s model is used.' }
     ],
     explanation: 'Each version of a template can have a different model configuration. Only the configuration in the activated version is used.',
     source: SRC.llmConfigs
@@ -2425,9 +2425,9 @@ window.QUESTIONS = [
       'What is the difference between standard and custom LLM configurations in Prompt Builder?'
     ],
     options: [
-      { correct: true, text: 'Standard ones come with Prompt Builder. Custom ones come from BYO-LLM, and a modified standard configuration is saved as a custom one.', why: 'Both statements are from Help.' },
-      { correct: false, text: 'Standard configurations can be edited in place for every template.', why: 'A modified standard configuration becomes custom.' },
-      { correct: false, text: 'Custom configurations are only available in Developer Edition.', why: 'Not a restriction.' },
+      { correct: true, text: 'It is saved as a custom configuration.', why: 'Both statements are from Help.' },
+      { correct: false, text: 'The standard configuration is edited in place for every template.', why: 'A modified standard configuration becomes custom.' },
+      { correct: false, text: 'It is saved as a new standard configuration for the whole org.', why: 'Not a restriction.' },
       { correct: false, text: 'There is no difference.', why: 'They come from different places.' }
     ],
     explanation: 'Models are managed in AI Models (formerly Einstein Studio). The View this model link in Template Settings needs Data Cloud Admin permissions.',
@@ -2440,9 +2440,9 @@ window.QUESTIONS = [
     objective: 'Explain how to manage and prevent specific models from being accessed',
     stem: 'A model used by an active prompt template is hidden in AI Models. What happens?',
     options: [
-      { correct: true, text: 'The template keeps running, but you must pick an available model before saving a new version.', why: 'Hidden models keep working. Replacing them is recommended.' },
-      { correct: false, text: 'The template stops at once.', why: 'It continues to run as before.' },
-      { correct: false, text: 'The template switches to a random model.', why: 'Nothing switches automatically.' },
+      { correct: true, text: 'It keeps running for now.', why: 'Hidden models keep working. Replacing them is recommended.' },
+      { correct: false, text: 'The template stops running at once.', why: 'It continues to run as before.' },
+      { correct: false, text: 'The template switches to a random available model.', why: 'Nothing switches automatically.' },
       { correct: false, text: 'The template is deleted.', why: 'Hiding a model doesn\'t delete templates.' }
     ],
     explanation: 'Help recommends replacing a hidden model with an available one. If you open a template whose model is unavailable, Prompt Builder makes you choose a different model before saving changes as a new version.',
@@ -2459,9 +2459,9 @@ window.QUESTIONS = [
       'Which practice from Salesforce\'s prompt template guidance separates instructions from context?'
     ],
     options: [
-      { correct: true, text: 'Add a line "Instructions:" and put the instructions inside triple quotes (""")', why: 'Salesforce\'s recommended layout.' },
-      { correct: false, text: 'Put the instructions in capital letters', why: 'Not the recommended method.' },
-      { correct: false, text: 'Put instructions in a separate template', why: 'They belong in the same template, clearly marked.' },
+      { correct: true, text: 'A line "Instructions:" with the text in triple quotes', why: 'Salesforce\'s recommended layout.' },
+      { correct: false, text: 'Put all the instructions in capital letters at the end', why: 'Not the recommended method.' },
+      { correct: false, text: 'Put the instructions in a separate prompt template', why: 'They belong in the same template, clearly marked.' },
       { correct: false, text: 'Leave instructions out and rely on the grounding data', why: 'The LLM needs clear instructions.' }
     ],
     explanation: 'Salesforce\'s best practices: keep templates concise in natural language, give the LLM a role and a goal, keep one consistent style, mark instructions clearly, tell it to generate only the content wanted, and iterate with user feedback.',
@@ -2475,10 +2475,10 @@ window.QUESTIONS = [
     group: 'prompt-practice',
     stem: 'An email template sometimes returns a paragraph describing how it wrote the email, followed by the email. What should be added?',
     options: [
-      { correct: true, text: 'An instruction such as "Follow these instructions strictly to generate only the message to be sent to the customer."', why: 'Tells the LLM to return only the content.' },
-      { correct: false, text: 'More merge fields', why: 'Doesn\'t stop the commentary.' },
-      { correct: false, text: 'A higher token limit', why: 'Gives room for more commentary.' },
-      { correct: false, text: 'Emojis to set the tone', why: 'Style doesn\'t fix this.' }
+      { correct: true, text: 'An instruction to generate only the message for the customer', why: 'Tells the LLM to return only the content.' },
+      { correct: false, text: 'More merge fields so the LLM has the context it needs', why: 'Doesn\'t stop the commentary.' },
+      { correct: false, text: 'A higher token limit so the email isn\'t cut short', why: 'Gives room for more commentary.' },
+      { correct: false, text: 'Emojis in the template to set a friendlier tone', why: 'Style doesn\'t fix this.' }
     ],
     explanation: 'Direct instructions to generate only the expected content stop the LLM describing its process. Starting from the Example Prompt Template Library helps too.',
     source: SRC.promptBestPractices
@@ -2494,8 +2494,8 @@ window.QUESTIONS = [
       'Which statement about field-based data masking is true?'
     ],
     options: [
-      { correct: true, text: 'Field-based masking uses Data Classification tags on fields and applies only to merge fields. Pattern-based masking scans all prompt text.', why: 'The two approaches as described in Help.' },
-      { correct: false, text: 'Field-based masking scans free text typed by users.', why: 'It applies only to merge fields from record fields and related lists.' },
+      { correct: true, text: 'Field-based uses Data Classification on merge fields only.', why: 'The two approaches as described in Help.' },
+      { correct: false, text: 'Field-based masking scans the free text typed by users.', why: 'It applies only to merge fields from record fields and related lists.' },
       { correct: false, text: 'Pattern-based masking needs every field classified first.', why: 'It detects values automatically.' },
       { correct: false, text: 'They are two names for the same feature.', why: 'They work differently.' }
     ],
@@ -2510,10 +2510,10 @@ window.QUESTIONS = [
     group: 'masking',
     stem: 'A company needs the most reliable masking of customer names in its prompt templates. What does Salesforce recommend?',
     options: [
-      { correct: true, text: 'Field-based masking on classified fields, because pattern-based detection can miss unusual names', why: 'Field-based is the more reliable option.' },
+      { correct: true, text: 'Field-based masking on classified fields', why: 'Field-based is the more reliable option.' },
       { correct: false, text: 'Pattern-based masking only, because it never misses a value', why: 'No model is 100% accurate. Missed values go to the LLM unmasked.' },
-      { correct: false, text: 'Masking for agents', why: 'Masking is disabled for agents.' },
-      { correct: false, text: 'Toxicity detection', why: 'Detects harmful content, not names.' }
+      { correct: false, text: 'Data masking turned on for agents as well', why: 'Masking is disabled for agents.' },
+      { correct: false, text: 'Toxicity detection set to its strictest level', why: 'Detects harmful content, not names.' }
     ],
     explanation: 'Pattern-based masking relies on model inference. Unusual or non-English names aren\'t always detected, and anything missed is sent to the LLM unmasked. Test with realistic data and use the audit trail to check masking.',
     source: SRC.maskConsiderations
@@ -2525,10 +2525,10 @@ window.QUESTIONS = [
     objective: 'Identify the security and privacy features of the Trust Layer',
     stem: 'Which two are types of attack that Salesforce Prompt Injection Detection recognises?',
     options: [
-      { correct: true, text: 'Privilege escalation, such as "Do Anything Now" jailbreaks', why: 'Attempts to change or bypass system rules.' },
-      { correct: true, text: 'Prompt leakage, trying to extract system policies or knowledge documents', why: 'Attempts to gather sensitive information.' },
-      { correct: false, text: 'Slow network connections', why: 'Not an attack type.' },
-      { correct: false, text: 'Spelling mistakes in the prompt', why: 'Not an attack type.' },
+      { correct: true, text: 'Privilege escalation, such as jailbreaks', why: 'Attempts to change or bypass system rules.' },
+      { correct: true, text: 'Prompt leakage of system policies', why: 'Attempts to gather sensitive information.' },
+      { correct: false, text: 'Slow network connections to the LLM gateway', why: 'Not an attack type.' },
+      { correct: false, text: 'Spelling mistakes in the user\'s prompt', why: 'Not an attack type.' },
       { correct: false, text: 'Long prompts over the token limit', why: 'A limit, not an attack.' }
     ],
     explanation: 'Recognised types: pretending (role-play), privilege escalation, prompt leakage, encoding attacks, privacy attacks and malicious code generation. Injections can come directly in the prompt or indirectly through grounding data.\n\nDetected attempts are scored and logged in the audit trail in Data 360. The feature is in beta.',
@@ -2545,9 +2545,9 @@ window.QUESTIONS = [
       'An admin wants toxicity checks on prompts as well as responses. What do they need to know?'
     ],
     options: [
-      { correct: true, text: 'Detection on responses is always on. Detection on prompts is a beta that is off by default and can be turned on.', why: 'Responses are always checked. Prompts are opt-in.' },
-      { correct: false, text: 'Both are off by default.', why: 'Response detection is always on.' },
-      { correct: false, text: 'Response detection can be turned off to save credits.', why: 'It can\'t be changed.' },
+      { correct: true, text: 'Response checks are always on. Prompt checks are an opt-in beta.', why: 'Responses are always checked. Prompts are opt-in.' },
+      { correct: false, text: 'Both are off by default and must be turned on in Setup.', why: 'Response detection is always on.' },
+      { correct: false, text: 'Response detection can be turned off to save Flex Credits.', why: 'It can\'t be changed.' },
       { correct: false, text: 'Toxicity is only checked in Slack.', why: 'It applies across AI features.' }
     ],
     explanation: 'Toxic content in prompts can come from untrusted sources such as public chat or web content. Scores run from 0 to 1, with 1 the most toxic. There is an overall score and a score per category, logged in the audit trail and stored in Data 360.',
@@ -2595,13 +2595,13 @@ window.QUESTIONS = [
     objective: 'Identify the appropriate grounding technique',
     stem: [
       'An admin wants to ground a template with everything on the user\'s Account page layout in one click, without choosing fields one by one. Which option fits?',
-      'What does a Record Snapshot add to a prompt template?'
+      'Which grounding resource adds the data from the user\'s page layout for an object as a single resource?'
     ],
     options: [
-      { correct: true, text: 'A Record Snapshot, which includes the data on the user\'s page layout as one resource', why: 'One resource for the whole layout.' },
-      { correct: false, text: 'A Field Generation template', why: 'A template type, not a grounding resource.' },
-      { correct: false, text: 'A retriever', why: 'Searches indexed content in Data 360.' },
-      { correct: false, text: 'A Data Library', why: 'Holds unstructured content such as files.' }
+      { correct: true, text: 'A Record Snapshot', why: 'One resource for the whole layout.' },
+      { correct: false, text: 'A Field Generation template on Account', why: 'A template type, not a grounding resource.' },
+      { correct: false, text: 'An individual retriever on Account', why: 'Searches indexed content in Data 360.' },
+      { correct: false, text: 'An Agentforce Data Library of accounts', why: 'Holds unstructured content such as files.' }
     ],
     explanation: 'Record Snapshots use the page layout, not Dynamic Forms. They take the first 6 related lists with up to 5 records each, the next 5 tasks and events, and the 5 most recent emails. Empty values are filtered out.',
     source: SRC.recordSnapshots
@@ -2617,9 +2617,9 @@ window.QUESTIONS = [
       'Which statement about a retriever\'s search text in a prompt template is true?'
     ],
     options: [
-      { correct: true, text: 'Free text, globals and prompt inputs, up to 255 characters', why: 'Not related lists, flows or Apex.' },
-      { correct: false, text: 'Any flow or Apex merge field', why: 'Those sources aren\'t allowed in search text.' },
-      { correct: false, text: 'Related list merge fields only', why: 'Not allowed in search text.' },
+      { correct: true, text: 'Free text, globals and prompt inputs', why: 'Not related lists, flows or Apex.' },
+      { correct: false, text: 'Any flow or Apex merge field in the template', why: 'Those sources aren\'t allowed in search text.' },
+      { correct: false, text: 'Related list merge fields from the record only', why: 'Not allowed in search text.' },
       { correct: false, text: 'Unlimited text from the whole record', why: 'Limited to 255 characters.' }
     ],
     explanation: 'In Template Settings you can tune the search text, the output fields returned and the number of results. If you leave output fields or number of results empty, the values from the retriever\'s own configuration are used. Data 360 permission sets control access to retrievers.',
@@ -2654,7 +2654,7 @@ window.QUESTIONS = [
       'A sales team wants a button that drafts a consistent account summary into a field. Which tool fits best?'
     ],
     options: [
-      { correct: true, text: 'Generate the same kind of grounded text in one place, such as a field, an email draft or a flow step', why: 'Prompt Builder makes reusable, grounded single-shot generation.' },
+      { correct: true, text: 'Generate grounded text in one place, such as a field', why: 'Prompt Builder makes reusable, grounded single-shot generation.' },
       { correct: false, text: 'Hold a multi-turn conversation that books appointments', why: 'Conversations with actions need an agent.' },
       { correct: false, text: 'Route customers across chat and voice and escalate to humans', why: 'That is agent and Omni-Channel work.' },
       { correct: false, text: 'Decide which of 20 actions to run based on what a customer says', why: 'Choosing actions is agent reasoning.' }
@@ -2673,10 +2673,10 @@ window.QUESTIONS = [
       'Generated emails vary wildly in length. Which change to the template helps most?'
     ],
     options: [
-      { correct: true, text: 'State a clear limit and structure, such as "no more than 70 words, with an invitation to talk".', why: 'Specific instructions give consistent output.' },
+      { correct: true, text: 'State a word limit and structure in the prompt.', why: 'Specific instructions give consistent output.' },
       { correct: false, text: 'Add more merge fields so the LLM has more to say.', why: 'More data tends to make output longer.' },
       { correct: false, text: 'Ask the LLM to "be creative".', why: 'Makes output less predictable.' },
-      { correct: false, text: 'Switch to a Field Generation template.', why: 'The template type isn\'t the problem.' }
+      { correct: false, text: 'Switch to a Field Generation template instead.', why: 'The template type isn\'t the problem.' }
     ],
     explanation: 'A specific prompt is a grounded prompt. Name the sender, the recipient and the purpose, and set the length and structure you want. Then preview with real records before activating.',
     source: SRC.groundTemplates
@@ -2689,9 +2689,9 @@ window.QUESTIONS = [
     group: 'masking',
     stem: 'How does Trust Layer data masking find sensitive values such as names and credit card numbers?',
     options: [
-      { correct: true, text: 'Pattern matching combined with machine learning', why: 'This is how pattern-based masking works.' },
+      { correct: true, text: 'Pattern matching with machine learning', why: 'This is how pattern-based masking works.' },
       { correct: false, text: 'Only fields listed in a custom metadata type', why: 'It also detects values by pattern.' },
-      { correct: false, text: 'The LLM decides which values to hide', why: 'Masking happens before the LLM sees the prompt.' },
+      { correct: false, text: 'The LLM decides which values to hide in its reply', why: 'Masking happens before the LLM sees the prompt.' },
       { correct: false, text: 'Only fields marked "Sensitive" in Data 360', why: 'Not how pattern-based masking works.' }
     ],
     explanation: 'Masking replaces detected values with tokenised placeholders, so the LLM keeps the context without seeing the real data. The values are restored in the response.',
@@ -2708,10 +2708,10 @@ window.QUESTIONS = [
       'A prompt template is invoked from a flow. Which step comes last before the response is returned to the flow?'
     ],
     options: [
-      { correct: true, text: 'The response is logged for audit, toxicity detection runs, masked values are demasked, then it is returned', why: 'The return journey.' },
-      { correct: false, text: 'Merge fields are resolved', why: 'That happens before the LLM is called.' },
-      { correct: false, text: 'Data masking is applied', why: 'Masking happens on the way out.' },
-      { correct: false, text: 'Prompt defense is added', why: 'Added before the prompt reaches the LLM.' }
+      { correct: true, text: 'Logging, toxicity checks and demasking', why: 'The return journey.' },
+      { correct: false, text: 'Merge fields are resolved with record data', why: 'That happens before the LLM is called.' },
+      { correct: false, text: 'Data masking is applied to sensitive values', why: 'Masking happens on the way out.' },
+      { correct: false, text: 'Prompt defense guardrails are added', why: 'Added before the prompt reaches the LLM.' }
     ],
     explanation: 'Run-time steps: invoke with input, resolve the prompt (secure data retrieval and grounding), apply Trust Layer masking and prompt defense, send through the LLM gateway, log the response, apply toxicity detection and demasking, and return the response raw or structured.\n\nPrompt resolution is also called "hydration" or "prompt grounding".',
     source: SRC.templateRuntime
@@ -2740,9 +2740,9 @@ window.QUESTIONS = [
     group: 'runtime',
     stem: 'How can an admin see the full run-time behaviour of a prompt template before activating it?',
     options: [
-      { correct: true, text: 'Use Prompt Builder\'s preview: give sample input, check the resolved prompt, then the generated response', why: 'Preview simulates the complete run.' },
-      { correct: false, text: 'Activate it in production and watch users', why: 'Preview first.' },
-      { correct: false, text: 'Read the template\'s metadata XML', why: 'Doesn\'t show the resolved prompt or response.' },
+      { correct: true, text: 'Use the preview in Prompt Builder', why: 'Preview simulates the complete run.' },
+      { correct: false, text: 'Activate it in production and watch what users get', why: 'Preview first.' },
+      { correct: false, text: 'Read the template\'s metadata XML in the org', why: 'Doesn\'t show the resolved prompt or response.' },
       { correct: false, text: 'It can\'t be previewed', why: 'Preview is built in.' }
     ],
     explanation: 'The resolution shows exactly what will be sent to the LLM, including data from merge fields, related lists (as JSON) and retrievers. That makes grounding problems easy to spot.',
@@ -2759,9 +2759,9 @@ window.QUESTIONS = [
       'An admin wants to ground one template with eight different Apex classes. What will stop them?'
     ],
     options: [
-      { correct: true, text: 'A maximum of 5 Apex merge fields per template (also 5 flow and 5 related list merge fields)', why: 'Stated limits.' },
+      { correct: true, text: 'A maximum of 5 Apex merge fields per template', why: 'Stated limits.' },
       { correct: false, text: 'A maximum of 1 Apex merge field per template', why: 'The limit is 5.' },
-      { correct: false, text: 'Unlimited merge fields of every kind', why: 'There are limits.' },
+      { correct: false, text: 'Unlimited merge fields of every kind in a template', why: 'There are limits.' },
       { correct: false, text: 'A maximum of 500 versions per template', why: 'The limit is 50.' }
     ],
     explanation: 'Limits: 128,000 characters per template, 50 versions, 50 merge fields, 5 flow, 5 Apex and 5 related list merge fields, and 5 inputs for a Flex template.',
@@ -2775,10 +2775,10 @@ window.QUESTIONS = [
     group: 'template-limits',
     stem: 'A user attaches 12 files totalling 20 MB to a prompt request. What happens?',
     options: [
-      { correct: true, text: 'Files over the limits (10 files, 15 MB per request) are excluded, and the Resolution panel lists them', why: 'Limits apply across all models.' },
-      { correct: false, text: 'The request fails completely', why: 'Excess files are excluded.' },
-      { correct: false, text: 'All files are sent, as there are no file limits', why: 'There are limits.' },
-      { correct: false, text: 'Files are compressed automatically to fit', why: 'They are excluded, not compressed.' }
+      { correct: true, text: 'Files over the limits are excluded and listed.', why: 'Limits apply across all models.' },
+      { correct: false, text: 'The whole request fails with an error message.', why: 'Excess files are excluded.' },
+      { correct: false, text: 'All files are sent, because there are no file limits.', why: 'There are limits.' },
+      { correct: false, text: 'Files are compressed automatically to fit the limit.', why: 'They are excluded, not compressed.' }
     ],
     explanation: 'Files that convert to PDF count towards the 15 MB after conversion. Some models have lower per-type limits, shown in the model\'s details.',
     source: SRC.templateLimits
@@ -2794,10 +2794,10 @@ window.QUESTIONS = [
       'What does conditional logic in the Prompt Builder Block Editor let you do?'
     ],
     options: [
-      { correct: true, text: 'One template with if, else if and else blocks that include different text based on merge field values', why: 'Adapts the prompt to context.' },
-      { correct: false, text: 'Run different LLMs for each condition', why: 'Conditions control prompt text, not models.' },
-      { correct: false, text: 'Loop through every related record in a list', why: 'Conditional blocks don\'t iterate collections.' },
-      { correct: false, text: 'Make the LLM choose which instructions to follow', why: 'The condition is evaluated before the prompt is sent.' }
+      { correct: true, text: 'One template with if, else if and else blocks', why: 'Adapts the prompt to context.' },
+      { correct: false, text: 'One template that runs a different LLM for each tier', why: 'Conditions control prompt text, not models.' },
+      { correct: false, text: 'One template that loops through every related record', why: 'Conditional blocks don\'t iterate collections.' },
+      { correct: false, text: 'One template that lets the LLM pick which instructions apply', why: 'The condition is evaluated before the prompt is sent.' }
     ],
     explanation: 'When a condition is true, its text is included in the prompt. Operators: `==`, `!=`, `>`, `<`, `>=`, `<=`, `and`, `or`, `not` and `in`. Blocks can be nested, for example priority High and then tier Premium.',
     source: SRC.conditionalLogic
