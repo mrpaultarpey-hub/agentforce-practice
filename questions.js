@@ -411,7 +411,7 @@ window.QUESTIONS = [
     ],
     options: [
       { correct: true, text: 'A template expression such as `{!@variables.order_status}`', why: '`{! }` resolves a variable or resource inside prompt text.' },
-      { correct: false, text: '`@variables.order_status` written straight into the `|` text', why: 'That form is for logic instructions. In prompt text, wrap it in `{! }`.' },
+      { correct: false, text: '`@variables.order_status` typed into the `|` text', why: 'That form is for logic instructions. In prompt text, wrap it in `{! }`.' },
       { correct: false, text: '`{{order_status}}`', why: 'Not Agent Script syntax.' },
       { correct: false, text: '`$order_status`', why: 'Not Agent Script syntax.' },
       { correct: false, text: '`run @variables.order_status`', why: '`run` executes actions, not variables.' }
@@ -432,7 +432,7 @@ window.QUESTIONS = [
     options: [
       { correct: true, text: 'The LLM fills the value in from the conversation (slot filling).', why: '`...` is the slot-fill token.' },
       { correct: false, text: 'It passes every variable in the agent to the action.', why: 'Only the named input is filled.' },
-      { correct: false, text: 'It leaves the input empty, so the action falls back to its default value.', why: 'The LLM is asked to supply the value.' },
+      { correct: false, text: 'It leaves the input empty for a default.', why: 'The LLM is asked to supply the value.' },
       { correct: false, text: 'It reuses the value from the previous turn.', why: 'That would be binding to a variable, such as `= @variables.order_id`.' }
     ],
     explanation: '`with order_id = @variables.order_id` binds the input deterministically. `with order_id = ...` asks the LLM to extract it from what the customer said.\n\nAgentforce only tries to slot-fill inputs that are required and unbound.',
@@ -449,7 +449,7 @@ window.QUESTIONS = [
       { correct: true, text: '`actions` defines actions for logic to `run`. `reasoning.actions` lists tools the LLM may call.', why: 'Subagent actions are for logic. Reasoning actions are tools for the LLM.' },
       { correct: false, text: '`actions` is for flows and `reasoning.actions` is for Apex.', why: 'Both can point at flows, Apex or prompt templates.' },
       { correct: false, text: 'They are the same thing. The second name is kept only for backwards compatibility.', why: 'They do different jobs.' },
-      { correct: false, text: '`reasoning.actions` runs every time the subagent runs. `actions` only runs when the LLM decides.', why: 'The other way round. `run` in logic always runs. Tools run at the LLM\'s choice.' }
+      { correct: false, text: '`reasoning.actions` always runs. `actions` runs only when the LLM decides.', why: 'The other way round. `run` in logic always runs. Tools run at the LLM\'s choice.' }
     ],
     explanation: 'Define an action once in the subagent\'s `actions` block (description, inputs, outputs, target). Call it from logic with `run`, or expose it to the LLM by pointing to it from `reasoning.actions`.\n\nReasoning actions are also called tools because they can include utils such as transitions and `@utils.setVariables`, not only actions. In Canvas view the split is handled for you.',
     source: SRC.ascriptTools
@@ -467,7 +467,7 @@ window.QUESTIONS = [
     options: [
       { correct: true, text: '`run @actions.check_business_hours` in the logic instructions', why: 'Logic runs deterministically, so the action runs every time.' },
       { correct: false, text: 'List it in `reasoning.actions` with a clear description', why: 'The LLM chooses whether to call a tool.' },
-      { correct: false, text: 'Mention it in a `|` prompt with `{!@actions.check_business_hours}`', why: 'Points the LLM at the tool, but the LLM still decides.' },
+      { correct: false, text: 'Mention it in a `|` prompt so the LLM calls it', why: 'Points the LLM at the tool, but the LLM still decides.' },
       { correct: false, text: 'Set `require_user_confirmation: True`', why: 'Asks the customer to confirm. It doesn\'t force the action to run.' }
     ],
     explanation: '`run @actions.name` in logic instructions runs the action each time the subagent is parsed. Follow it with `set @variables.x = @outputs.x` to keep the result.\n\nTools in `reasoning.actions` only run if the LLM picks them.',
@@ -520,7 +520,7 @@ window.QUESTIONS = [
     ],
     options: [
       { correct: true, text: 'An Omni-Channel route set in a `connection messaging` block', why: 'Escalation routes through Omni-Channel.' },
-      { correct: false, text: 'A prompt template that writes the handover message for the rep', why: 'The escalation message is set on the connection block.' },
+      { correct: false, text: 'A prompt template that writes the handover message', why: 'The escalation message is set on the connection block.' },
       { correct: false, text: 'A Slack workspace connected to the org', why: 'Slack isn\'t needed for escalation.' },
       { correct: false, text: 'A Testing Center test that covers escalation', why: 'Tests check behaviour. They don\'t enable it.' }
     ],
@@ -751,7 +751,7 @@ window.QUESTIONS = [
       { correct: true, text: 'In the logic of the refund action itself', why: 'Code always enforces it, whatever the LLM does.' },
       { correct: false, text: 'In the subagent instructions', why: 'Instructions are interpreted by the LLM and aren\'t deterministic.' },
       { correct: false, text: 'In the action\'s description', why: 'Descriptions help the LLM choose the action. They don\'t enforce rules.' },
-      { correct: false, text: 'In the welcome message, so customers know the rule', why: 'Telling customers isn\'t enforcing it.' }
+      { correct: false, text: 'In the welcome message', why: 'Telling customers isn\'t enforcing it.' }
     ],
     explanation: 'Instructions are non-deterministic. Salesforce\'s guidance is to put critical business rules in the action\'s code, or in deterministic Agent Script logic, rather than in natural-language instructions.',
     source: SRC.legacyGuide
@@ -765,7 +765,7 @@ window.QUESTIONS = [
     stem: 'In the Agentforce builder, which statement about context variables and custom variables is true?',
     options: [
       { correct: true, text: 'Actions can update custom variables. Context variables stay fixed.', why: 'Context variables are set at session start.' },
-      { correct: false, text: 'Context variables can store action outputs for later subagents to use.', why: 'Only custom variables can be action outputs.' },
+      { correct: false, text: 'Context variables can store action outputs.', why: 'Only custom variables can be action outputs.' },
       { correct: false, text: 'Only context variables can be used in filters.', why: 'Both kinds can be used in filters.' },
       { correct: false, text: 'Custom variables are filled automatically from the pre-chat form.', why: 'Pre-chat data feeds context variables.' }
     ],
@@ -783,7 +783,7 @@ window.QUESTIONS = [
       { correct: true, text: 'Gate those transitions with `available when @variables.verified == True`', why: 'Unavailable subagents can\'t be chosen.' },
       { correct: false, text: 'Tell the router in its instructions to check verification first.', why: 'Instructions aren\'t deterministic.' },
       { correct: false, text: 'Mention "verified customers only" in the subagent descriptions.', why: 'Descriptions guide classification. They don\'t block it.' },
-      { correct: false, text: 'Remove those subagents and copy their actions into every other subagent instead.', why: 'Makes the problem worse.' }
+      { correct: false, text: 'Copy their actions into every other subagent', why: 'Makes the problem worse.' }
     ],
     explanation: 'Filters (older builder) and `available when` (Agent Script) are system-level gates. They include or exclude subagents and actions based on variable values before the LLM chooses. Fewer options also improve routing accuracy.',
     source: SRC.ascriptBlocks
@@ -802,7 +802,7 @@ window.QUESTIONS = [
       { correct: true, text: 'An external client app using the client credentials flow', why: 'All Agent API calls need a token from such an app.' },
       { correct: false, text: 'An Experience Cloud site with guest access', why: 'Not used by the Agent API.' },
       { correct: false, text: 'A Prompt Builder Flex template for each message', why: 'The API talks to an agent, not a template.' },
-      { correct: false, text: 'A named credential that points at the external system\'s endpoint', why: 'Named credentials are for Salesforce calling out, not for calling in.' }
+      { correct: false, text: 'A named credential for the external system', why: 'Named credentials are for Salesforce calling out, not for calling in.' }
     ],
     explanation: 'Create an external client app, enable OAuth with the api, refresh_token/offline_access, chatbot_api and sfap_api scopes, and turn on the client credentials flow with a Run As user. Use the consumer key and secret to get a token, then start a session.\n\nUse your My Domain URL, not the lightning.force.com domain.',
     source: SRC.agentApiStart
@@ -818,7 +818,7 @@ window.QUESTIONS = [
       { correct: true, text: 'It runs as the agent\'s assigned user, not the token\'s user.', why: 'True means use the agent user.' },
       { correct: false, text: 'It skips authentication for the call.', why: 'A token is always required.' },
       { correct: false, text: 'It skips the Trust Layer for faster replies.', why: 'Not what this flag does.' },
-      { correct: false, text: 'It lets anonymous users call the API without first getting a token.', why: 'A token is always required.' }
+      { correct: false, text: 'It lets anonymous users skip the token.', why: 'A token is always required.' }
     ],
     explanation: 'With `bypassUser` true, the API uses the user assigned to the agent. With false, it uses the user associated with the token. The client credentials example sets it to true.',
     source: SRC.agentApiStart
@@ -834,7 +834,7 @@ window.QUESTIONS = [
     ],
     options: [
       { correct: true, text: 'It doesn\'t support "Agentforce (Default)" agents.', why: 'Stated in the Agent API considerations.' },
-      { correct: false, text: 'Calls have no timeout, so long actions always finish.', why: 'There is a 120-second timeout.' },
+      { correct: false, text: 'Calls have no timeout at all.', why: 'There is a 120-second timeout.' },
       { correct: false, text: 'Usage doesn\'t consume any credits.', why: 'Agent API usage affects credit consumption.' },
       { correct: false, text: 'It only works with employee agents.', why: 'Service agents are the common case.' }
     ],
@@ -883,7 +883,7 @@ window.QUESTIONS = [
     stem: 'A service agent should chat with customers on the company\'s Experience Cloud help site. Which setup is used?',
     options: [
       { correct: true, text: 'Enhanced Chat with an Omni-Channel flow routing to the agent', why: 'The standard way to put a service agent on a website.' },
-      { correct: false, text: 'An employee agent added to the utility bar of the site\'s pages', why: 'Employee agents are for internal users.' },
+      { correct: false, text: 'An employee agent in the site\'s utility bar', why: 'Employee agents are for internal users.' },
       { correct: false, text: 'Email-to-Case with the agent reading the inbox', why: 'Email, not chat.' },
       { correct: false, text: 'The Agent API called from the site\'s footer', why: 'Possible for custom builds, but not the standard setup.' }
     ],
@@ -902,7 +902,7 @@ window.QUESTIONS = [
     ],
     options: [
       { correct: true, text: 'A Slack org or workspace admin, in the Slack Admin Dashboard', why: 'They review the agent\'s permissions, allow it and pick workspaces.' },
-      { correct: false, text: 'Any Slack user, by typing the agent\'s name in a channel to install it', why: 'Installation needs admin approval.' },
+      { correct: false, text: 'Any Slack user, from any channel', why: 'Installation needs admin approval.' },
       { correct: false, text: 'Only Salesforce Support, by raising a case', why: 'Admins do this themselves.' },
       { correct: false, text: 'The agent user, by logging in to Slack', why: 'The agent user doesn\'t install apps.' }
     ],
@@ -923,7 +923,7 @@ window.QUESTIONS = [
       { correct: true, text: 'Use a Salesforce identity licence and @mention the agent in Slack.', why: 'Identity licences cover non-CRM Slack users.' },
       { correct: false, text: 'They each need a full Sales Cloud licence.', why: 'An identity licence is enough.' },
       { correct: false, text: 'They can\'t. Agents in Slack are for CRM users only.', why: 'Non-CRM users can use them.' },
-      { correct: false, text: 'Build a custom Slack bot that calls the Agent API for each message.', why: 'Agentforce in Slack is built in.' }
+      { correct: false, text: 'A custom Slack bot that calls the Agent API', why: 'Agentforce in Slack is built in.' }
     ],
     explanation: 'Any employee can call an employee agent in Slack with an @mention in a channel or direct message. The Agentforce Hub in Slack lists the available agents. Employee agents consume Flex Credits.',
     source: SRC.employeeAgents
@@ -941,7 +941,7 @@ window.QUESTIONS = [
     options: [
       { correct: true, text: 'The agent runs as each user, so each sees only what they can access.', why: 'Employee agents follow the user\'s permissions and org security.' },
       { correct: false, text: 'The agent picks randomly from the records it finds.', why: 'Results follow the user\'s access.' },
-      { correct: false, text: 'The agent runs as a shared agent user with the same access for everyone.', why: 'That is how service agents work.' },
+      { correct: false, text: 'Both run as a shared agent user with the same access.', why: 'That is how service agents work.' },
       { correct: false, text: 'Managers always get system administrator access through the agent.', why: 'The agent never raises a user\'s access.' }
     ],
     explanation: 'Employee agents are role-based helpers that run in the user\'s context and follow their permissions and the org\'s security settings. Service agents run as a dedicated agent user.',
@@ -978,7 +978,7 @@ window.QUESTIONS = [
     options: [
       { correct: true, text: 'Service agent, Telephony connection, voice settings, activate, then the routing flow', why: 'Activation comes before inbound routing.' },
       { correct: false, text: 'Build the routing flow first, then create and activate the agent with its voice', why: 'The agent must exist and be active first.' },
-      { correct: false, text: 'Create an employee agent, add a Telephony connection, then connect it to Slack huddles', why: 'Inbound customer calls use a service agent.' },
+      { correct: false, text: 'Create an employee agent and connect it to Slack huddles', why: 'Inbound customer calls use a service agent.' },
       { correct: false, text: 'Upload call recordings to a Data Library', why: 'Not part of voice setup.' }
     ],
     explanation: 'Start from the Agentforce Service Agent template, with a default language supported for voice. Under Connections, add Telephony. Configure Voice Settings, save and activate. Then build the flow that connects the agent to telephony routing and decides when a call goes to a human.',
@@ -996,7 +996,7 @@ window.QUESTIONS = [
     ],
     options: [
       { correct: true, text: 'Key-term prompting helps it hear terms. The pronunciation dictionary sets how it says them.', why: 'One is listening, the other is speaking.' },
-      { correct: false, text: 'The pronunciation dictionary fixes recognition. Key-term prompting changes the voice persona.', why: 'The other way round, and neither changes the persona.' },
+      { correct: false, text: 'The pronunciation dictionary fixes recognition, not speech.', why: 'The other way round, and neither changes the persona.' },
       { correct: false, text: 'Both change only the speaking speed.', why: 'Speed is a separate setting.' },
       { correct: false, text: 'Neither exists. Only the persona can be changed.', why: 'Both are advanced voice settings.' }
     ],
@@ -1014,7 +1014,7 @@ window.QUESTIONS = [
       { correct: true, text: 'The full transcript, with sentiment analysis', why: 'Context passes with the call.' },
       { correct: false, text: 'Nothing. The rep starts from scratch.', why: 'The transcript is passed on.' },
       { correct: false, text: 'Only the customer\'s phone number', why: 'The full transcript is passed.' },
-      { correct: false, text: 'A recording that the rep must listen to first', why: 'The transcript is provided.' }
+      { correct: false, text: 'A recording the rep must listen to', why: 'The transcript is provided.' }
     ],
     explanation: 'The routing flow decides how calls reach the agent, what customer context is captured and when to transfer to a human. On transfer the rep gets the whole conversation with sentiment.',
     source: SRC.voiceSetup
@@ -1066,7 +1066,7 @@ window.QUESTIONS = [
     ],
     options: [
       { correct: true, text: 'They identify the customer but don\'t limit data access.', why: 'You must limit access yourself.' },
-      { correct: false, text: 'They restrict every query to that contact\'s records automatically.', why: 'They don\'t control access.' },
+      { correct: false, text: 'They limit queries to that contact automatically.', why: 'They don\'t control access.' },
       { correct: false, text: 'They switch the agent to run as that contact.', why: 'Contacts aren\'t users.' },
       { correct: false, text: 'They encrypt the customer\'s data.', why: 'Not what context variables do.' }
     ],
@@ -1102,7 +1102,7 @@ window.QUESTIONS = [
     ],
     options: [
       { correct: true, text: 'In the agent\'s `[Agent_Name]_Permissions` permission set', why: 'Secure by default, extended by least privilege.' },
-      { correct: false, text: 'It starts with full access, which should be reduced later.', why: 'It starts with minimal access.' },
+      { correct: false, text: 'It starts with full access, to reduce later.', why: 'It starts with minimal access.' },
       { correct: false, text: 'In any permission set, whatever licence it is tied to.', why: 'Permission sets must suit the Einstein Agent licence and profile.' },
       { correct: false, text: 'Agent users can\'t be given object access.', why: 'They are managed like other users.' }
     ],
@@ -1117,7 +1117,7 @@ window.QUESTIONS = [
     group: 'agent-user',
     stem: [
       'An unidentified visitor starts a service agent chat on Enhanced Web Chat for the first time. Which user record is created?',
-      'What is the Agentforce Guest User?'
+      'Which user record does Salesforce create for unauthenticated visitors chatting with a service agent?'
     ],
     options: [
       { correct: true, text: 'An Agentforce Guest User with no record access', why: 'Handles unauthenticated conversations safely.' },
@@ -1137,7 +1137,7 @@ window.QUESTIONS = [
     stem: 'A service agent runs as its agent user. Which sharing settings apply to it?',
     options: [
       { correct: true, text: 'Internal org-wide defaults, plus its role and sharing rules', why: 'The agent user is an internal user.' },
-      { correct: false, text: 'External org-wide defaults, because the agent only talks to customers', why: 'Internal OWD apply to the agent user.' },
+      { correct: false, text: 'External org-wide defaults', why: 'Internal OWD apply to the agent user.' },
       { correct: false, text: 'No sharing at all. Agents see everything.', why: 'Sharing applies.' },
       { correct: false, text: 'The customer\'s sharing settings', why: 'The customer isn\'t the running user.' }
     ],
@@ -1155,7 +1155,7 @@ window.QUESTIONS = [
     ],
     options: [
       { correct: true, text: 'All objects and fields, ignoring sharing', why: 'Full access, no sharing.' },
-      { correct: false, text: 'Only the records of the customer in the conversation', why: 'Nothing restricts it to the customer.' },
+      { correct: false, text: 'Only the customer\'s own records', why: 'Nothing restricts it to the customer.' },
       { correct: false, text: 'Only the agent user\'s records', why: 'System context without sharing ignores the agent user\'s sharing.' },
       { correct: false, text: 'No access, so it fails', why: 'It has full access.' }
     ],
@@ -1190,7 +1190,7 @@ window.QUESTIONS = [
     options: [
       { correct: true, text: 'Lightning Experience, mobile, Slack and Enhanced Web Chat v1', why: 'The supported employee channels.' },
       { correct: false, text: 'Outbound email only', why: 'That is Lead Nurturing.' },
-      { correct: false, text: 'Public websites, WhatsApp and SMS for anonymous customer visitors', why: 'Employee agents aren\'t for unauthenticated customers.' },
+      { correct: false, text: 'Public websites for anonymous visitors', why: 'Employee agents aren\'t for unauthenticated customers.' },
       { correct: false, text: 'Telephony only', why: 'Voice is a service agent channel.' }
     ],
     explanation: 'Employee agents serve internal users and run as the logged-in user, so queries don\'t need to be scoped to the user by hand. Access to employee agents is managed with permission sets or profiles.',
@@ -1208,7 +1208,7 @@ window.QUESTIONS = [
     ],
     options: [
       { correct: true, text: 'Remove its transition from the Agent Router, or filter it', why: 'The router can only pick subagents it has transitions to.' },
-      { correct: false, text: 'Delete the subagent\'s description so the router can\'t match it', why: 'The subagent stays available and routing gets worse.' },
+      { correct: false, text: 'Delete the subagent\'s description', why: 'The subagent stays available and routing gets worse.' },
       { correct: false, text: 'Rename it with a leading underscore', why: 'Names can\'t start with an underscore and this doesn\'t hide it.' },
       { correct: false, text: 'Move it to the end of the script', why: 'Order doesn\'t control routing.' }
     ],
@@ -1229,7 +1229,7 @@ window.QUESTIONS = [
       { correct: true, text: 'HyperClassifier, or the Setup model option if `model_config` is removed', why: 'Both statements are from Help.' },
       { correct: false, text: 'The same LLM as responses, and `model_config` is ignored entirely', why: 'The router has its own model setting.' },
       { correct: false, text: 'A keyword matcher with no AI', why: 'HyperClassifier is a model.' },
-      { correct: false, text: 'HyperClassifier, and the agent stops routing if `model_config` is removed', why: 'Without `model_config` it falls back to the Setup model option.' }
+      { correct: false, text: 'HyperClassifier, and routing stops without `model_config`', why: 'Without `model_config` it falls back to the Setup model option.' }
     ],
     explanation: 'From April 2026, default-template agents use `model: "model://sfdc_ai__DefaultEinsteinHyperClassifier"` in the router\'s `model_config`. Salesforce says it beats standard LLMs for speed and precision, especially with complex or negative instructions.',
     source: SRC.routing
@@ -1265,7 +1265,7 @@ window.QUESTIONS = [
     ],
     options: [
       { correct: true, text: 'Simulate leaves data alone. Live Test runs real actions.', why: 'Risk-free first, realistic second.' },
-      { correct: false, text: 'Live Test mode runs actions but never changes any records.', why: 'It runs actions as if the agent were active.' },
+      { correct: false, text: 'Live Test never changes any records.', why: 'It runs actions as if the agent were active.' },
       { correct: false, text: 'Simulate mode can only be used in production.', why: 'It is a builder preview mode.' },
       { correct: false, text: 'They are the same mode with two names.', why: 'One changes data and one doesn\'t.' }
     ],
@@ -1283,8 +1283,8 @@ window.QUESTIONS = [
       'Which parts of an inbound email does Agentforce Service Agent on Email process?'
     ],
     options: [
-      { correct: true, text: 'Only the subject and body text', why: 'Stated limitation.' },
-      { correct: false, text: 'The subject, body and all attachments', why: 'Attachments aren\'t processed.' },
+      { correct: true, text: 'Only the text of the subject and body', why: 'Stated limitation.' },
+      { correct: false, text: 'Everything, including attachments', why: 'Attachments aren\'t processed.' },
       { correct: false, text: 'Only the attachments', why: 'It uses the subject and body.' },
       { correct: false, text: 'Only the subject line', why: 'The body is processed too.' }
     ],
@@ -1355,7 +1355,7 @@ window.QUESTIONS = [
     ],
     options: [
       { correct: true, text: 'It runs top to bottom as written, with no LLM', why: 'Logic runs before any reasoning.' },
-      { correct: false, text: 'The LLM reads the logic and decides which lines to run', why: 'No LLM is used at this stage.' },
+      { correct: false, text: 'The LLM decides which lines to run', why: 'No LLM is used at this stage.' },
       { correct: false, text: 'Logic lines run in random order for variety', why: 'They run in the order written.' },
       { correct: false, text: 'Only the first condition is evaluated', why: 'Every logical expression is run.' }
     ],
@@ -1409,7 +1409,7 @@ window.QUESTIONS = [
     options: [
       { correct: true, text: 'Use varied verbs and cut phrases repeated across descriptions', why: 'LLMs work best with varied, distinct language.' },
       { correct: false, text: 'Make all names identical so the LLM treats them the same', why: 'Makes choosing harder.' },
-      { correct: false, text: 'Add "Provides the ability to" to every input instruction as well', why: 'More repetition.' },
+      { correct: false, text: 'Add "Provides the ability to" to every input', why: 'More repetition.' },
       { correct: false, text: 'Merge all four into one action', why: 'Not the advice.' }
     ],
     explanation: 'Similar names and repeated boilerplate make actions hard to tell apart. Distinct verbs and specific descriptions help the reasoning engine pick the right one.',
@@ -1445,7 +1445,7 @@ window.QUESTIONS = [
     options: [
       { correct: true, text: 'LLMs don\'t know Salesforce details, such as ID lengths', why: 'Concise but detailed input instructions.' },
       { correct: false, text: 'Input instructions are ignored by the LLM', why: 'They guide how inputs are filled.' },
-      { correct: false, text: 'Only the field label, because the LLM reads the schema itself', why: 'Not enough detail.' },
+      { correct: false, text: 'Only the field label', why: 'Not enough detail.' },
       { correct: false, text: 'SOQL for the LLM to run', why: 'Help\'s own example says "Don\'t generate SQL or SOQL".' }
     ],
     explanation: 'Good input instructions cover the data type, specific fields or values, where the value comes from, and special rules. Output instructions say what the result is and what the agent returns, for example "a JSON object with the recipient ID, subject line and body".',
@@ -1459,7 +1459,7 @@ window.QUESTIONS = [
     group: 'legacy-filters',
     stem: [
       'In the legacy builder, an admin wants to add a filter to an agent that is active. What must they do first?',
-      'Which statement about filters in the legacy Agentforce builder is true?'
+      'An admin can\'t create a filter on an active agent in the legacy builder. What should they do?'
     ],
     options: [
       { correct: true, text: 'Deactivate the agent first', why: 'Active agents must be deactivated first.' },
@@ -1513,7 +1513,7 @@ window.QUESTIONS = [
     group: 'system-override',
     stem: [
       'An event planning agent\'s global instructions say "never suggest alcohol at children\'s parties". One subagent plans a first birthday with adult guests and should suggest champagne. What is the best fix?',
-      'What does adding a `system` block inside a subagent do?'
+      'One subagent needs a different tone from the agent-level instructions without creating conflicts. What should the admin do?'
     ],
     options: [
       { correct: true, text: 'Add a `system` block to that subagent to override the global rule', why: 'A system override removes the conflict.' },
@@ -1551,7 +1551,7 @@ window.QUESTIONS = [
     group: 'chaining',
     stem: [
       'Whenever the LLM calls `get_order`, the agent must also run `check_return_eligibility` straight afterwards. How is this done?',
-      'What does a `run @actions.other_action` line under a tool in `reasoning.actions` do?'
+      'How can an admin guarantee that `check_return_eligibility` runs every time the LLM calls the `get_order` tool?'
     ],
     options: [
       { correct: true, text: 'Add `run @actions.check_return_eligibility` under the `get_order` tool', why: 'A chained reasoning action.' },
@@ -1644,7 +1644,7 @@ window.QUESTIONS = [
     ],
     options: [
       { correct: true, text: 'It only uses articles the requesting user can access.', why: 'Stated consideration.' },
-      { correct: false, text: 'It uses every article in the org, whatever the user\'s access', why: 'Access is respected.' },
+      { correct: false, text: 'It uses every article, whatever the access', why: 'Access is respected.' },
       { correct: false, text: 'It works without any Data 360 or Data Library setup', why: 'Both are required.' },
       { correct: false, text: 'It can read URL and encrypted text fields', why: 'Those field types aren\'t supported.' }
     ],
@@ -1663,8 +1663,8 @@ window.QUESTIONS = [
     ],
     options: [
       { correct: true, text: 'No. Change the General Web Search subagent\'s instructions instead.', why: 'The internal template can\'t be edited.' },
-      { correct: false, text: 'Yes. Open the Search the Web template in Prompt Builder and edit it.', why: 'It is internal-only.' },
-      { correct: false, text: 'Change the search provider to You.com, which returns bullet points', why: 'Providers don\'t control formatting.' },
+      { correct: false, text: 'Yes. Edit it in Prompt Builder.', why: 'It is internal-only.' },
+      { correct: false, text: 'Change the search provider to You.com', why: 'Providers don\'t control formatting.' },
       { correct: false, text: 'Set Excluded Domains', why: 'Controls sources, not format.' }
     ],
     explanation: 'Search the Web retrieves current external information, such as news and competitor details, with citations. Providers include OpenAI, BrightData and You.com. It isn\'t supported in Government Cloud.',
@@ -1779,10 +1779,7 @@ window.QUESTIONS = [
     id: 'AG-092',
     section: 'agents',
     objective: 'Identify when to use the Agent API',
-    stem: [
-      'A web app shows an agent\'s reply word by word as it is generated. Which Agent API option fits?',
-      'What are the stages of an Agent API conversation?'
-    ],
+    stem: 'What are the stages of an Agent API conversation?',
     options: [
       { correct: true, text: 'Start a session, send messages (streaming or synchronous), end it', why: 'The session lifecycle.' },
       { correct: false, text: 'Send one message with no session', why: 'A session is created first.' },
@@ -1804,7 +1801,7 @@ window.QUESTIONS = [
     ],
     options: [
       { correct: true, text: 'It is retired. Migrate to an Agentforce Employee agent.', why: 'Not available in new environments either.' },
-      { correct: false, text: 'It is the recommended agent for all new employee projects', why: 'It is retired.' },
+      { correct: false, text: 'It is recommended for all new projects', why: 'It is retired.' },
       { correct: false, text: 'It is the newest employee agent with Agent Script', why: 'Employee agents replace it.' },
       { correct: false, text: 'It is a service agent for customers', why: 'It served employees.' }
     ],
@@ -1876,7 +1873,7 @@ window.QUESTIONS = [
     options: [
       { correct: true, text: 'Map the field to a context variable and test on a connected channel', why: 'Context variables need a real Messaging Session record.' },
       { correct: false, text: 'Use the context variable to authenticate the customer automatically', why: 'Salesforce doesn\'t recommend context variables for authentication.' },
-      { correct: false, text: 'Map the field to a context variable and test it in the builder preview', why: 'The preview has no Messaging Session record.' },
+      { correct: false, text: 'Map it to a context variable and test in the builder', why: 'The preview has no Messaging Session record.' },
       { correct: false, text: 'Context variables only work for employee agents', why: 'They are for service agents on messaging.' }
     ],
     explanation: 'Deactivate the agent before adding context variables. Add custom fields to Messaging Session to expose more data. Website context, such as the current page, can be passed with context events through the Enhanced Web Chat API.',
@@ -2422,7 +2419,7 @@ window.QUESTIONS = [
     objective: 'Explain how to manage and prevent specific models from being accessed',
     stem: [
       'An admin changes a setting on a standard LLM configuration in Prompt Builder. How is the changed configuration saved?',
-      'What is the difference between standard and custom LLM configurations in Prompt Builder?'
+      'What happens when a standard LLM configuration is modified in Prompt Builder?'
     ],
     options: [
       { correct: true, text: 'It is saved as a custom configuration.', why: 'Both statements are from Help.' },
@@ -2460,9 +2457,9 @@ window.QUESTIONS = [
     ],
     options: [
       { correct: true, text: 'A line "Instructions:" with the text in triple quotes', why: 'Salesforce\'s recommended layout.' },
-      { correct: false, text: 'Put all the instructions in capital letters at the end', why: 'Not the recommended method.' },
+      { correct: false, text: 'Put the instructions in capital letters', why: 'Not the recommended method.' },
       { correct: false, text: 'Put the instructions in a separate prompt template', why: 'They belong in the same template, clearly marked.' },
-      { correct: false, text: 'Leave instructions out and rely on the grounding data', why: 'The LLM needs clear instructions.' }
+      { correct: false, text: 'Leave instructions out entirely', why: 'The LLM needs clear instructions.' }
     ],
     explanation: 'Salesforce\'s best practices: keep templates concise in natural language, give the LLM a role and a goal, keep one consistent style, mark instructions clearly, tell it to generate only the content wanted, and iterate with user feedback.',
     source: SRC.promptBestPractices
@@ -2651,7 +2648,7 @@ window.QUESTIONS = [
     group: 'when-prompt-builder',
     stem: [
       'Which requirement is best met with Prompt Builder rather than an agent?',
-      'A sales team wants a button that drafts a consistent account summary into a field. Which tool fits best?'
+      'Which job is a better fit for a prompt template than for an agent?'
     ],
     options: [
       { correct: true, text: 'Generate grounded text in one place, such as a field', why: 'Prompt Builder makes reusable, grounded single-shot generation.' },
@@ -2674,7 +2671,7 @@ window.QUESTIONS = [
     ],
     options: [
       { correct: true, text: 'State a word limit and structure in the prompt.', why: 'Specific instructions give consistent output.' },
-      { correct: false, text: 'Add more merge fields so the LLM has more to say.', why: 'More data tends to make output longer.' },
+      { correct: false, text: 'Add more merge fields for context.', why: 'More data tends to make output longer.' },
       { correct: false, text: 'Ask the LLM to "be creative".', why: 'Makes output less predictable.' },
       { correct: false, text: 'Switch to a Field Generation template instead.', why: 'The template type isn\'t the problem.' }
     ],
@@ -2761,7 +2758,7 @@ window.QUESTIONS = [
     options: [
       { correct: true, text: 'A maximum of 5 Apex merge fields per template', why: 'Stated limits.' },
       { correct: false, text: 'A maximum of 1 Apex merge field per template', why: 'The limit is 5.' },
-      { correct: false, text: 'Unlimited merge fields of every kind in a template', why: 'There are limits.' },
+      { correct: false, text: 'Unlimited merge fields of every kind', why: 'There are limits.' },
       { correct: false, text: 'A maximum of 500 versions per template', why: 'The limit is 50.' }
     ],
     explanation: 'Limits: 128,000 characters per template, 50 versions, 50 merge fields, 5 flow, 5 Apex and 5 related list merge fields, and 5 inputs for a Flex template.',
@@ -2810,10 +2807,10 @@ window.QUESTIONS = [
     group: 'conditional',
     stem: 'A conditional block is meant to check each of the files related to a case. Why doesn\'t it work?',
     options: [
-      { correct: true, text: 'Conditional blocks evaluate a single related record and don\'t iterate over a collection', why: 'Stated limitation.' },
-      { correct: false, text: 'Files can\'t be used in prompt templates', why: 'File inputs are supported.' },
-      { correct: false, text: 'Conditions only work with Flex templates', why: 'Not the reason.' },
-      { correct: false, text: 'The `in` operator isn\'t supported', why: 'It is supported.' }
+      { correct: true, text: 'Conditional blocks can\'t loop over a collection', why: 'Stated limitation.' },
+      { correct: false, text: 'Files can\'t be used as grounding in prompt templates at all', why: 'File inputs are supported.' },
+      { correct: false, text: 'Conditional blocks only work inside Flex prompt templates', why: 'Not the reason.' },
+      { correct: false, text: 'The `in` operator isn\'t supported in conditional blocks', why: 'It is supported.' }
     ],
     explanation: 'To loop through records, use a flow or Apex as the grounding resource and pass the prepared text to the template.',
     source: SRC.conditionalLogic
@@ -2826,13 +2823,13 @@ window.QUESTIONS = [
     group: 'trust-setup',
     stem: [
       'What must be in place before an admin can set up the Einstein Trust Layer?',
-      'Where is the Einstein Trust Layer configured, and what does its setup page contain?'
+      'An admin can\'t open Einstein Trust Layer setup. What is most likely missing?'
     ],
     options: [
-      { correct: true, text: 'Einstein Generative AI turned on and Data Cloud configured. Setup > Einstein Trust Layer has a Data Masking tab and a Content Safety and Security tab.', why: 'Data Cloud is required for the Trust Layer.' },
-      { correct: false, text: 'Only a Salesforce Shield licence', why: 'Not the stated prerequisite.' },
-      { correct: false, text: 'A custom LLM brought through BYO-LLM', why: 'Not required.' },
-      { correct: false, text: 'An active agent', why: 'Not required.' }
+      { correct: true, text: 'Einstein generative AI on and Data Cloud configured', why: 'Data Cloud is required for the Trust Layer.' },
+      { correct: false, text: 'A Salesforce Shield licence', why: 'Not the stated prerequisite.' },
+      { correct: false, text: 'A custom LLM brought in through BYO-LLM first', why: 'Not required.' },
+      { correct: false, text: 'At least one active agent', why: 'Not required.' }
     ],
     explanation: 'Data masking is on by default, and individual entities or categories can be switched on or off. Changes can take a few minutes. Masking applies to embedded features such as Service Replies and Work Summaries, not agents.',
     source: SRC.trustSetup
@@ -2848,9 +2845,9 @@ window.QUESTIONS = [
       'A user asks an agent to find accounts similar to Acme. Why would masking hurt this request?'
     ],
     options: [
-      { correct: true, text: 'Masking can remove the context the LLM needs, such as the reference account\'s details, making answers less accurate', why: 'Accuracy needs the context.' },
+      { correct: true, text: 'It can strip out context the LLM needs', why: 'Accuracy needs the context.' },
       { correct: false, text: 'Agents never send data to an LLM', why: 'They do.' },
-      { correct: false, text: 'Masking is too expensive for agents', why: 'Cost isn\'t the stated reason.' },
+      { correct: false, text: 'Masking costs too many Flex Credits for agent conversations', why: 'Cost isn\'t the stated reason.' },
       { correct: false, text: 'Agents don\'t handle personal data', why: 'They often do.' }
     ],
     explanation: 'Other protections still apply. Zero data retention covers everything sent to an external LLM. Salesforce-managed models hosted inside the Salesforce trust boundary keep the data inside that boundary.',
@@ -2864,7 +2861,7 @@ window.QUESTIONS = [
     group: 'masking',
     stem: 'The same prompt template is used in Service Replies and as an agent action. When is data masking applied?',
     options: [
-      { correct: true, text: 'In Service Replies, according to the Trust Layer settings. Not when called through the agent action.', why: 'Masking is disabled for agent actions.' },
+      { correct: true, text: 'Only in Service Replies', why: 'Masking is disabled for agent actions.' },
       { correct: false, text: 'In both, always', why: 'Not through agent actions.' },
       { correct: false, text: 'In neither, because templates are never masked', why: 'Direct use follows Trust Layer settings.' },
       { correct: false, text: 'Only through the agent action', why: 'The other way round.' }
@@ -2879,14 +2876,14 @@ window.QUESTIONS = [
     objective: 'Identify the security and privacy features of the Trust Layer',
     group: 'citations',
     stem: [
-      'What is the difference between platform-managed and instruction-based citations?',
-      'An admin wants citations with no extra prompt instructions and a consistent Sources section. Which approach fits?'
+      'Which statement about platform-managed citations is true?',
+      'An admin wants citations without writing citation instructions into prompts. What should they know about platform-managed citations?'
     ],
     options: [
-      { correct: true, text: 'Platform-managed citations come from a dedicated service with a Sources section and numbered links. Instruction-based citations depend on your own prompt instructions.', why: 'Built-in versus custom.' },
-      { correct: false, text: 'They are the same thing', why: 'They work differently.' },
-      { correct: false, text: 'Instruction-based citations use less prompt space', why: 'They need extra instructions, which use space.' },
-      { correct: false, text: 'Platform-managed citations need the LLM to be told how to format them', why: 'The platform handles formatting.' }
+      { correct: true, text: 'A dedicated service formats them in a Sources section.', why: 'Built-in versus custom.' },
+      { correct: false, text: 'They are generated from instructions you add to each prompt', why: 'That describes instruction-based citations.' },
+      { correct: false, text: 'They use more prompt space than instruction-based citations', why: 'They reduce the prompt context needed.' },
+      { correct: false, text: 'They show inline numbered links for prompt template actions', why: 'Inline citations aren\'t yet available for prompt template custom actions.' }
     ],
     explanation: 'Platform-managed citations work at the action level for Answer Questions with Knowledge (through a Data Library) and for custom actions built on prompt templates. They are available for agents created after 26 May 2025.',
     source: SRC.citations
@@ -2915,13 +2912,13 @@ window.QUESTIONS = [
     group: 'structured-output',
     stem: [
       'A flow parses a prompt template\'s JSON reply, but the field names keep changing between runs. What is the most reliable fix?',
-      'Why select a Lightning Type with the JSON response format?'
+      'A flow needs every JSON reply from a template to have the same fields. What should the admin set?'
     ],
     options: [
-      { correct: true, text: 'Set the response format to JSON and select a Lightning Type, so the model fills a fixed schema instead of choosing its own structure', why: 'The schema is enforced as metadata.' },
-      { correct: false, text: 'Add "please use the same fields" to the prompt', why: 'Prompt-only structure still varies.' },
-      { correct: false, text: 'Switch the format to HTML', why: 'HTML is for rendering, not parsing.' },
-      { correct: false, text: 'Lower the template\'s version number', why: 'Unrelated.' }
+      { correct: true, text: 'Select a Lightning Type with the JSON format', why: 'The schema is enforced as metadata.' },
+      { correct: false, text: 'Add "please use the same fields" to the prompt text', why: 'Prompt-only structure still varies.' },
+      { correct: false, text: 'Switch the response format from JSON to HTML', why: 'HTML is for rendering, not parsing.' },
+      { correct: false, text: 'Lower the temperature in the template settings', why: 'Doesn\'t enforce a schema.' }
     ],
     explanation: 'Structured Outputs sets the format (Default, JSON or HTML) once per template using system-level instructions. Lightning Types can be object-based (built in Prompt Builder) or Apex-based (built in Setup). Use them when automation, integrations or UI components consume the output.',
     source: SRC.structuredOutputs
@@ -2934,10 +2931,10 @@ window.QUESTIONS = [
     group: 'structured-output',
     stem: 'A template set to the JSON response format needs to return a JSON array. What should the admin do?',
     options: [
-      { correct: true, text: 'Use the Default format and describe the array structure in the prompt instructions', why: 'The JSON format returns a single object.' },
-      { correct: false, text: 'Keep JSON. It returns arrays by default.', why: 'JSON format returns a single JSON object.' },
-      { correct: false, text: 'Use HTML format', why: 'Not for data arrays.' },
-      { correct: false, text: 'Arrays can\'t be generated', why: 'Use Default format with instructions.' }
+      { correct: true, text: 'Use Default format and describe the array', why: 'The JSON format returns a single object.' },
+      { correct: false, text: 'Keep JSON, because it returns arrays by default', why: 'JSON format returns a single JSON object.' },
+      { correct: false, text: 'Use the HTML format with a table', why: 'Not for data arrays.' },
+      { correct: false, text: 'Arrays can\'t be generated by prompt templates', why: 'Use Default format with instructions.' }
     ],
     explanation: 'JSON responses are best viewed in the raw view. HTML format uses the lightning-formatted-rich-text component, which supports a subset of tags and is meant for use within Salesforce. Default format renders Markdown the same way an agent does.',
     source: SRC.structuredOutputs
@@ -2953,10 +2950,10 @@ window.QUESTIONS = [
       'Where are Salesforce-owned models such as HyperClassifier and TextEval hosted?'
     ],
     options: [
-      { correct: true, text: 'HyperClassifier, hosted on AWS inside the Salesforce trust boundary', why: 'Built by Salesforce AI Research.' },
-      { correct: false, text: 'CodeGen, hosted by a third party', why: 'CodeGen generates code, for example in Agentforce Vibes.' },
+      { correct: true, text: 'HyperClassifier, inside the Salesforce trust boundary', why: 'Built by Salesforce AI Research.' },
+      { correct: false, text: 'CodeGen, hosted by an outside AI provider', why: 'CodeGen generates code, for example in Agentforce Vibes.' },
       { correct: false, text: 'TextEval, hosted on the customer\'s own servers', why: 'TextEval is used for citations and Testing Center.' },
-      { correct: false, text: 'Any model the admin uploads through BYO-LLM', why: 'Not a Salesforce-owned model.' }
+      { correct: false, text: 'HyperClassifier, hosted by OpenAI outside Salesforce', why: 'Built on open-source models, but hosted inside the trust boundary.' }
     ],
     explanation: 'Salesforce-owned models: CodeGen (code generation), HyperClassifier (classification) and TextEval (citations and Testing Center). HyperClassifier and TextEval are built on OpenAI\'s open-source GPT OSS models.',
     source: SRC.salesforceModels
@@ -2969,13 +2966,13 @@ window.QUESTIONS = [
     group: 'deprecation',
     stem: [
       'What is the difference between model deprecation and model rerouting?',
-      'A provider retires a model used by a prompt template. What does Salesforce do?'
+      'Which statement about model deprecation is true?'
     ],
     options: [
-      { correct: true, text: 'A deprecated model still works but is no longer recommended. Rerouting sends requests to an available alternative, often the latest model in the same family.', why: 'Both are temporary states.' },
-      { correct: false, text: 'Deprecated models stop working immediately', why: 'They still work during deprecation.' },
-      { correct: false, text: 'Rerouting deletes the prompt template', why: 'Rerouting keeps service running.' },
-      { correct: false, text: 'They mean the same thing', why: 'They are different.' }
+      { correct: true, text: 'A deprecated model still works but isn\'t recommended.', why: 'Both are temporary states.' },
+      { correct: false, text: 'Deprecated models stop working on the day of the notice', why: 'They still work during deprecation.' },
+      { correct: false, text: 'Rerouting deletes any template that uses the old model', why: 'Rerouting keeps service running.' },
+      { correct: false, text: 'Deprecation and rerouting are permanent states', why: 'Both are temporary. Move to a new model.' }
     ],
     explanation: 'Notices appear in the Einstein Platform release notes and on the Large Language Model Support page. For example, requests for a retired model can be routed to the latest version of that model family.',
     source: SRC.modelDeprecation
@@ -2988,10 +2985,10 @@ window.QUESTIONS = [
     group: 'deprecation',
     stem: 'A model used by your templates and agent has been rerouted. What does Salesforce recommend?',
     options: [
-      { correct: true, text: 'Create a new configured model in AI Models with the same hyperparameters, retest templates and agents, then test end to end against your saved results', why: 'The documented approach.' },
-      { correct: false, text: 'Select the deprecated model again in Model Playground', why: 'Deprecated and rerouted models can\'t be selected.' },
-      { correct: false, text: 'Do nothing. Rerouting is permanent.', why: 'Rerouting is temporary. Move to a new model.' },
-      { correct: false, text: 'Turn off the Trust Layer', why: 'Unrelated.' }
+      { correct: true, text: 'Configure a new model and retest everything', why: 'The documented approach.' },
+      { correct: false, text: 'Select the old model again', why: 'Deprecated and rerouted models can\'t be selected.' },
+      { correct: false, text: 'Do nothing, because rerouting is permanent', why: 'Rerouting is temporary. Move to a new model.' },
+      { correct: false, text: 'Turn off the Trust Layer while retesting', why: 'Unrelated.' }
     ],
     explanation: 'Define success up front and keep test results from the first implementation, so you can compare responses after a model change.',
     source: SRC.modelDeprecation
@@ -3004,13 +3001,13 @@ window.QUESTIONS = [
     group: 'data-consent',
     stem: [
       'An org opts out of letting Salesforce access its Customer Data. Does this change zero data retention with third-party LLMs?',
-      'Which statement about the "Opt Out of Customer Data Access" setting is true?'
+      'How does opting out of Customer Data access affect zero data retention with LLM providers?'
     ],
     options: [
-      { correct: true, text: 'No. It controls Salesforce\'s use of Customer Data for training global predictive models and improving services. Zero data retention with LLM providers is unaffected.', why: 'Separate controls.' },
-      { correct: false, text: 'Opting out turns off zero data retention', why: 'ZDR isn\'t affected.' },
-      { correct: false, text: 'Opting out disables all Agentforce features', why: 'Features keep working.' },
-      { correct: false, text: 'Opting out deletes all data at once', why: 'Collected data is kept up to 30 days, then deleted.' }
+      { correct: true, text: 'It is unaffected. That is a separate agreement.', why: 'Separate controls.' },
+      { correct: false, text: 'Opting out also turns off zero data retention', why: 'ZDR isn\'t affected.' },
+      { correct: false, text: 'Opting out disables Agentforce', why: 'Features keep working.' },
+      { correct: false, text: 'Opting out deletes all stored data straight away', why: 'Collected data is kept up to 30 days, then deleted.' }
     ],
     explanation: 'Opting out stops new sharing, removes access to pilots and early features, and can make search less tailored. Government Cloud orgs have been opted out by default since February 2026.',
     source: SRC.dataConsent
@@ -3028,9 +3025,9 @@ window.QUESTIONS = [
       'Before unstructured content can be searched for grounding, it is chunked. What does that mean?'
     ],
     options: [
-      { correct: true, text: 'Splitting data into smaller units that keep their original meaning and context.', why: 'Smaller pieces can be matched to a question precisely.' },
+      { correct: true, text: 'Splitting content into small, meaningful pieces', why: 'Smaller pieces can be matched to a question precisely.' },
       { correct: false, text: 'Compressing files so they take less storage.', why: 'Chunking is about search, not storage.' },
-      { correct: false, text: 'Grouping records by owner for sharing.', why: 'Unrelated to sharing.' },
+      { correct: false, text: 'Grouping records by owner so they can be shared', why: 'Unrelated to sharing.' },
       { correct: false, text: 'Removing personal data before indexing.', why: 'That is masking, a Trust Layer job.' }
     ],
     explanation: 'Chunking happens during indexing. Each chunk is then turned into a vector and stored in the search index. A retriever later finds the chunks most relevant to the question.',
@@ -3044,8 +3041,8 @@ window.QUESTIONS = [
     group: 'rag-pieces',
     stem: 'What does a retriever do?',
     options: [
-      { correct: true, text: 'Queries a search index at run time and returns the most relevant chunks for the prompt.', why: 'It is the "retrieval" in retrieval-augmented generation.' },
-      { correct: false, text: 'Builds the search index from raw files.', why: 'Indexing builds the index. The retriever queries it.' },
+      { correct: true, text: 'Finds the most relevant chunks in a search index', why: 'It is the "retrieval" in retrieval-augmented generation.' },
+      { correct: false, text: 'Builds the search index from the raw source files', why: 'Indexing builds the index. The retriever queries it.' },
       { correct: false, text: 'Retrieves deleted records from the Recycle Bin.', why: 'Unrelated.' },
       { correct: false, text: 'Chooses which LLM answers the question.', why: 'Model choice is set elsewhere.' }
     ],
@@ -3059,7 +3056,7 @@ window.QUESTIONS = [
     objective: 'Considerations of Agentforce Data Library',
     stem: 'A company wants its service agent to answer questions from 200 PDF product manuals. What is the quickest way to ground the agent in them?',
     options: [
-      { correct: true, text: 'Create an Agentforce Data Library and upload the files.', why: 'The library sets up the indexing and a retriever for you.' },
+      { correct: true, text: 'Upload them to an Agentforce Data Library.', why: 'The library sets up the indexing and a retriever for you.' },
       { correct: false, text: 'Paste the manuals into the subagent instructions.', why: 'Far too much text, and every turn would pay for it.' },
       { correct: false, text: 'Attach the PDFs to each Case record.', why: 'The agent wouldn\'t search them as a knowledge source.' },
       { correct: false, text: 'Build a Field Generation template for each manual.', why: 'Templates don\'t index documents.' }
@@ -3104,7 +3101,7 @@ window.QUESTIONS = [
     objective: 'Foundational Data 360 concepts: chunking, indexing and retrievers',
     stem: 'Customers ask natural-language questions, and also search for exact part numbers such as "XJ-4021". Which search index type suits this?',
     options: [
-      { correct: true, text: 'Hybrid search, combining vector and keyword search', why: 'Vector finds meaning. Keyword finds exact codes.' },
+      { correct: true, text: 'Hybrid search', why: 'Vector finds meaning. Keyword finds exact codes.' },
       { correct: false, text: 'Vector search only', why: 'Weak at exact codes with no semantic meaning.' },
       { correct: false, text: 'Keyword search only', why: 'Misses questions worded differently from the text.' },
       { correct: false, text: 'A related list merge field', why: 'That is a prompt grounding option, not a search index.' }
@@ -3121,8 +3118,8 @@ window.QUESTIONS = [
     stem: 'Which two can be used as sources for an Agentforce Data Library?',
     options: [
       { correct: true, text: 'Knowledge articles', why: 'A common Data Library source.' },
-      { correct: true, text: 'Uploaded files such as PDFs', why: 'Files can be uploaded to the library.' },
-      { correct: false, text: 'Dashboards', why: 'Not a Data Library source.' },
+      { correct: true, text: 'Uploaded files', why: 'Files can be uploaded to the library.' },
+      { correct: false, text: 'Dashboards and reports', why: 'Not a Data Library source.' },
       { correct: false, text: 'Apex debug logs', why: 'Not a Data Library source.' },
       { correct: false, text: 'Permission sets', why: 'Not content to ground on.' }
     ],
@@ -3140,7 +3137,7 @@ window.QUESTIONS = [
       'An admin creates an Agentforce Data Library. Which Data 360 pieces does it create without the admin building them by hand?'
     ],
     options: [
-      { correct: true, text: 'A data stream, the data model objects and mapping, the chunking, a search index and a retriever', why: 'The library automates the whole chain.' },
+      { correct: true, text: 'The data stream, mapping, search index and retriever', why: 'The library automates the whole chain.' },
       { correct: false, text: 'Only a search index. The retriever is built by hand.', why: 'The retriever is created once the index is ready.' },
       { correct: false, text: 'A new agent with a knowledge subagent', why: 'The library grounds agents. It doesn\'t create one.' },
       { correct: false, text: 'A copy of the files at the LLM provider', why: 'Content stays in Data 360. Only retrieved chunks go into prompts.' }
@@ -3156,7 +3153,7 @@ window.QUESTIONS = [
     group: 'data-library',
     stem: 'Two Agentforce Data Libraries use the same knowledge content. Which statement is true?',
     options: [
-      { correct: true, text: 'Each library has its own retriever, and both retrievers can point at the same search index.', why: 'Retrievers are per library. Indexes can be shared.' },
+      { correct: true, text: 'Each has its own retriever, possibly on one shared index.', why: 'Retrievers are per library. Indexes can be shared.' },
       { correct: false, text: 'The second library overwrites the first library\'s retriever.', why: 'Each library keeps its own retriever.' },
       { correct: false, text: 'Two libraries can\'t use the same content.', why: 'They can.' },
       { correct: false, text: 'The libraries share one retriever, so filters on it apply to both.', why: 'Each library has its own retriever.' }
@@ -3172,11 +3169,11 @@ window.QUESTIONS = [
     group: 'retriever-types',
     stem: [
       'A prompt template must be grounded in knowledge articles and in product manuals, held in two different search indexes. Which retriever type fits?',
-      'When should an ensemble retriever be used instead of an individual retriever?'
+      'Which retriever type grounds a prompt on several search indexes at once?'
     ],
     options: [
-      { correct: true, text: 'An ensemble retriever, because it grounds on several data sources', why: 'An individual retriever reads one search index only.' },
-      { correct: false, text: 'An individual retriever pointed at both indexes', why: 'An individual retriever can fetch from only one search index.' },
+      { correct: true, text: 'An ensemble retriever', why: 'An individual retriever reads one search index only.' },
+      { correct: false, text: 'An individual retriever on both indexes', why: 'An individual retriever can fetch from only one search index.' },
       { correct: false, text: 'One search index covering both DMOs', why: 'A search index indexes only one DMO.' },
       { correct: false, text: 'A related list merge field', why: 'Not a retriever. It grounds on related records.' }
     ],
@@ -3189,12 +3186,9 @@ window.QUESTIONS = [
     section: 'data',
     objective: 'Foundational Data 360 concepts: chunking, indexing and retrievers',
     group: 'index-types',
-    stem: [
-      'What does an enriched search index add to a vector or hybrid index?',
-      'A team wants better retrieval accuracy without curating content by hand and accepts extra cost. Which option fits?'
-    ],
+    stem: 'What does an enriched search index add to a vector or hybrid index?',
     options: [
-      { correct: true, text: 'LLM-generated metadata and question chunks alongside the original text, using Flex Credits', why: 'Enriched indexes add metadata and question chunks.' },
+      { correct: true, text: 'LLM-generated metadata and question chunks', why: 'Enriched indexes add metadata and question chunks.' },
       { correct: false, text: 'A keyword index, turning a vector index into a hybrid one', why: 'That is hybrid search, not enrichment.' },
       { correct: false, text: 'Automatic translation of every chunk', why: 'Not what enrichment does.' },
       { correct: false, text: 'Zero data retention for the indexed content', why: 'Zero data retention is a Trust Layer agreement with LLM providers.' }
@@ -3210,7 +3204,7 @@ window.QUESTIONS = [
     group: 'index-types',
     stem: 'How does a hybrid search index produce its results?',
     options: [
-      { correct: true, text: 'It runs vector and keyword search, then a fusion ranker merges and ranks the results.', why: 'Two searches, one ranked list.' },
+      { correct: true, text: 'Vector and keyword results merged by a fusion ranker', why: 'Two searches, one ranked list.' },
       { correct: false, text: 'It runs keyword search first and only uses vector search if nothing is found.', why: 'Both run together.' },
       { correct: false, text: 'It asks the LLM to rank every document in the index.', why: 'The fusion ranker does the ranking.' },
       { correct: false, text: 'It searches structured fields only.', why: 'It works on chunked text content.' }
@@ -3229,7 +3223,7 @@ window.QUESTIONS = [
       'What is the main reason Data 360 splits long documents into chunks?'
     ],
     options: [
-      { correct: true, text: 'So retrieval returns the specific passages that answer a question, within the LLM\'s token limit', why: 'Whole documents are too long and too broad.' },
+      { correct: true, text: 'So retrieval returns just the relevant passages', why: 'Whole documents are too long and too broad.' },
       { correct: false, text: 'So documents take less storage in Data 360', why: 'Chunking is about retrieval, not storage.' },
       { correct: false, text: 'So the Trust Layer can mask each chunk', why: 'Masking isn\'t why content is chunked.' },
       { correct: false, text: 'So each chunk can be shared with a different user', why: 'Unrelated to sharing.' }
@@ -3245,8 +3239,8 @@ window.QUESTIONS = [
     group: 'rag-pieces',
     stem: 'A customer asks a question that a Data Library can answer. What happens first?',
     options: [
-      { correct: true, text: 'The question is added to a prompt template that references the retriever.', why: 'The retriever then searches the index.' },
-      { correct: false, text: 'The LLM answers, then the retriever checks the answer.', why: 'Retrieval comes before generation.' },
+      { correct: true, text: 'The question goes into a template that uses the retriever.', why: 'The retriever then searches the index.' },
+      { correct: false, text: 'The LLM answers first, then the retriever checks the answer.', why: 'Retrieval comes before generation.' },
       { correct: false, text: 'The whole library is sent to the LLM.', why: 'Only relevant chunks go into the prompt.' },
       { correct: false, text: 'The content is re-chunked for this question.', why: 'Chunking happens when the index is built.' }
     ],
@@ -3277,13 +3271,13 @@ window.QUESTIONS = [
     group: 'file-library',
     stem: [
       'What are the upload size limits for a file-based Agentforce Data Library?',
-      'An admin wants to upload a 60 MB PDF and an 8 MB HTML file to a Data Library. What happens?'
+      'Which file size limits apply when uploading to a Data Library?'
     ],
     options: [
-      { correct: true, text: '4 MB for text and HTML files, 100 MB for PDFs. The PDF fits and the HTML file is too big.', why: 'The limits differ by file type.' },
-      { correct: false, text: '10 MB for every file type, so neither fits.', why: 'Not the stated limits.' },
-      { correct: false, text: 'No limits, because Data 360 scales automatically.', why: 'There are size limits.' },
-      { correct: false, text: '100 MB for every file type, so both fit.', why: 'Text and HTML are limited to 4 MB.' }
+      { correct: true, text: '4 MB for text and HTML, 100 MB for PDFs', why: 'The limits differ by file type.' },
+      { correct: false, text: '10 MB for every file type', why: 'Not the stated limits.' },
+      { correct: false, text: 'No limits, as Data 360 scales automatically', why: 'There are size limits.' },
+      { correct: false, text: '100 MB for every file type', why: 'Text and HTML are limited to 4 MB.' }
     ],
     explanation: 'Keep uploads within 4 MB for text and HTML and 100 MB for PDFs. On save, the platform sets up the data streams, data objects, search index and retriever in Data 360.',
     source: SRC.fileLibrary
@@ -3296,7 +3290,7 @@ window.QUESTIONS = [
     group: 'file-library',
     stem: 'An admin created a Data Library from uploaded files and now wants it to use knowledge articles instead. What should they know?',
     options: [
-      { correct: true, text: 'The data source can\'t be changed after it is chosen, so they need a new library.', why: 'Choose the source carefully.' },
+      { correct: true, text: 'The source can\'t be changed, so create a new library.', why: 'Choose the source carefully.' },
       { correct: false, text: 'Edit the library and switch the source type.', why: 'The source can\'t be changed.' },
       { correct: false, text: 'Libraries can only ever use files.', why: 'Knowledge articles are also a source.' },
       { correct: false, text: 'Delete the search index and the library switches over automatically.', why: 'The source stays the same.' }
@@ -3315,7 +3309,7 @@ window.QUESTIONS = [
       'An admin has built a Data Library. What are the next steps to let the agent use it?'
     ],
     options: [
-      { correct: true, text: 'Open the agent in the builder, select the library on the Knowledge tab, save and activate.', why: 'The library is chosen in the agent\'s Knowledge settings.' },
+      { correct: true, text: 'Select it on the agent\'s Knowledge tab and activate', why: 'The library is chosen in the agent\'s Knowledge settings.' },
       { correct: false, text: 'Paste the library\'s files into the agent\'s instructions.', why: 'The retriever supplies the content.' },
       { correct: false, text: 'Add the library as a variable in the `config` block.', why: 'Not how libraries are linked.' },
       { correct: false, text: 'Nothing. Every agent uses every library automatically.', why: 'You select the library for the agent.' }
@@ -3334,7 +3328,7 @@ window.QUESTIONS = [
       'Which statement about Agentforce Data Library sources is true?'
     ],
     options: [
-      { correct: true, text: 'A library supports one data source only. Create separate libraries, or use an ensemble retriever through a custom retriever library.', why: 'One source per library, fixed once chosen.' },
+      { correct: true, text: 'Each library supports only one data source.', why: 'One source per library, fixed once chosen.' },
       { correct: false, text: 'A library can mix any number of sources.', why: 'Multiple sources at once aren\'t supported.' },
       { correct: false, text: 'Add the second source later by editing the library.', why: 'The source can\'t be changed after it is chosen.' },
       { correct: false, text: 'PDFs must be converted to knowledge articles first.', why: 'Uploaded files are a source of their own.' }
@@ -3349,14 +3343,14 @@ window.QUESTIONS = [
     objective: 'Considerations of Agentforce Data Library',
     group: 'library-rules',
     stem: [
-      'An agent needs to search public websites for answers. What should the admin use?',
-      'Can a new Agentforce Data Library use web search as its source?'
+      'Can a new Agentforce Data Library use web search as its source?',
+      'An admin wants a new web search Data Library for an agent. What should they know?'
     ],
     options: [
-      { correct: true, text: 'No. Use the Search the Web standard action for agents, or a web retriever in prompt templates.', why: 'New web search libraries aren\'t supported.' },
-      { correct: false, text: 'Yes. Create a web search library like any other.', why: 'Existing web search libraries are read-only and new ones can\'t be created.' },
+      { correct: true, text: 'They aren\'t supported. Use the Search the Web action.', why: 'New web search libraries aren\'t supported.' },
+      { correct: false, text: 'Web search libraries are supported once Data 360 is set up.', why: 'New web search libraries can\'t be created.' },
       { correct: false, text: 'Upload saved copies of the web pages to a knowledge library.', why: 'Not the supported approach for web search.' },
-      { correct: false, text: 'Agents can\'t search the web at all.', why: 'The Search the Web action does this.' }
+      { correct: false, text: 'Agents can\'t search the web at all, with or without a library.', why: 'The Search the Web action does this.' }
     ],
     explanation: 'Agentforce Data Library no longer supports new web search libraries. Both the Search the Web action and the web retriever search the web without one.',
     source: SRC.libraryWeb
@@ -3372,8 +3366,8 @@ window.QUESTIONS = [
       'What does a custom retriever data library let you do?'
     ],
     options: [
-      { correct: true, text: 'To connect other Data 360 sources such as an ensemble retriever, or to use a home org\'s libraries from a companion org', why: 'Both are uses of custom retriever libraries.' },
-      { correct: false, text: 'To write retrievers in Apex', why: 'Retrievers are created in Data 360 and AI Models.' },
+      { correct: true, text: 'To use an ensemble or companion-org retriever', why: 'Both are uses of custom retriever libraries.' },
+      { correct: false, text: 'To write custom retrievers in Apex for the library', why: 'Retrievers are created in Data 360 and AI Models.' },
       { correct: false, text: 'To skip Data 360 entirely', why: 'Data 360 is required.' },
       { correct: false, text: 'To connect to retrievers in any org without setup', why: 'Only active retrievers in the home org are listed.' }
     ],
@@ -3406,7 +3400,7 @@ window.QUESTIONS = [
       'Which pre-filters are supported when a Data Library is used with the Answer Questions with Knowledge prompt template?'
     ],
     options: [
-      { correct: true, text: 'Only static pre-filters are supported. Use a separate library per brand, or a custom Apex invocable action that passes the filter.', why: 'Dynamic pre-filters aren\'t supported here.' },
+      { correct: true, text: 'Only static pre-filters are supported.', why: 'Dynamic pre-filters aren\'t supported here.' },
       { correct: false, text: 'Dynamic pre-filters work by default.', why: 'Not supported with this template.' },
       { correct: false, text: 'Filters aren\'t possible, so merge the brands\' content.', why: 'There are workarounds.' },
       { correct: false, text: 'Add the brand to the agent\'s welcome message.', why: 'Doesn\'t filter retrieval.' }
@@ -3438,13 +3432,13 @@ window.QUESTIONS = [
     objective: 'Considerations of Agentforce Data Library',
     stem: [
       'After a file-based Data Library is saved, which part is created last?',
-      'In what order does Data Library setup run?'
+      'Which part of a file-based Data Library\'s setup is created last?'
     ],
     options: [
-      { correct: true, text: 'Data stream, data lake and data model objects, mapping, search index, chunking, then the retriever last', why: 'The retriever comes once the index is ready.' },
-      { correct: false, text: 'Retriever first, then the search index', why: 'The retriever needs the index.' },
-      { correct: false, text: 'Chunking first, before any data stream exists', why: 'Data must be ingested first.' },
-      { correct: false, text: 'Everything is created at the same moment', why: 'Each step depends on the one before.' }
+      { correct: true, text: 'The retriever', why: 'The retriever comes once the index is ready.' },
+      { correct: false, text: 'The search index', why: 'The retriever comes after the index is ready.' },
+      { correct: false, text: 'The data stream', why: 'The data stream is created first.' },
+      { correct: false, text: 'The data model objects', why: 'These come early, before mapping and indexing.' }
     ],
     explanation: 'Each step must succeed before the next. A status card on the library setup page shows progress and links to the Data 360 objects. Web search libraries create only a retriever, with no search index.',
     source: SRC.libraryConcept
@@ -3457,7 +3451,7 @@ window.QUESTIONS = [
     group: 'rag-pieces',
     stem: 'How does the search index decide which chunks to return for a query?',
     options: [
-      { correct: true, text: 'Each chunk gets a similarity score against the query, and the highest-scoring chunks are returned', why: 'Similarity drives relevance.' },
+      { correct: true, text: 'By similarity score against the query', why: 'Similarity drives relevance.' },
       { correct: false, text: 'It returns chunks in the order the files were uploaded', why: 'Order isn\'t relevance.' },
       { correct: false, text: 'It returns every chunk and lets the LLM choose', why: 'That would overflow the token limit.' },
       { correct: false, text: 'An admin picks the chunks for each question', why: 'Retrieval is automatic.' }
@@ -3473,7 +3467,7 @@ window.QUESTIONS = [
     group: 'rag-pieces',
     stem: 'Which types of data can be chunked for retrieval, according to Salesforce\'s Data Library documentation?',
     options: [
-      { correct: true, text: 'Text, and also images and audio files', why: 'Many data types can be chunked.' },
+      { correct: true, text: 'Text, images and audio', why: 'Many data types can be chunked.' },
       { correct: false, text: 'Plain text only', why: 'Images and audio can be chunked too.' },
       { correct: false, text: 'Only knowledge articles', why: 'Files and other content can be chunked.' },
       { correct: false, text: 'Only numeric fields', why: 'Chunking is mainly for unstructured content.' }
@@ -3489,10 +3483,10 @@ window.QUESTIONS = [
     group: 'content-prep',
     stem: [
       'Knowledge articles cover several loosely related subjects each, and agent answers often mix them up. What does Salesforce advise?',
-      'Why should each knowledge article focus on one clearly defined user intent?'
+      'What does Salesforce advise for knowledge articles that each cover several unrelated subjects?'
     ],
     options: [
-      { correct: true, text: 'Split them so each article answers one intent. Mixed articles dilute embeddings and make the model combine mismatched ideas.', why: 'AI retrieves in fragments.' },
+      { correct: true, text: 'Split them so each article covers one intent', why: 'AI retrieves in fragments.' },
       { correct: false, text: 'Merge them into one long article so everything is in one place', why: 'Makes the problem worse.' },
       { correct: false, text: 'Add more instructions to the agent', why: 'Fix the content, not the instructions.' },
       { correct: false, text: 'Turn off chunking', why: 'Chunking is needed for retrieval.' }
@@ -3528,8 +3522,8 @@ window.QUESTIONS = [
       'What does Salesforce suggest for separating knowledge content by audience?'
     ],
     options: [
-      { correct: true, text: 'Separate it before retrieval with dedicated fields or articles per audience, and filter at run time with access-tier metadata', why: 'Both pre-retrieval and run-time separation.' },
-      { correct: false, text: 'Ask the LLM to ignore internal content', why: 'Instructions aren\'t enforcement.' },
+      { correct: true, text: 'Separate it by audience and filter with access metadata', why: 'Both pre-retrieval and run-time separation.' },
+      { correct: false, text: 'Ask the LLM in its instructions to ignore internal content', why: 'Instructions aren\'t enforcement.' },
       { correct: false, text: 'Delete the internal content', why: 'Staff still need it.' },
       { correct: false, text: 'Rely on toxicity detection', why: 'Not designed for this.' }
     ],
@@ -3543,10 +3537,10 @@ window.QUESTIONS = [
     objective: 'Considerations of Agentforce Data Library',
     stem: 'Which tools does Salesforce suggest for testing and monitoring knowledge retrieval quality?',
     options: [
-      { correct: true, text: 'Retriever Playground and Testing Center before release, then Knowledge/RAG Quality Data and Metrics afterwards', why: 'Test before, monitor after.' },
-      { correct: false, text: 'Debug logs only', why: 'Not designed for retrieval quality.' },
-      { correct: false, text: 'Field history tracking on Knowledge', why: 'Tracks edits, not retrieval.' },
-      { correct: false, text: 'Nothing. Retrieval can\'t be tested.', why: 'There are dedicated tools.' }
+      { correct: true, text: 'Testing Center and Knowledge/RAG quality metrics', why: 'Test before, monitor after.' },
+      { correct: false, text: 'Debug logs for the agent user only', why: 'Not designed for retrieval quality.' },
+      { correct: false, text: 'Field history tracking on Knowledge articles', why: 'Tracks edits, not retrieval.' },
+      { correct: false, text: 'None. Retrieval quality can\'t be tested or monitored.', why: 'There are dedicated tools.' }
     ],
     explanation: 'Testing Center can generate test cases from an agent\'s connected knowledge sources. After deployment, Knowledge/RAG Quality Data and Metrics, Agent Optimization and Agent Analytics show where content is outdated or missing.',
     source: SRC.libraryPrepare
@@ -3557,12 +3551,9 @@ window.QUESTIONS = [
     section: 'data',
     objective: 'Foundational Data 360 concepts: chunking, indexing and retrievers',
     group: 'rag-flow',
-    stem: [
-      'A prompt template with a retriever runs. What happens to the query before the search?',
-      'Put the RAG run-time steps in order. Which is correct?'
-    ],
+    stem: 'In which order do the RAG steps run when a prompt template with a retriever runs?',
     options: [
-      { correct: true, text: 'The template calls the retriever, the query is vectorised, relevant context is retrieved, the prompt is filled in, then the LLM responds', why: 'The online sequence in Help.' },
+      { correct: true, text: 'Vectorise query, retrieve, fill prompt, LLM responds', why: 'The online sequence in Help.' },
       { correct: false, text: 'The LLM answers first, then the retriever adds sources', why: 'Retrieval comes first.' },
       { correct: false, text: 'The whole index is sent to the LLM, which searches it', why: 'Only relevant context is added.' },
       { correct: false, text: 'The query is chunked and stored in the index', why: 'The query is vectorised, not indexed.' }
@@ -3581,9 +3572,9 @@ window.QUESTIONS = [
       'What is a key benefit of retrieval augmented generation?'
     ],
     options: [
-      { correct: true, text: 'It brings current, proprietary information into the prompt without retraining or fine-tuning the model', why: 'The core benefit of RAG.' },
-      { correct: false, text: 'It permanently teaches the LLM your data', why: 'RAG adds context per prompt. The model isn\'t changed.' },
-      { correct: false, text: 'It removes the need for prompts', why: 'RAG fills in prompts.' },
+      { correct: true, text: 'It adds current company data without retraining', why: 'The core benefit of RAG.' },
+      { correct: false, text: 'It permanently teaches the LLM your company data', why: 'RAG adds context per prompt. The model isn\'t changed.' },
+      { correct: false, text: 'It removes the need to write prompts at all', why: 'RAG fills in prompts.' },
       { correct: false, text: 'It makes the LLM ignore its training', why: 'It adds information. It doesn\'t erase anything.' }
     ],
     explanation: 'Most LLMs were trained on static public content. RAG supplies accurate, up-to-date facts from your knowledge store, so responses fit your context and use case.',
@@ -3597,10 +3588,10 @@ window.QUESTIONS = [
     group: 'rag-pieces',
     stem: 'What is vectorisation in a Data 360 search index?',
     options: [
-      { correct: true, text: 'Converting chunks of text into numeric representations that capture semantic similarity', why: 'Lets search match on meaning.' },
-      { correct: false, text: 'Encrypting chunks for storage', why: 'Not what vectorisation means.' },
-      { correct: false, text: 'Translating chunks into English', why: 'Not what vectorisation means.' },
-      { correct: false, text: 'Counting the words in each chunk', why: 'Not what vectorisation means.' }
+      { correct: true, text: 'Turning text into numbers that capture meaning', why: 'Lets search match on meaning.' },
+      { correct: false, text: 'Encrypting each chunk before it is stored', why: 'Not what vectorisation means.' },
+      { correct: false, text: 'Translating every chunk into English first', why: 'Not what vectorisation means.' },
+      { correct: false, text: 'Counting how many times each word appears in a chunk', why: 'Not what vectorisation means.' }
     ],
     explanation: 'A search index configuration chunks the content into passages such as sentences or paragraphs, then vectorises them. Queries are vectorised the same way, so the search can find semantic matches.',
     source: SRC.ragAbout
@@ -3612,7 +3603,7 @@ window.QUESTIONS = [
     objective: 'Considerations of Agentforce Data Library',
     stem: 'An admin creates a Data Library with default settings. Which RAG components does it set up?',
     options: [
-      { correct: true, text: 'The vector data store, search index, retriever, prompt template and standard action, all with default settings', why: 'The quick start for RAG.' },
+      { correct: true, text: 'The full RAG chain, with default settings', why: 'The quick start for RAG.' },
       { correct: false, text: 'Only the prompt template', why: 'It sets up the whole chain.' },
       { correct: false, text: 'Only the vector data store. Everything else is built by hand.', why: 'Everything is created automatically.' },
       { correct: false, text: 'A new LLM trained on the files', why: 'RAG doesn\'t train models.' }
@@ -3628,10 +3619,10 @@ window.QUESTIONS = [
     group: 'index-config',
     stem: [
       'An admin builds a search index with Advanced Setup for long, well-structured help pages. Which chunking strategy keeps each page\'s structure?',
-      'What does section-aware chunking do?'
+      'Which chunking strategy suits structured pages where each section should stay whole?'
     ],
     options: [
-      { correct: true, text: 'Section-aware chunking, which splits content along its sections so each chunk keeps the structure of the source', why: 'Preserves the page structure.' },
+      { correct: true, text: 'Section-aware chunking', why: 'Preserves the page structure.' },
       { correct: false, text: 'Splitting every 10 characters', why: 'Breaks meaning apart.' },
       { correct: false, text: 'No chunking: index each page whole', why: 'Too large for precise retrieval.' },
       { correct: false, text: 'Random chunking', why: 'Not a strategy.' }
@@ -3650,7 +3641,7 @@ window.QUESTIONS = [
       'Why does the choice of embedding model depend on chunk size?'
     ],
     options: [
-      { correct: true, text: 'The model must support that chunk size. Smaller chunks, such as 512 tokens, can use a model with a shorter supported sequence length.', why: 'The model has to accept the chunk.' },
+      { correct: true, text: 'The model must support that chunk size.', why: 'The model has to accept the chunk.' },
       { correct: false, text: 'Embedding models don\'t care about chunk size', why: 'Each supports a maximum sequence length.' },
       { correct: false, text: 'The model must be the same as the agent\'s LLM', why: 'Embedding and generation models are separate.' },
       { correct: false, text: 'The model must be hosted outside Salesforce', why: 'Salesforce provides embedding models.' }
@@ -3666,8 +3657,8 @@ window.QUESTIONS = [
     group: 'index-config',
     stem: 'Why might an admin prepend the Title field to each chunk in a search index?',
     options: [
-      { correct: true, text: 'It gives each chunk more context, which can improve retrieval quality', why: 'A chunk alone can lack context.' },
-      { correct: false, text: 'It makes chunks smaller', why: 'It adds text.' },
+      { correct: true, text: 'To give each chunk more context', why: 'A chunk alone can lack context.' },
+      { correct: false, text: 'To make every chunk smaller', why: 'It adds text.' },
       { correct: false, text: 'It is required for every index', why: 'It is optional.' },
       { correct: false, text: 'It hides the title from the LLM', why: 'It adds the title to the chunk.' }
     ],
@@ -3682,8 +3673,8 @@ window.QUESTIONS = [
     group: 'index-verify',
     stem: 'A search index has finished building. How can the admin check that the chunks look right?',
     options: [
-      { correct: true, text: 'In Data 360 Data Explorer, choose the data space, then Data Lake Object, and open the chunk object for the index', why: 'Chunks can be inspected directly.' },
-      { correct: false, text: 'Run a report on the Knowledge object', why: 'Chunks aren\'t Knowledge records.' },
+      { correct: true, text: 'Open the chunk object in Data Explorer', why: 'Chunks can be inspected directly.' },
+      { correct: false, text: 'Run a report on the Knowledge object\'s chunks', why: 'Chunks aren\'t Knowledge records.' },
       { correct: false, text: 'Ask the agent to print every chunk', why: 'Not a verification method.' },
       { correct: false, text: 'Chunks can\'t be viewed', why: 'Data Explorer shows them.' }
     ],
@@ -3702,7 +3693,7 @@ window.QUESTIONS = [
     ],
     options: [
       { correct: true, text: 'Return URL, Title and Chunks, and turn on Citation Settings', why: 'The URL and title make citations possible.' },
-      { correct: false, text: 'Return only Chunks, and turn off Citation Settings', why: 'Without URL and title, sources can\'t be shown.' },
+      { correct: false, text: 'Return only Chunks, and turn Citation Settings off to save space', why: 'Without URL and title, sources can\'t be shown.' },
       { correct: false, text: 'Return every field, and leave citations to the LLM', why: 'Use the citation settings.' },
       { correct: false, text: 'Citations can\'t come from retrievers', why: 'They can.' }
     ],
@@ -3717,7 +3708,7 @@ window.QUESTIONS = [
     group: 'retriever-setup',
     stem: 'A new retriever has been saved but doesn\'t appear in Prompt Builder or in custom retriever libraries. What is the likely cause?',
     options: [
-      { correct: true, text: 'It hasn\'t been activated. Only active retrievers can be used.', why: 'Activate after saving.' },
+      { correct: true, text: 'It hasn\'t been activated.', why: 'Activate after saving.' },
       { correct: false, text: 'Retrievers only work in Developer Edition', why: 'Not a restriction.' },
       { correct: false, text: 'It needs a Flex template first', why: 'Not required.' },
       { correct: false, text: 'Retrievers can\'t be used in Prompt Builder', why: 'They can.' }
@@ -3736,7 +3727,7 @@ window.QUESTIONS = [
       'How does an ensemble retriever produce its results?'
     ],
     options: [
-      { correct: true, text: 'Runs its individual retrievers in parallel, combines their results into one list, reranks by relevance and returns the most relevant', why: 'As described in Help.' },
+      { correct: true, text: 'Runs them in parallel, merges and reranks', why: 'As described in Help.' },
       { correct: false, text: 'Runs one retriever at random', why: 'It runs them all.' },
       { correct: false, text: 'Returns every result from every source unranked', why: 'It reranks and returns the most relevant.' },
       { correct: false, text: 'Merges the search indexes into one new index', why: 'The indexes stay separate.' }
@@ -3755,7 +3746,7 @@ window.QUESTIONS = [
       'How do Data 360 DMO fields become available for grounding in Prompt Builder?'
     ],
     options: [
-      { correct: true, text: 'Create a Data 360 enrichment (copy fields or a related list of the DMO) on Contact or Lead, then use the new fields like native Salesforce data', why: 'Enrichments link DMOs to CRM objects.' },
+      { correct: true, text: 'Create a Data 360 enrichment on Contact', why: 'Enrichments link DMOs to CRM objects.' },
       { correct: false, text: 'Paste the DMO\'s data into the template by hand', why: 'Use enrichments.' },
       { correct: false, text: 'DMO data can never be used in prompts', why: 'It can, through enrichments.' },
       { correct: false, text: 'Convert the DMO into a knowledge article', why: 'Not needed.' }
@@ -3771,10 +3762,10 @@ window.QUESTIONS = [
     group: 'structured-grounding',
     stem: [
       'A sales email template should use a 360-degree customer view combining CRM data and a third-party source. Which grounding option fits?',
-      'Which statement about grounding with data graphs is true?'
+      'Which grounding resource gives a prompt a unified customer view built from several data sources?'
     ],
     options: [
-      { correct: true, text: 'A data graph, which unifies several sources through identity resolution. Prompt Builder uses whole data graphs only.', why: 'Subgraphs aren\'t supported.' },
+      { correct: true, text: 'A data graph', why: 'Subgraphs aren\'t supported.' },
       { correct: false, text: 'A related list merge field', why: 'Only covers related records in the org.' },
       { correct: false, text: 'A subgraph of a larger data graph', why: 'Subgraphs aren\'t supported.' },
       { correct: false, text: 'A data graph on a lookup field input', why: 'Not supported.' }
@@ -3793,8 +3784,8 @@ window.QUESTIONS = [
       'How is an existing Agentforce Data Library kept up to date?'
     ],
     options: [
-      { correct: true, text: 'Knowledge-based libraries update when articles change. For file libraries, edit the library to add or delete files.', why: 'Knowledge syncs. Files are managed by hand.' },
-      { correct: false, text: 'The library must be deleted and rebuilt', why: 'Libraries can be edited and update themselves.' },
+      { correct: true, text: 'Knowledge libraries update when articles change.', why: 'Knowledge syncs. Files are managed by hand.' },
+      { correct: false, text: 'The library must be deleted and rebuilt each time', why: 'Libraries can be edited and update themselves.' },
       { correct: false, text: 'New articles are ignored for ever', why: 'Knowledge libraries pick up changes.' },
       { correct: false, text: 'The source type can be switched to include them', why: 'The source type can\'t change.' }
     ],
@@ -3827,7 +3818,7 @@ window.QUESTIONS = [
     objective: 'Explain how Testing Center evaluations work',
     stem: 'A test case fails on topic even though the agent routed to the right topic in Conversation Preview. The test lists the topic as "Order Status". What is the likely cause?',
     options: [
-      { correct: true, text: 'The expected topic must be the topic\'s API name, not its label.', why: 'Testing Center compares API names.' },
+      { correct: true, text: 'It must use the topic\'s API name, not its label.', why: 'Testing Center compares API names.' },
       { correct: false, text: 'Testing Center only tests the default topic.', why: 'It tests any topic.' },
       { correct: false, text: 'Conversation Preview uses a different LLM from Testing Center.', why: 'Not the cause here.' },
       { correct: false, text: 'Topic checks only pass when the response check also passes.', why: 'Each expectation passes or fails on its own.' }
@@ -3862,7 +3853,7 @@ window.QUESTIONS = [
       'Which rule applies to test cases uploaded to Testing Center as a CSV?'
     ],
     options: [
-      { correct: true, text: 'Utterance is required, at least one other column must be filled, and empty values count as failures.', why: 'Rules stated for the testing template.' },
+      { correct: true, text: 'Utterance is required, and empty values fail.', why: 'Rules stated for the testing template.' },
       { correct: false, text: 'Only the Expected Response column is required.', why: 'Utterance is the required column.' },
       { correct: false, text: 'Empty values are skipped and count as passes.', why: 'Empty values are treated as failures.' },
       { correct: false, text: 'Each CSV can test several agents at once.', why: 'Each test run targets one agent.' }
@@ -3880,7 +3871,7 @@ window.QUESTIONS = [
       'An admin plans to run a large Testing Center suite in production. What is the main risk?'
     ],
     options: [
-      { correct: true, text: 'Tests run the agent\'s real actions, which can change CRM data.', why: 'Testing agents can modify records.' },
+      { correct: true, text: 'Tests run real actions that can change data.', why: 'Testing agents can modify records.' },
       { correct: false, text: 'Testing Center isn\'t available in production at all.', why: 'The reason is the data, not availability.' },
       { correct: false, text: 'Production agents can\'t be selected in a test suite.', why: 'Not the reason.' },
       { correct: false, text: 'Tests in production delete the agent\'s conversation history.', why: 'Not something tests do.' }
@@ -3899,7 +3890,7 @@ window.QUESTIONS = [
       'How are Testing Center results evaluated for each test case?'
     ],
     options: [
-      { correct: true, text: 'Subagent, action and response are evaluated separately, so a test can pass one and fail another.', why: 'Each evaluation is its own pass or fail.' },
+      { correct: true, text: 'Each is scored separately.', why: 'Each evaluation is its own pass or fail.' },
       { correct: false, text: 'The test is broken. A test must pass or fail everything together.', why: 'Evaluations are independent.' },
       { correct: false, text: 'The response check is skipped when an action fails.', why: 'Every selected evaluation runs.' },
       { correct: false, text: 'Only the response is evaluated. Subagent and action are for information.', why: 'All three are evaluated.' }
@@ -3915,7 +3906,7 @@ window.QUESTIONS = [
     group: 'test-results',
     stem: 'A test case fails on actions. What is the best first step to troubleshoot it?',
     options: [
-      { correct: true, text: 'Open the agent in the builder and run the same utterance in Conversation Preview to see the subagent and actions chosen.', why: 'Shows exactly what the agent did.' },
+      { correct: true, text: 'Replay the utterance in Conversation Preview', why: 'Shows exactly what the agent did.' },
       { correct: false, text: 'Delete the test case.', why: 'Hides the problem.' },
       { correct: false, text: 'Rewrite the agent\'s instructions straight away.', why: 'The expectation might be wrong, not the agent.' },
       { correct: false, text: 'Deactivate the actions that didn\'t run.', why: 'Makes the agent worse.' }
@@ -3947,7 +3938,7 @@ window.QUESTIONS = [
     objective: 'Test an agent using Testing Center',
     stem: 'An admin is building a test set for a new agent. Which approach matches Salesforce\'s testing guidance?',
     options: [
-      { correct: true, text: 'Start with 10 to 20 AI-generated scenarios, review them, include out-of-scope and guardrail tests, and grow the set as the agent improves', why: 'Volume, diversity and quality.' },
+      { correct: true, text: 'Review a small generated set, including negative tests', why: 'Volume, diversity and quality.' },
       { correct: false, text: 'Generate 5,000 scenarios at once and accept them without review', why: 'Review a small batch first.' },
       { correct: false, text: 'Only test questions the agent is designed to answer', why: 'Negative tests matter too.' },
       { correct: false, text: 'Skip human review because automated checks catch everything', why: 'Humans catch tone and context problems.' }
@@ -3982,8 +3973,8 @@ window.QUESTIONS = [
     group: 'deploy-order',
     stem: 'An agent has been deployed to production. Which two checks belong in the post-deployment steps?',
     options: [
-      { correct: true, text: 'Confirm the agent is active and the deployed flows have the right version active.', why: 'Deployed items aren\'t always active.' },
-      { correct: true, text: 'Publish the Embedded Service web deployment, if the agent uses one.', why: 'Needed before customers see the chat.' },
+      { correct: true, text: 'Check the agent and flows are active.', why: 'Deployed items aren\'t always active.' },
+      { correct: true, text: 'Publish the web deployment, if used.', why: 'Needed before customers see the chat.' },
       { correct: false, text: 'Delete the sandbox agent so the two don\'t clash.', why: 'Orgs are separate. Keep the sandbox for future work.' },
       { correct: false, text: 'Copy the sandbox agent user\'s password.', why: 'Create the agent user in production instead.' },
       { correct: false, text: 'Turn off the Trust Layer while testing.', why: 'Not a deployment step.' }
@@ -4004,7 +3995,7 @@ window.QUESTIONS = [
       { correct: true, text: '`GenAiPromptTemplate`', why: 'The metadata type for prompt templates.' },
       { correct: false, text: '`EmailTemplate`', why: 'For email templates, not prompt templates.' },
       { correct: false, text: '`StaticResource`', why: 'For static files.' },
-      { correct: false, text: '`CustomMetadata`', why: 'For custom metadata records.' }
+      { correct: false, text: '`CustomObjectTranslation`', why: 'Holds translations of custom object labels.' }
     ],
     explanation: 'Prompt templates deploy as `GenAiPromptTemplate`. Working with this type needs Prompt Builder turned on and the Prompt Template Manager permission.\n\nInclude any flows or Apex classes the template uses for grounding, and check the right version is active in the target org.',
     source: SRC.promptTemplateMeta
@@ -4033,12 +4024,12 @@ window.QUESTIONS = [
     group: 'scorers',
     stem: [
       'Which default scorers run on every turn-level test in the new Testing Center?',
-      'In turn-level testing, how is the Response Evaluation score produced?'
+      'Which scorers always run on turn-level tests in the new Testing Center?'
     ],
     options: [
-      { correct: true, text: 'Response Evaluation (an LLM judge compares the expected and actual response), Subagent Assertion and Action Assertion', why: 'The three turn-level default scorers.' },
-      { correct: false, text: 'Toxicity, latency and cost', why: 'Not the default scorers.' },
-      { correct: false, text: 'Only Task Resolution', why: 'That is a conversation-level scorer.' },
+      { correct: true, text: 'Response, Subagent and Action scorers', why: 'The three turn-level default scorers.' },
+      { correct: false, text: 'Toxicity, Latency and Coherence scores', why: 'Not the default scorers.' },
+      { correct: false, text: 'Task Resolution and Instruction Adherence', why: 'That is a conversation-level scorer.' },
       { correct: false, text: 'A word-for-word string match of the response', why: 'An LLM judge compares meaning.' }
     ],
     explanation: 'Default scorers always run. In conversation-level tests the subagent and action scorers are called Subagent Evaluation and Actions Evaluation, and Task Resolution checks whether the user\'s issue was resolved.',
@@ -4055,7 +4046,7 @@ window.QUESTIONS = [
       'What should the Expected Response field in a test case contain?'
     ],
     options: [
-      { correct: true, text: 'The response you expect the agent to give, not instructions about the response', why: 'Instructions in that field give inaccurate scores.' },
+      { correct: true, text: 'The expected answer, not instructions about it', why: 'Instructions in that field give inaccurate scores.' },
       { correct: false, text: 'Instructions for the LLM judge on how to score', why: 'Help calls this a common mistake.' },
       { correct: false, text: 'The API name of the expected action', why: 'That goes in Expected Actions.' },
       { correct: false, text: 'Nothing. Leave it blank so the LLM decides.', why: 'Empty values count as failures.' }
@@ -4090,7 +4081,7 @@ window.QUESTIONS = [
       'What controls whether a prompt template active in the source org arrives active after a change set deployment?'
     ],
     options: [
-      { correct: true, text: 'By default deployed templates arrive inactive. A setting in Einstein Setup (Deploy Prompt Templates) activates them on deploy, for change sets only.', why: 'Off by default.' },
+      { correct: true, text: 'Templates arrive inactive unless a setting is on.', why: 'Off by default.' },
       { correct: false, text: 'Change sets always deactivate templates, and nothing can change that.', why: 'The Einstein Setup setting can.' },
       { correct: false, text: 'The template failed to deploy.', why: 'It deployed but wasn\'t activated.' },
       { correct: false, text: 'The setting also controls CLI and package deployments.', why: 'It applies to change sets only.' }
@@ -4106,8 +4097,8 @@ window.QUESTIONS = [
     group: 'template-changesets',
     stem: 'Which two statements about deploying prompt templates with change sets are true?',
     options: [
-      { correct: true, text: 'By default all versions, active and inactive, are deployed. A setting can deploy only the active version.', why: '"Deploy Only Active Version" is off by default.' },
-      { correct: true, text: 'If the template uses a custom LLM configuration, the target org needs a model with the same name or the deployment fails.', why: 'Stated consideration.' },
+      { correct: true, text: 'All versions deploy unless a setting limits it.', why: '"Deploy Only Active Version" is off by default.' },
+      { correct: true, text: 'The target needs a model with the same name.', why: 'Stated consideration.' },
       { correct: false, text: 'Change sets can delete prompt templates in the target org.', why: 'Templates can\'t be deleted by change set.' },
       { correct: false, text: 'Published versions in the target are overwritten with new content.', why: 'Published versions are immutable and skipped.' },
       { correct: false, text: 'Dependencies are added automatically, so only the template is needed.', why: 'Add all resources, then their dependencies.' }
@@ -4126,7 +4117,7 @@ window.QUESTIONS = [
       'How should a template-triggered prompt flow be built so it deploys cleanly with its template?'
     ],
     options: [
-      { correct: true, text: 'Use Manual Inputs in the flow and deploy the template and flow together. If it still fails, deploy the flow first, then the template.', why: 'Flows with Automatic Inputs make the deployment fail.' },
+      { correct: true, text: 'Use Manual Inputs and deploy both together.', why: 'Flows with Automatic Inputs make the deployment fail.' },
       { correct: false, text: 'Use Automatic Inputs so the template can find the flow', why: 'That causes the failure.' },
       { correct: false, text: 'Rebuild the flow by hand in production', why: 'Deployment works with the right inputs.' },
       { correct: false, text: 'Convert the flow to Apex', why: 'Not needed.' }
@@ -4142,10 +4133,10 @@ window.QUESTIONS = [
     group: 'template-flows',
     stem: 'After deployment, a prompt template throws an error when it runs. It references a flow that came in the same change set. What is the likely cause?',
     options: [
-      { correct: true, text: 'The flow was deployed but not activated, and a template that runs an inactive flow errors at run time', why: 'Deployed flows aren\'t auto-activated.' },
+      { correct: true, text: 'The flow wasn\'t activated after deployment.', why: 'Deployed flows aren\'t auto-activated.' },
       { correct: false, text: 'Change sets can\'t include flows', why: 'They can.' },
       { correct: false, text: 'The template is a Flex template', why: 'The template type isn\'t the issue.' },
-      { correct: false, text: 'The user lacks Prompt Template Manager', why: 'Running needs Prompt Template User, and this is a flow error.' }
+      { correct: false, text: 'The user lacks the Prompt Template Manager permission set', why: 'Running needs Prompt Template User, and this is a flow error.' }
     ],
     explanation: 'Activate deployed flows according to the flow guidelines. Also, a template in use can\'t have its active version deactivated unless another version is active, and its active version can\'t be deleted.',
     source: SRC.templateChangeSets
@@ -4173,10 +4164,10 @@ window.QUESTIONS = [
     group: 'test-data',
     stem: [
       'A team wants to check that its agent quotes the returns policy correctly from a Data Library. Which test data option fits best?',
-      'When are knowledge-based test cases the right choice in Testing Center?'
+      'Which Testing Center test data option checks that answers from articles and PDFs are accurate?'
     ],
     options: [
-      { correct: true, text: 'Generate knowledge-based tests: question-and-answer utterances taken from the agent\'s connected knowledge', why: 'Built to check content-driven answers.' },
+      { correct: true, text: 'Knowledge-based tests', why: 'Built to check content-driven answers.' },
       { correct: false, text: 'Generate subagent and action tests', why: 'Those check intents and workflows.' },
       { correct: false, text: 'Upload an empty CSV', why: 'Empty values fail.' },
       { correct: false, text: 'Knowledge can\'t be tested', why: 'Knowledge-based tests exist for this.' }
@@ -4194,8 +4185,8 @@ window.QUESTIONS = [
       'How can a prompt template be tested at scale?'
     ],
     options: [
-      { correct: true, text: 'A prompt template test suite in the new Testing Center: upload a CSV of test cases for that template version and choose scorers', why: 'Batch testing for templates.' },
-      { correct: false, text: 'Click Preview in Prompt Builder 300 times', why: 'Preview tests one input at a time.' },
+      { correct: true, text: 'A prompt template test suite in Testing Center', why: 'Batch testing for templates.' },
+      { correct: false, text: 'Click Preview in Prompt Builder for each of the inputs', why: 'Preview tests one input at a time.' },
       { correct: false, text: 'Activate it and wait for user feedback', why: 'Test before activating.' },
       { correct: false, text: 'Prompt templates can\'t be batch tested', why: 'Testing Center supports it.' }
     ],
@@ -4213,7 +4204,7 @@ window.QUESTIONS = [
       'What does the Coherence evaluation check?'
     ],
     options: [
-      { correct: true, text: 'Coherence: whether the response is grammatical, conversational language rather than raw data', why: 'Raw JSON fails coherence.' },
+      { correct: true, text: 'Coherence: conversational language, not raw data', why: 'Raw JSON fails coherence.' },
       { correct: false, text: 'Conciseness: whether the response is short but accurate', why: 'Length, not form.' },
       { correct: false, text: 'Completeness: whether all expected information is included', why: 'Coverage, not form.' },
       { correct: false, text: 'Latency: execution time in milliseconds', why: 'Speed, not form.' }
@@ -4228,10 +4219,10 @@ window.QUESTIONS = [
     objective: 'Test an agent using Testing Center',
     stem: 'For conversation-level testing (beta), how many test cases can be generated by the LLM, and how many uploaded from a CSV?',
     options: [
-      { correct: true, text: 'Up to 20 generated, or up to 1,000 uploaded from a CSV', why: 'Stated beta limits.' },
-      { correct: false, text: 'Up to 1,000 generated, or 20 uploaded', why: 'The other way round.' },
-      { correct: false, text: 'Unlimited either way', why: 'There are limits.' },
-      { correct: false, text: 'Only 5 of each', why: 'Not the limits.' }
+      { correct: true, text: '20 generated or 1,000 uploaded', why: 'Stated beta limits.' },
+      { correct: false, text: '1,000 generated or 20 uploaded', why: 'The other way round.' },
+      { correct: false, text: 'Unlimited generated or uploaded', why: 'There are limits.' },
+      { correct: false, text: 'Only 5 of each type', why: 'Not the limits.' }
     ],
     explanation: 'Conversation generation takes a few minutes. Audio recordings for voice tests are stored as JSON in org Files, and deleting the file breaks playback.',
     source: SRC.testingConsiderations
@@ -4244,8 +4235,8 @@ window.QUESTIONS = [
     group: 'quality-evals',
     stem: 'An admin wants AI-generated tests for a custom object and the Answer Questions with Knowledge action. What should they do?',
     options: [
-      { correct: true, text: 'Put specific instructions in the test description, naming the custom object with sample utterances, or the knowledge articles to use', why: 'Generated tests cover Account, Lead, Opportunity and Contact by default.' },
-      { correct: false, text: 'Nothing. Every object is covered automatically.', why: 'Custom objects need instructions.' },
+      { correct: true, text: 'Describe the object or articles in the test description', why: 'Generated tests cover Account, Lead, Opportunity and Contact by default.' },
+      { correct: false, text: 'Nothing. Every object and action is covered automatically.', why: 'Custom objects need instructions.' },
       { correct: false, text: 'Generated tests can\'t cover knowledge', why: 'They can, with instructions.' },
       { correct: false, text: 'Write the tests in Apex', why: 'Not needed.' }
     ],
@@ -4261,10 +4252,10 @@ window.QUESTIONS = [
     objective: 'Explain the process for managing and monitoring agents',
     stem: 'An admin turned on session tracing last week. Agent analytics show nothing for conversations before then. Why?',
     options: [
-      { correct: true, text: 'Tracing only captures sessions after it is set up. Earlier sessions aren\'t backfilled.', why: 'Turn tracing on early.' },
+      { correct: true, text: 'Tracing only captures sessions from when it was turned on.', why: 'Turn tracing on early.' },
       { correct: false, text: 'Analytics only show the last 24 hours.', why: 'Not the limit described.' },
       { correct: false, text: 'Older sessions were masked by the Trust Layer.', why: 'Masking doesn\'t hide sessions from analytics.' },
-      { correct: false, text: 'The agent must be reactivated before old sessions appear.', why: 'Reactivating doesn\'t backfill data.' }
+      { correct: false, text: 'The agent must be reactivated before older sessions appear.', why: 'Reactivating doesn\'t backfill data.' }
     ],
     explanation: 'Session tracing starts collecting data in Data 360 once it is turned on, every five minutes. Analytics and monitoring build on that data, so nothing exists for sessions before then. If collection is suspended, dashboards show a gap for that period.',
     source: SRC.sessionTraceSetup
@@ -4276,7 +4267,7 @@ window.QUESTIONS = [
     objective: 'Explain agent analytics and agent optimisation',
     stem: 'An admin wants to group similar conversations to find which topics and actions give poor answers. Which capability fits?',
     options: [
-      { correct: true, text: 'Agent Optimization, part of Agentforce Observability, which groups interactions into intents and scores their quality.', why: 'Built to analyse sessions and find weak subagents.' },
+      { correct: true, text: 'Agent Optimization', why: 'Built to analyse sessions and find weak subagents.' },
       { correct: false, text: 'The Setup Audit Trail', why: 'Tracks configuration changes, not conversations.' },
       { correct: false, text: 'Field history tracking on the Case object', why: 'Tracks field changes on records.' },
       { correct: false, text: 'Debug logs for the agent user', why: 'Too low-level and short-lived for this.' }
@@ -4291,14 +4282,14 @@ window.QUESTIONS = [
     objective: 'Explain the process for managing and monitoring agents',
     group: 'trace-setup',
     stem: [
-      'Where is Agentforce Session Tracing turned on, and what does it need?',
-      'An admin can\'t turn on Agentforce Session Tracing. What should they check?'
+      'Where is Agentforce Session Tracing turned on?',
+      'Which Setup page is used to turn on Agentforce Session Tracing?'
     ],
     options: [
-      { correct: true, text: 'Einstein Audit, Analytics, and Monitoring Setup. It needs Einstein Generative AI and Agentforce turned on and Salesforce Standard Data Model version 1.130 or higher.', why: 'Stated prerequisites.' },
-      { correct: false, text: 'Debug Logs in Setup. It needs a Shield licence.', why: 'Not where it is turned on.' },
-      { correct: false, text: 'Agentforce Builder\'s Canvas view. It needs Agent Script.', why: 'Not where it is turned on.' },
-      { correct: false, text: 'It is always on and can\'t be changed', why: 'It can be turned on and off.' }
+      { correct: true, text: 'Einstein Audit, Analytics, and Monitoring Setup', why: 'Stated prerequisites.' },
+      { correct: false, text: 'Event Monitoring settings in Setup, with a Shield licence', why: 'Not where session tracing is turned on.' },
+      { correct: false, text: 'Agentforce Builder\'s Canvas view', why: 'The builder doesn\'t turn on tracing.' },
+      { correct: false, text: 'Einstein Trust Layer setup', why: 'That page covers masking and content safety.' }
     ],
     explanation: 'Session tracing is off by default, except in orgs with a single data space, where it turns on with Agentforce. Turning it on provisions the data model, then collects data every five minutes.',
     source: SRC.sessionTraceSetup
@@ -4311,7 +4302,7 @@ window.QUESTIONS = [
     group: 'trace-setup',
     stem: 'An admin changes the data space used for session tracing. What happens to the data already collected?',
     options: [
-      { correct: true, text: 'It stays in the old data space until deleted by hand. It isn\'t migrated, and new data goes to the new space.', why: 'No migration.' },
+      { correct: true, text: 'It stays in the old data space.', why: 'No migration.' },
       { correct: false, text: 'It moves to the new data space automatically', why: 'Data isn\'t migrated.' },
       { correct: false, text: 'It is deleted at once', why: 'It remains until deleted manually.' },
       { correct: false, text: 'It is copied to both spaces', why: 'Collection stops in the old space.' }
@@ -4327,9 +4318,9 @@ window.QUESTIONS = [
     group: 'trace-setup',
     stem: 'Session trace data can include personal, health or payment information. Which two steps does Salesforce recommend to protect it?',
     options: [
-      { correct: true, text: 'Use Data 360 dynamic data masking policies to redact, nullify or round sensitive values', why: 'Hides sensitive data from unauthorised users.' },
-      { correct: true, text: 'Apply permissions at the data space level, and review the default Allow All policy', why: 'Only authorised users can query it.' },
-      { correct: false, text: 'Turn off the Trust Layer', why: 'Makes things less safe.' },
+      { correct: true, text: 'Dynamic data masking policies in Data 360', why: 'Hides sensitive data from unauthorised users.' },
+      { correct: true, text: 'Permissions at the data space level', why: 'Only authorised users can query it.' },
+      { correct: false, text: 'Turn off the Trust Layer for trace data', why: 'Makes things less safe.' },
       { correct: false, text: 'Store trace data in a public Chatter group', why: 'Exposes it.' },
       { correct: false, text: 'Give everyone the Data Cloud Architect permission set', why: 'That grants access to all data.' }
     ],
@@ -4344,10 +4335,10 @@ window.QUESTIONS = [
     group: 'health-alerts',
     stem: 'Which three are needed before Agent Health Monitoring alerts can work?',
     options: [
-      { correct: true, text: 'Data Cloud enabled, Einstein turned on and an active agent', why: 'Stated prerequisites.' },
-      { correct: true, text: 'Agentforce Session Tracing and Agentforce Health Monitoring turned on in Einstein Audit, Analytics, and Monitoring Setup', why: 'Health monitoring builds on tracing.' },
-      { correct: true, text: 'Salesforce Standard Data Model version 1.130 or higher, and the latest Agent Analytics apps', why: 'Required versions.' },
-      { correct: false, text: 'A Shield Event Monitoring licence', why: 'Not listed.' },
+      { correct: true, text: 'Data Cloud, Einstein and an active agent', why: 'Stated prerequisites.' },
+      { correct: true, text: 'Session Tracing and Health Monitoring on', why: 'Health monitoring builds on tracing.' },
+      { correct: true, text: 'Standard Data Model 1.130 or higher', why: 'Required versions.' },
+      { correct: false, text: 'A Shield Event Monitoring licence for the org', why: 'Not listed.' },
       { correct: false, text: 'A MuleSoft connection', why: 'Not listed.' },
       { correct: false, text: 'Classic Experience turned on', why: 'Not relevant.' }
     ],
@@ -4361,14 +4352,14 @@ window.QUESTIONS = [
     objective: 'Explain agent analytics and agent optimisation',
     group: 'usage-metrics',
     stem: [
-      'In Agent Analytics, what is the difference between a session and an interaction?',
-      'On the Usage tab, what does Unique Interactions count?'
+      'In Agent Analytics, what is one interaction?',
+      'On the Usage tab, what does each unique interaction represent?'
     ],
     options: [
-      { correct: true, text: 'A session is the whole exchange between a user and an agent. An interaction is one user request plus the agent\'s response.', why: 'Sessions contain interactions.' },
-      { correct: false, text: 'They mean the same thing', why: 'One contains the other.' },
-      { correct: false, text: 'An interaction is the whole conversation', why: 'That is a session.' },
-      { correct: false, text: 'A session is one message', why: 'That is closer to an interaction.' }
+      { correct: true, text: 'One user request plus the agent\'s response', why: 'Sessions contain interactions.' },
+      { correct: false, text: 'The whole exchange between a user and the agent', why: 'That is a session.' },
+      { correct: false, text: 'One message from the user, with no reply counted', why: 'An interaction includes the reply.' },
+      { correct: false, text: 'One action run by the agent during a session', why: 'Actions are steps within an interaction.' }
     ],
     explanation: 'The Usage tab shows unique sessions, unique interactions, unique users and average interactions per session.',
     source: SRC.monitorMetrics
@@ -4414,7 +4405,7 @@ window.QUESTIONS = [
     objective: 'Explain the process for managing and monitoring agents',
     stem: 'Where is agent session trace data stored?',
     options: [
-      { correct: true, text: 'In Data 360, using the Session Tracing Data Model', why: 'Analytics and dashboards build on these objects.' },
+      { correct: true, text: 'In a Data 360 data space', why: 'Analytics and dashboards build on these objects.' },
       { correct: false, text: 'In the Setup Audit Trail', why: 'That logs Setup changes.' },
       { correct: false, text: 'At the LLM provider', why: 'Zero data retention means the provider keeps nothing.' },
       { correct: false, text: 'In a text file in the agent\'s AiAuthoringBundle', why: 'The bundle holds the agent definition, not session data.' }
@@ -4433,7 +4424,7 @@ window.QUESTIONS = [
       'A team is budgeting for Agentforce Observability. Which item is still metered?'
     ],
     options: [
-      { correct: true, text: 'Building new dashboards or ingesting external data sources', why: 'Net-new customisation is still metered.' },
+      { correct: true, text: 'Building new dashboards', why: 'Net-new customisation is still metered.' },
       { correct: false, text: 'Session tracing', why: 'Unmetered for all Agentforce customers.' },
       { correct: false, text: 'The out-of-the-box dashboards', why: 'Unmetered, including changes to them.' },
       { correct: false, text: 'Drilling into session traces', why: 'Unmetered.' }
@@ -4451,10 +4442,10 @@ window.QUESTIONS = [
       'How are deflection and abandonment worked out in Agentforce Observability?'
     ],
     options: [
-      { correct: true, text: 'LLM-based session evaluation with editable prompts, including custom LLM-as-judge scores', why: 'Deflection, abandonment and custom scores use an LLM over the whole session.' },
+      { correct: true, text: 'LLM-based session evaluation with editable prompts', why: 'Deflection, abandonment and custom scores use an LLM over the whole session.' },
       { correct: false, text: 'A formula field on the Messaging Session object', why: 'Not how session quality is scored.' },
       { correct: false, text: 'The Setup Audit Trail', why: 'Tracks configuration changes.' },
-      { correct: false, text: 'Testing Center response evaluations', why: 'Those score test cases, not real sessions.' }
+      { correct: false, text: 'Testing Center response evaluations on each session', why: 'Those score test cases, not real sessions.' }
     ],
     explanation: 'An LLM evaluates deflection and abandonment across the full session, using an editable prompt for each metric. Teams can add their own LLM-as-judge scores, such as sentiment, tone, competitor mentions or pricing signals.',
     source: SRC.observability
@@ -4466,9 +4457,9 @@ window.QUESTIONS = [
     objective: 'Explain agent analytics and agent optimisation',
     stem: 'Which two can Agentforce Observability show?',
     options: [
-      { correct: true, text: 'A waterfall trace that follows delegations to other agents in a multi-agent workflow', why: 'Built for multi-agent debugging.' },
+      { correct: true, text: 'A waterfall trace across agent delegations', why: 'Built for multi-agent debugging.' },
       { correct: true, text: 'Metrics sliced by subagent, action and intent', why: 'Analytics can be broken down this way.' },
-      { correct: false, text: 'The LLM provider\'s copy of every prompt', why: 'Zero data retention: providers keep nothing.' },
+      { correct: false, text: 'The LLM provider\'s stored copy of every prompt', why: 'Zero data retention: providers keep nothing.' },
       { correct: false, text: 'Each agent user\'s password history', why: 'Not part of observability.' },
       { correct: false, text: 'The Apex code coverage of each action', why: 'Not part of observability.' }
     ],
@@ -4487,7 +4478,7 @@ window.QUESTIONS = [
     options: [
       { correct: true, text: '`enable_enhanced_event_logs: True`', why: 'Turns on conversation logging. The default is False.' },
       { correct: false, text: '`thought_chunks: True`', why: 'Streams the agent\'s thinking to the client.' },
-      { correct: false, text: '`citation: True`', why: 'Adds source references to answers.' },
+      { correct: false, text: '`include_in_progress_indicator: True`', why: 'An action property that shows a progress indicator.' },
       { correct: false, text: '`groundedness: False`', why: 'Turns off the groundedness check.' }
     ],
     explanation: '`enable_enhanced_event_logs` in the `config` block turns on conversation logging for debugging and monitoring. It defaults to False.',
@@ -4540,10 +4531,10 @@ window.QUESTIONS = [
       'In the Agent Development Lifecycle, how does monitoring differ from testing?'
     ],
     options: [
-      { correct: true, text: 'Testing checks the agent before release with designed test cases. Monitoring watches it over time with real conversations.', why: 'Lab versus real-world conditions.' },
+      { correct: true, text: 'Testing is before release. Monitoring uses real conversations.', why: 'Lab versus real-world conditions.' },
       { correct: false, text: 'They are the same thing with different names.', why: 'They happen at different stages with different data.' },
       { correct: false, text: 'Monitoring happens only in sandboxes.', why: 'Monitoring looks at real usage.' },
-      { correct: false, text: 'Testing happens only after the agent is in production.', why: 'Testing comes before release.' }
+      { correct: false, text: 'Testing happens only after the agent is already in production.', why: 'Testing comes before release.' }
     ],
     explanation: 'The Agent Development Lifecycle (ADLC) runs Ideate, Build, Test, Deploy and Monitor, then round again. Observability applies mainly in the Test and Monitor phases.',
     source: SRC.monitorStart
@@ -4556,10 +4547,10 @@ window.QUESTIONS = [
     group: 'outcome-metrics',
     stem: [
       'In Agent Analytics, what is the deflection rate?',
-      'A session ended without being handed to a service rep or another agent. How is it counted?'
+      'In Agent Analytics, which sessions count towards the deflection rate?'
     ],
     options: [
-      { correct: true, text: 'Deflected: the share of sessions that ended without escalation to a rep or another agent', why: 'Resolved without a handoff.' },
+      { correct: true, text: 'Sessions that ended without escalation', why: 'Resolved without a handoff.' },
       { correct: false, text: 'The share of sessions where the user gave up', why: 'That is abandonment.' },
       { correct: false, text: 'The share of sessions where an action ran', why: 'That is engagement.' },
       { correct: false, text: 'The share of responses with a low toxicity score', why: 'That is a trust metric.' }
@@ -4594,7 +4585,7 @@ window.QUESTIONS = [
       'What does the Engagement Rate measure?'
     ],
     options: [
-      { correct: true, text: 'When the user got a reply tied to an action the agent triggered. At least one action must run.', why: 'No action, no engagement.' },
+      { correct: true, text: 'When at least one agent action ran', why: 'No action, no engagement.' },
       { correct: false, text: 'When the user sent more than three messages.', why: 'Message count isn\'t the rule.' },
       { correct: false, text: 'When the user gave a thumbs up.', why: 'That is user satisfaction.' },
       { correct: false, text: 'When the session lasted longer than a minute.', why: 'Duration isn\'t the rule.' }
@@ -4616,7 +4607,7 @@ window.QUESTIONS = [
       { correct: true, text: 'Answer Faithfulness', why: 'Measures adherence to grounded source data (0 to 1).' },
       { correct: false, text: 'Context Relevance', why: 'Measures whether the right data source was retrieved.' },
       { correct: false, text: 'Answer Relevance', why: 'Measures relevance to the question.' },
-      { correct: false, text: 'Engagement Rate', why: 'Measures whether actions ran.' }
+      { correct: false, text: 'Instruction Adherence', why: 'Measures how well responses follow subagent instructions.' }
     ],
     explanation: 'Quality scores come from an LLM evaluator. Quality Score runs from 1 to 5. Answer Faithfulness, Answer Relevance and Context Relevance run from 0 to 1. They need Audit and Feedback and Knowledge/RAG Quality Data and Metrics turned on.',
     source: SRC.monitorMetrics
@@ -4647,8 +4638,8 @@ window.QUESTIONS = [
       'Which statement about the Average Agent Toxicity Score is true?'
     ],
     options: [
-      { correct: true, text: 'From the Einstein Trust Layer: Adherence Response Rate and Average Agent Toxicity Score, where lower toxicity is better', why: 'Trust metrics come from the Trust Layer.' },
-      { correct: false, text: 'From Testing Center: higher toxicity is better', why: 'Lower is better, and it comes from the Trust Layer.' },
+      { correct: true, text: 'From the Trust Layer, and lower toxicity is better', why: 'Trust metrics come from the Trust Layer.' },
+      { correct: false, text: 'From Testing Center, and higher toxicity is better', why: 'Lower is better, and it comes from the Trust Layer.' },
       { correct: false, text: 'From Setup Audit Trail: changes made by admins', why: 'Unrelated.' },
       { correct: false, text: 'From the LLM provider\'s logs', why: 'Providers keep no data under zero data retention.' }
     ],
@@ -4666,7 +4657,7 @@ window.QUESTIONS = [
     ],
     options: [
       { correct: true, text: 'Performance Insights', why: 'Breaks metrics down by subagent, intent or action.' },
-      { correct: false, text: 'Usage', why: 'Counts sessions, interactions and users.' },
+      { correct: false, text: 'Sessions & Intents table', why: 'Lists individual sessions, not segment comparisons.' },
       { correct: false, text: 'Health', why: 'Shows error rate and durations.' },
       { correct: false, text: 'Voice', why: 'Shows interruption rate.' }
     ],
@@ -4684,7 +4675,7 @@ window.QUESTIONS = [
       'When does a cluster tag get created for intents?'
     ],
     options: [
-      { correct: true, text: 'A tag needs at least 10 similar intents, and clustering runs weekly, so new or rare intents stay untagged for a while.', why: 'Clustering needs volume and runs weekly.' },
+      { correct: true, text: 'Tags need 10 similar intents and run weekly.', why: 'Clustering needs volume and runs weekly.' },
       { correct: false, text: 'Tags are added by hand by an admin.', why: 'An LLM pipeline creates them.' },
       { correct: false, text: 'Only escalated sessions get tags.', why: 'Any processed session can.' },
       { correct: false, text: 'Tags are created instantly as the customer types.', why: 'Processing happens after sessions close.' }
@@ -4700,7 +4691,7 @@ window.QUESTIONS = [
     group: 'intents',
     stem: 'A session has a low quality score. Which field explains why, and is the most useful starting point for a fix?',
     options: [
-      { correct: true, text: 'The quality score reasoning in the Interaction Summary', why: 'The LLM\'s explanation of the score.' },
+      { correct: true, text: 'The quality score reasoning', why: 'The LLM\'s explanation of the score.' },
       { correct: false, text: 'The session ID', why: 'Identifies the session. It doesn\'t explain it.' },
       { correct: false, text: 'The transcript download button', why: 'Useful, but doesn\'t explain the score.' },
       { correct: false, text: 'The Usage tab', why: 'Shows counts, not reasons.' }
@@ -4715,8 +4706,8 @@ window.QUESTIONS = [
     objective: 'Explain agent analytics and agent optimisation',
     stem: 'A subagent has a low quality score, high escalation and low Answer Faithfulness. The traces show it retrieving overlapping knowledge articles. What is the best fix?',
     options: [
-      { correct: true, text: 'Merge and archive the conflicting articles, update the subagent instructions, test in Testing Center, deploy, then recheck analytics', why: 'Fix the cause, test, then confirm.' },
-      { correct: false, text: 'Turn off the groundedness check', why: 'Makes unfaithful answers more likely.' },
+      { correct: true, text: 'Fix the conflicting articles, then retest', why: 'Fix the cause, test, then confirm.' },
+      { correct: false, text: 'Turn off the groundedness check for that subagent', why: 'Makes unfaithful answers more likely.' },
       { correct: false, text: 'Delete the subagent', why: 'Removes the capability instead of fixing it.' },
       { correct: false, text: 'Raise the abandonment timeout', why: 'Doesn\'t touch answer quality.' }
     ],
@@ -4734,8 +4725,8 @@ window.QUESTIONS = [
       'Which details make up an Agentforce health monitoring alert?'
     ],
     options: [
-      { correct: true, text: 'A metric, an agent, a threshold condition (at or above, or at or below) and a threshold value', why: 'The four parts of an alert.' },
-      { correct: false, text: 'A prompt template and a model', why: 'Not part of an alert.' },
+      { correct: true, text: 'A metric, an agent and a threshold', why: 'The four parts of an alert.' },
+      { correct: false, text: 'A prompt template, a model and a schedule', why: 'Not part of an alert.' },
       { correct: false, text: 'A list of customers to email', why: 'Notifications go to the people who own the alert.' },
       { correct: false, text: 'An Apex trigger', why: 'Alerts are configured, not coded.' }
     ],
@@ -4750,8 +4741,8 @@ window.QUESTIONS = [
     group: 'health-alerts',
     stem: 'How should an admin choose the threshold for an interaction duration alert?',
     options: [
-      { correct: true, text: 'Review at least 30 days of history, find the normal range, agree acceptable performance with the business, and set it where normal variation ends', why: 'Avoids noisy or useless alerts.' },
-      { correct: false, text: 'Set it to 0 so every slow response alerts', why: 'Produces constant noise.' },
+      { correct: true, text: 'Base it on 30 days of history and business needs', why: 'Avoids noisy or useless alerts.' },
+      { correct: false, text: 'Set it to 0 seconds so that every slow response alerts', why: 'Produces constant noise.' },
       { correct: false, text: 'Copy a threshold from another company', why: 'Normal ranges differ.' },
       { correct: false, text: 'Set it once and never change it', why: 'Thresholds need tuning as behaviour changes.' }
     ],
@@ -4768,7 +4759,7 @@ window.QUESTIONS = [
       'Where would you see thumbs up and thumbs down feedback counts in Agent Analytics?'
     ],
     options: [
-      { correct: true, text: 'User satisfaction (thumbs up and thumbs down), on the employee agent dashboard', why: 'Employee agents only.' },
+      { correct: true, text: 'User satisfaction', why: 'Employee agents only.' },
       { correct: false, text: 'Deflection rate', why: 'A service agent effectiveness metric.' },
       { correct: false, text: 'Interruption rate', why: 'A voice metric.' },
       { correct: false, text: 'Error rate', why: 'A health metric for any agent.' }
@@ -4784,13 +4775,13 @@ window.QUESTIONS = [
     group: 'tracing-data',
     stem: [
       'A batch of test cases failed and an admin wants to see exactly what the agent did turn by turn. Which feature records this?',
-      'What does Agentforce Session Tracing capture?'
+      'Which feature records every turn, action and LLM call in an agent session?'
     ],
     options: [
-      { correct: true, text: 'Agentforce Session Tracing: turn-by-turn interactions, reasoning steps, actions, prompt and gateway inputs and outputs, errors and final responses, under one session ID', why: 'The full record of a session.' },
+      { correct: true, text: 'Agentforce Session Tracing', why: 'The full record of a session.' },
       { correct: false, text: 'Setup Audit Trail', why: 'Tracks configuration changes.' },
       { correct: false, text: 'Login History', why: 'Tracks logins.' },
-      { correct: false, text: 'Field History Tracking', why: 'Tracks field value changes.' }
+      { correct: false, text: 'Debug logs for the agent user', why: 'Too low-level and short-lived for agent sessions.' }
     ],
     explanation: 'Session tracing works for all agent types. Use it to debug configuration at build time, find out why test cases failed, or see why an agent goes off topic. The data is in Data 360 data model objects, so you can query and report on it.',
     source: SRC.sessionTracingHelp
@@ -4809,7 +4800,7 @@ window.QUESTIONS = [
       { correct: true, text: 'Instruction adherence', why: 'Scores how well responses follow subagent instructions.' },
       { correct: false, text: 'Task resolution', why: 'Scores whether the user\'s task was resolved.' },
       { correct: false, text: 'Toxicity', why: 'Scores harmful content.' },
-      { correct: false, text: 'Abandonment rate', why: 'Counts sessions users gave up on.' }
+      { correct: false, text: 'Context Relevance score', why: 'Measures whether the right source was retrieved.' }
     ],
     explanation: 'Instruction adherence logs a score and an explanation in the Audit and Feedback data model in Data 360, which must be turned on. Scores also show in enhanced agent event logs and on the Agent Analytics Trust tab. It is English only and for service agents only.',
     source: SRC.instructionAdherence
@@ -4825,9 +4816,9 @@ window.QUESTIONS = [
       'A conversation is scored "Partially Resolved". What else does Task Resolution record?'
     ],
     options: [
-      { correct: true, text: 'Fully Resolved, Partially Resolved or Unresolved, with reasoning recorded for anything not fully resolved', why: 'Non-binary scores with explanations.' },
-      { correct: false, text: 'A number from 1 to 100', why: 'It uses three categories.' },
-      { correct: false, text: 'Pass or Fail only, with no explanation', why: 'It has three levels and reasoning.' },
+      { correct: true, text: 'Fully, Partially or Unresolved, with reasons', why: 'Non-binary scores with explanations.' },
+      { correct: false, text: 'A number from 1 to 100, with no explanation', why: 'It uses three categories.' },
+      { correct: false, text: 'Pass or Fail only, with no explanation given', why: 'It has three levels and reasoning.' },
       { correct: false, text: 'High, Low or Uncertain', why: 'Those are instruction adherence scores.' }
     ],
     explanation: 'Task Resolution judges whether the agent understood and completed the user\'s task over a multi-turn conversation. It works for agents built in the new Agentforce Builder. Results are in the generative AI audit trail in Data 360 (the Einstein Generative AI Content Quality object).',
@@ -4844,7 +4835,7 @@ window.QUESTIONS = [
       'Which statement about activating agents is true?'
     ],
     options: [
-      { correct: true, text: 'Version 2 is automatically deactivated. Only one version of an agent can be active at a time.', why: 'Activation switches versions.' },
+      { correct: true, text: 'Version 2 is deactivated automatically.', why: 'Activation switches versions.' },
       { correct: false, text: 'Both versions run, alternating between users.', why: 'One active version only.' },
       { correct: false, text: 'The activation fails until version 2 is deactivated by hand.', why: 'It deactivates automatically.' },
       { correct: false, text: 'Version 3 waits until the next day.', why: 'It is available straight away.' }
@@ -4860,7 +4851,7 @@ window.QUESTIONS = [
     group: 'activation',
     stem: 'A service agent connected to Enhanced Chat is deactivated during the day. What do customers experience?',
     options: [
-      { correct: true, text: 'Ongoing conversations are interrupted without warning, the agent replies with the system error message, and new chats open but the agent doesn\'t join', why: 'Deactivation is immediate.' },
+      { correct: true, text: 'Chats end without warning and get the error message', why: 'Deactivation is immediate.' },
       { correct: false, text: 'Customers get a polite notice that the agent is offline', why: 'Users aren\'t notified.' },
       { correct: false, text: 'Conversations finish first, then the agent stops', why: 'They are interrupted.' },
       { correct: false, text: 'The chat window disappears from the site', why: 'The window still appears.' }
@@ -4875,14 +4866,14 @@ window.QUESTIONS = [
     objective: 'Explain the process for managing and monitoring agents',
     group: 'audit-feedback',
     stem: [
-      'Which data comes from the LLM Gateway as generative AI audit data, rather than from the Feedback API?',
-      'What is the difference between generative AI audit data and feedback data?'
+      'Which of these comes from the LLM Gateway as generative AI audit data?',
+      'Which data is part of generative AI audit data rather than feedback data?'
     ],
     options: [
-      { correct: true, text: 'Audit data: the hydrated prompt, masked prompt, LLM response, unmasked response, safety and toxicity scores. Feedback data: thumbs up or down, and accept, regenerate, modify or decline.', why: 'Two sources, two kinds of data.' },
-      { correct: false, text: 'Audit data is user ratings. Feedback data is prompts.', why: 'The other way round.' },
-      { correct: false, text: 'Both come from Setup Audit Trail.', why: 'They come from the LLM Gateway and the Feedback API.' },
-      { correct: false, text: 'Neither is stored.', why: 'Both are stored in Data 360.' }
+      { correct: true, text: 'The masked prompt and the toxicity scores', why: 'Two sources, two kinds of data.' },
+      { correct: false, text: 'Thumbs up and thumbs down reactions', why: 'That is feedback data.' },
+      { correct: false, text: 'Whether the user accepted or modified the response', why: 'That is feedback data.' },
+      { correct: false, text: 'Setup changes made by admins in the org', why: 'That is the Setup Audit Trail.' }
     ],
     explanation: 'Audit data includes user data. Feedback data doesn\'t. Both are stored in the default data space in Data 360 once Einstein Generative AI and Feedback Data Collection and Storage is turned on.',
     source: SRC.auditFeedback
@@ -4895,7 +4886,7 @@ window.QUESTIONS = [
     group: 'audit-feedback',
     stem: 'How often does Data 360 refresh the generative AI audit and feedback data streams, and how is the data deleted?',
     options: [
-      { correct: true, text: 'Once an hour. Delete it by removing the data lake objects from the data space.', why: 'Stated in Help.' },
+      { correct: true, text: 'Hourly, and you remove the data lake objects', why: 'Stated in Help.' },
       { correct: false, text: 'Instantly, with each prompt. It can\'t be deleted.', why: 'Hourly, and it can be deleted.' },
       { correct: false, text: 'Once a week. Salesforce Support deletes it.', why: 'Hourly, and you delete it yourself.' },
       { correct: false, text: 'Once a day. It deletes itself after 24 hours.', why: 'Hourly, and it is kept until you remove it.' }
@@ -4917,7 +4908,7 @@ window.QUESTIONS = [
       { correct: true, text: 'People, Business, Technology and Data', why: 'The four categories in Salesforce\'s framework.' },
       { correct: false, text: 'Cost, Speed and Quality', why: 'Not the framework Salesforce describes.' },
       { correct: false, text: 'Plan, Do, Check and Act', why: 'A general improvement cycle, not this framework.' },
-      { correct: false, text: 'Subagents, Actions and Variables', why: 'Building blocks, not risk categories.' }
+      { correct: false, text: 'Subagents, Actions, Variables and Filters', why: 'Building blocks, not risk categories.' }
     ],
     explanation: 'People covers roles, training and change management. Business covers value, KPIs and governance. Technology covers tooling, prompts, safeguards and models. Data covers quality and data strategy.',
     source: SRC.planRisks
@@ -4930,10 +4921,10 @@ window.QUESTIONS = [
     group: 'risk-planning',
     stem: 'After cataloguing the risks of an Agentforce use case, what should a team do?',
     options: [
-      { correct: true, text: 'Plan mitigations, turn some into agent guardrails, and document the risks and guardrails for compliance and audits', why: 'Salesforce\'s recommended next steps.' },
+      { correct: true, text: 'Plan mitigations and document the guardrails', why: 'Salesforce\'s recommended next steps.' },
       { correct: false, text: 'Accept every risk and build straight away', why: 'Plan mitigations first.' },
       { correct: false, text: 'Hand the list to the LLM provider', why: 'The mitigations are the team\'s job.' },
-      { correct: false, text: 'Keep the list private and undocumented', why: 'Documentation helps compliance and audits.' }
+      { correct: false, text: 'Keep the list private and leave it undocumented', why: 'Documentation helps compliance and audits.' }
     ],
     explanation: 'Risks of autonomous agents include security threats, data breaches, reputational harm, financial loss, bias, hallucinations, and gaps in transparency and accountability.',
     source: SRC.planRisks
@@ -4949,7 +4940,7 @@ window.QUESTIONS = [
       'Which approach does Salesforce recommend when scoping a new agent?'
     ],
     options: [
-      { correct: true, text: 'As a minimum viable product: the smallest useful unit of work, expanded as AI maturity grows', why: 'Validates assumptions and manages risk.' },
+      { correct: true, text: 'As a minimum viable product', why: 'Validates assumptions and manages risk.' },
       { correct: false, text: 'Cover every process at once so value comes sooner', why: 'Raises risk.' },
       { correct: false, text: 'Start from the technical design before the business goals', why: 'Use cases start with goals, not solutions.' },
       { correct: false, text: 'Skip measurable goals until after launch', why: 'Set specific, measurable goals up front.' }
@@ -4970,7 +4961,7 @@ window.QUESTIONS = [
       'What is the Model Context Protocol (MCP) used for?'
     ],
     options: [
-      { correct: true, text: 'MCP, a standard way for an agent to connect to tools and data', why: 'MCP standardises agent-to-tool connections.' },
+      { correct: true, text: 'MCP, for connecting agents to tools and data', why: 'MCP standardises agent-to-tool connections.' },
       { correct: false, text: 'A2A, for one agent calling external databases', why: 'A2A is for agents working with other agents.' },
       { correct: false, text: 'OAuth 2.0 client credentials', why: 'An authentication flow, not a tool protocol.' },
       { correct: false, text: 'Platform Events', why: 'Salesforce event messaging, not an agent protocol.' }
@@ -4985,7 +4976,7 @@ window.QUESTIONS = [
     objective: 'Decide whether a multi-agent architecture is appropriate',
     stem: 'In which situation is a multi-agent architecture most appropriate?',
     options: [
-      { correct: true, text: 'Several domains, each owned by a different team, with many subagents that keep getting confused with each other.', why: 'Specialist agents behind an orchestrator scale and are easier to control.' },
+      { correct: true, text: 'Several domains owned by different teams', why: 'Specialist agents behind an orchestrator scale and are easier to control.' },
       { correct: false, text: 'An FAQ agent with three subagents and one owner.', why: 'One agent is simpler and enough.' },
       { correct: false, text: 'An agent that needs a faster LLM.', why: 'Model speed isn\'t solved by more agents.' },
       { correct: false, text: 'An agent that needs one extra action.', why: 'Add the action to the existing agent.' }
@@ -5004,7 +4995,7 @@ window.QUESTIONS = [
       'When does Salesforce suggest staying with a single agent with subagents?'
     ],
     options: [
-      { correct: true, text: 'A single agent with subagents, because the work is in one domain with shared data access', why: 'Straightforward, one domain, shared data.' },
+      { correct: true, text: 'A single agent with subagents', why: 'Straightforward, one domain, shared data.' },
       { correct: false, text: 'A Super Agent with three connected subagents', why: 'Adds moving parts with no benefit here.' },
       { correct: false, text: 'Three separate agents with no orchestrator', why: 'Users would need three front doors.' },
       { correct: false, text: 'A prompt template for each question', why: 'Templates don\'t hold conversations.' }
@@ -5056,7 +5047,7 @@ window.QUESTIONS = [
       'Which statement about connected subagents is true?'
     ],
     options: [
-      { correct: true, text: 'Connected subagents respond. They don\'t route or orchestrate, so revisit the architecture.', why: 'Routing belongs to the Super Agent.' },
+      { correct: true, text: 'Connected subagents respond. They don\'t route.', why: 'Routing belongs to the Super Agent.' },
       { correct: false, text: 'Add instructions telling it not to call other agents.', why: 'Salesforce says fix the architecture, not patch instructions.' },
       { correct: false, text: 'That is the recommended pattern for complex requests.', why: 'Only the orchestrator routes.' },
       { correct: false, text: 'Convert the second connected subagent into a prompt template.', why: 'Doesn\'t address the design problem.' }
@@ -5072,7 +5063,7 @@ window.QUESTIONS = [
     group: 'super-agent-role',
     stem: 'In a Super Agent design, where should GDPR opt-out handling, identity verification and the decision to escalate to a human belong?',
     options: [
-      { correct: true, text: 'In the Super Agent, so they apply the same way to every request', why: 'Shared rules belong at the front door.' },
+      { correct: true, text: 'In the Super Agent', why: 'Shared rules belong at the front door.' },
       { correct: false, text: 'In each connected subagent, so each owns its own copy', why: 'Copies drift apart.' },
       { correct: false, text: 'In the LLM provider\'s settings', why: 'Not where business rules belong.' },
       { correct: false, text: 'Only in Testing Center', why: 'Testing checks behaviour. It doesn\'t implement it.' }
@@ -5090,7 +5081,7 @@ window.QUESTIONS = [
       'What is the most common cause of routing problems between a Super Agent and its connected subagents?'
     ],
     options: [
-      { correct: true, text: 'The connected subagents\' descriptions, which are vague or overlapping', why: 'Routing is based on the descriptions.' },
+      { correct: true, text: 'The connected subagents\' descriptions', why: 'Routing is based on the descriptions.' },
       { correct: false, text: 'The LLM provider', why: 'Not the usual cause.' },
       { correct: false, text: 'The number of actions in each connected subagent', why: 'Routing happens before their actions.' },
       { correct: false, text: 'The welcome message', why: 'Doesn\'t affect routing.' }
@@ -5123,7 +5114,7 @@ window.QUESTIONS = [
       'How can you tell whether a planned connected subagent is scoped well?'
     ],
     options: [
-      { correct: true, text: 'Describe its purpose in one sentence without "and". If you can\'t, split it.', why: 'The one-sentence test.' },
+      { correct: true, text: 'The one-sentence test without "and"', why: 'The one-sentence test.' },
       { correct: false, text: 'Give it at least 15 actions so it\'s worth the cost.', why: 'Size isn\'t the test.' },
       { correct: false, text: 'Make every single step its own connected subagent.', why: 'A single step with no reasoning is an action, not an agent.' },
       { correct: false, text: 'Combine every domain into it to reduce handoffs.', why: 'That recreates the single-agent problem.' }
@@ -5142,7 +5133,7 @@ window.QUESTIONS = [
       'What is Agent2Agent (A2A) used for?'
     ],
     options: [
-      { correct: true, text: 'A2A, which lets agents from different systems connect and delegate tasks to each other', why: 'Agent-to-agent collaboration.' },
+      { correct: true, text: 'A2A, for agents to delegate to other agents', why: 'Agent-to-agent collaboration.' },
       { correct: false, text: 'MCP, which connects an agent to tools and data', why: 'MCP is agent-to-tool, not agent-to-agent.' },
       { correct: false, text: 'SAML single sign-on', why: 'Authenticates users, not agents working together.' },
       { correct: false, text: 'The Bulk API', why: 'Moves large volumes of records.' }
@@ -5161,7 +5152,7 @@ window.QUESTIONS = [
       'Which statement about Multi-Agent Orchestration for Agentforce is true?'
     ],
     options: [
-      { correct: true, text: 'No. Connected subagents must be Agentforce agents in the same org. Cross-org and external non-Agentforce agents aren\'t supported.', why: 'Current limitation.' },
+      { correct: true, text: 'Only agents in the same org are supported.', why: 'Current limitation.' },
       { correct: false, text: 'Yes. Any agent in any org can be connected.', why: 'Single org only.' },
       { correct: false, text: 'Yes, as long as both orgs use the same LLM provider.', why: 'Single org only.' },
       { correct: false, text: 'Yes, through a connected subagent with handoff mode.', why: 'Handoff mode doesn\'t lift the single-org limit.' }
@@ -5177,8 +5168,8 @@ window.QUESTIONS = [
     group: 'multi-limits',
     stem: 'Which two are limits of Multi-Agent Orchestration for Agentforce in this release?',
     options: [
-      { correct: true, text: 'One level of delegation from the orchestrator to connected subagents', why: 'Connected subagents can\'t delegate further.' },
-      { correct: true, text: 'Timeouts of 120 seconds for the orchestrator and 30 seconds for each connected subagent', why: 'Stated limits.' },
+      { correct: true, text: 'One level of delegation', why: 'Connected subagents can\'t delegate further.' },
+      { correct: true, text: 'Timeouts of 120 and 30 seconds', why: 'Stated limits.' },
       { correct: false, text: 'A maximum of 2 connected subagents per orchestrator', why: 'The recommendation is up to 7.' },
       { correct: false, text: 'Variables flow both ways between agents', why: 'One direction only, orchestrator to subagent.' },
       { correct: false, text: 'Agentforce Voice is fully supported', why: 'Voice isn\'t a supported configuration.' }
@@ -5194,7 +5185,7 @@ window.QUESTIONS = [
     group: 'multi-limits',
     stem: 'An agent built in the legacy Agentforce builder is to become a connected subagent. What must happen first?',
     options: [
-      { correct: true, text: 'Upgrade it to the new Agentforce Builder, then activate a version', why: 'Legacy agents must be upgraded.' },
+      { correct: true, text: 'Upgrade it to the new builder', why: 'Legacy agents must be upgraded.' },
       { correct: false, text: 'Nothing. Legacy agents can be connected as they are.', why: 'They need upgrading.' },
       { correct: false, text: 'Rebuild it as a prompt template', why: 'It stays an agent.' },
       { correct: false, text: 'Deactivate it', why: 'Only active agents can be connected.' }
@@ -5210,7 +5201,7 @@ window.QUESTIONS = [
     group: 'multi-limits',
     stem: 'Which kinds of variables can an orchestrator agent map to a connected subagent?',
     options: [
-      { correct: true, text: 'Both context variables and custom variables, from the orchestrator to the subagent only', why: 'One-way mapping of both kinds.' },
+      { correct: true, text: 'Context and custom variables, one way', why: 'One-way mapping of both kinds.' },
       { correct: false, text: 'Only custom variables, in both directions', why: 'Context variables are supported, one way only.' },
       { correct: false, text: 'No variables at all', why: 'Mapping is supported.' },
       { correct: false, text: 'Only linked variables, from the subagent back to the orchestrator', why: 'The direction is orchestrator to subagent.' }
@@ -5226,10 +5217,10 @@ window.QUESTIONS = [
     group: 'mcp',
     stem: [
       'In the Model Context Protocol, what does an MCP server provide?',
-      'Which statement about MCP servers, clients and hosts is true?'
+      'What does an MCP server make available to clients?'
     ],
     options: [
-      { correct: true, text: 'Tools, prompts and resources that an external system makes available. Clients connect to servers, and the host coordinates.', why: 'The three MCP roles.' },
+      { correct: true, text: 'Tools, prompts and resources', why: 'The three MCP roles.' },
       { correct: false, text: 'The LLM itself', why: 'Servers expose tools and data, not models.' },
       { correct: false, text: 'Only user authentication', why: 'Servers expose tools, prompts and resources.' },
       { correct: false, text: 'A replacement for the Agentforce reasoning engine', why: 'The agent still does the reasoning.' }
@@ -5248,7 +5239,7 @@ window.QUESTIONS = [
       'How does MCP for Agentforce protect against "rug pulls"?'
     ],
     options: [
-      { correct: true, text: 'It detects the changed tool definition and removes that tool action from the agent at run time, leaving other actions running', why: 'Definitions are captured at registration and checked each session and call.' },
+      { correct: true, text: 'It blocks that tool action at run time.', why: 'Definitions are captured at registration and checked each session and call.' },
       { correct: false, text: 'Nothing. Registered servers are always trusted.', why: 'Definitions are re-checked.' },
       { correct: false, text: 'It deactivates the whole agent', why: 'Only the affected actions are blocked.' },
       { correct: false, text: 'It emails the server\'s publisher to ask', why: 'Blocking is automatic.' }
@@ -5264,7 +5255,7 @@ window.QUESTIONS = [
     group: 'mcp',
     stem: 'Where do you connect a third-party MCP server to Agentforce, and where do MuleSoft and Salesforce-hosted servers go?',
     options: [
-      { correct: true, text: 'Third-party servers in Agentforce Registry. MuleSoft and Salesforce-hosted servers through API Catalog.', why: 'Two routes depending on the source.' },
+      { correct: true, text: 'Agentforce Registry, and API Catalog', why: 'Two routes depending on the source.' },
       { correct: false, text: 'All servers in Prompt Builder', why: 'Not where servers are registered.' },
       { correct: false, text: 'All servers as named credentials only', why: 'Registration happens in Registry or API Catalog.' },
       { correct: false, text: 'All servers in Data 360', why: 'Not where servers are registered.' }
@@ -5279,14 +5270,14 @@ window.QUESTIONS = [
     objective: 'Decide whether a multi-agent architecture is appropriate',
     group: 'handoff-supervisor',
     stem: [
-      'What is the difference between handoff mode and supervisor mode in multi-agent orchestration?',
-      'In which mode does the orchestrator stay in charge of the conversation and combine results from connected subagents?'
+      'In which multi-agent mode does the orchestrator call connected subagents as tools and combine their results itself?',
+      'Which routing mode keeps the orchestrator responsible for every reply to the user?'
     ],
     options: [
-      { correct: true, text: 'Handoff passes control to the connected subagent, which replies to the user. Supervisor calls subagents as tools and the orchestrator combines the results and replies.', why: 'The core difference.' },
-      { correct: false, text: 'Handoff calls several agents per turn. Supervisor calls one.', why: 'The other way round.' },
-      { correct: false, text: 'Supervisor mode has lower latency than handoff', why: 'Supervisor needs an extra LLM call, so it is slower.' },
-      { correct: false, text: 'They are two names for the same thing', why: 'They route differently.' }
+      { correct: true, text: 'Supervisor mode', why: 'The core difference.' },
+      { correct: false, text: 'Handoff mode', why: 'Handoff passes the conversation to the connected subagent.' },
+      { correct: false, text: 'Pipeline mode', why: 'Not one of the two routing modes.' },
+      { correct: false, text: 'Broadcast mode', why: 'Not one of the two routing modes.' }
     ],
     explanation: 'Handoff uses `@utils.transition to @connected_subagent.X`. Supervisor uses `@connected_subagent.X` as a tool. Supervisor can call several agents per turn but adds latency. Handoff allows one handoff per turn.',
     source: SRC.multiScript
@@ -5299,8 +5290,8 @@ window.QUESTIONS = [
     group: 'handoff-supervisor',
     stem: 'An orchestrator in handoff mode routes poorly. What does Salesforce say the Agent Router needs for handoff to work correctly?',
     options: [
-      { correct: true, text: 'The HyperClassifier model in `model_config`, with each connected subagent\'s description written like a function signature with a clear scope', why: 'Handoff relies on HyperClassifier reading descriptions.' },
-      { correct: false, text: 'No model configuration at all', why: 'Without HyperClassifier, handoff doesn\'t work correctly.' },
+      { correct: true, text: 'The HyperClassifier model in `model_config`', why: 'Handoff relies on HyperClassifier reading descriptions.' },
+      { correct: false, text: 'No model configuration at all in the router', why: 'Without HyperClassifier, handoff doesn\'t work correctly.' },
       { correct: false, text: 'A prompt template per connected subagent', why: 'Not required.' },
       { correct: false, text: 'Supervisor mode turned on as well', why: 'They are alternative patterns.' }
     ],
@@ -5315,10 +5306,10 @@ window.QUESTIONS = [
     group: 'after-response',
     stem: [
       'After a connected subagent replies, an email agent must always run next. Where is this chaining defined?',
-      'What is the `after_response` block used for?'
+      'Where is deterministic post-reply chaining from one connected subagent to the next defined?'
     ],
     options: [
-      { correct: true, text: 'In the connected subagent\'s `after_response` block, which runs deterministically after it replies (for example `transition to @connected_subagent.EmailAgent`)', why: 'Post-reply chaining in handoff mode.' },
+      { correct: true, text: 'In the connected subagent\'s `after_response` block', why: 'Post-reply chaining in handoff mode.' },
       { correct: false, text: 'In `after_reasoning` of the connected subagent definition', why: '`after_reasoning` is for internal subagents.' },
       { correct: false, text: 'In a prompt instruction asking the LLM to call the email agent', why: 'Not deterministic.' },
       { correct: false, text: 'In the `config` block', why: 'Not where chaining goes.' }
@@ -5334,7 +5325,7 @@ window.QUESTIONS = [
     group: 'after-response',
     stem: 'A pipeline of connected subagents loses data between steps. What is the usual cause?',
     options: [
-      { correct: true, text: 'A missing `inputs` mapping. Context doesn\'t flow automatically, so the next agent only gets values through its `inputs` block.', why: 'The usual dataflow error.' },
+      { correct: true, text: 'A missing `inputs` mapping', why: 'The usual dataflow error.' },
       { correct: false, text: 'Too many agents in the pipeline', why: 'Not the usual cause.' },
       { correct: false, text: 'The HyperClassifier deletes variables', why: 'It doesn\'t.' },
       { correct: false, text: 'Linked variables can\'t be used', why: 'They can be mapped as inputs.' }
@@ -5372,7 +5363,7 @@ window.QUESTIONS = [
       'Which authentication does MCP for Agentforce support?'
     ],
     options: [
-      { correct: true, text: 'Only no authentication or OAuth 2.0 client credentials. User-level authentication and personalised per-user actions aren\'t supported.', why: 'Stated limitation.' },
+      { correct: true, text: 'No auth or OAuth client credentials only', why: 'Stated limitation.' },
       { correct: false, text: 'Every OAuth flow, including authorization code with PKCE', why: 'Other flows aren\'t supported.' },
       { correct: false, text: 'Username and password only', why: 'Not supported.' },
       { correct: false, text: 'It uses the customer\'s Experience Cloud login automatically', why: 'User-level auth isn\'t supported.' }
@@ -5388,9 +5379,9 @@ window.QUESTIONS = [
     group: 'mcp-limits',
     stem: 'An agent with MCP tool actions is deployed to a new org. Why don\'t the MCP actions work straight away?',
     options: [
-      { correct: true, text: 'MCP server registrations aren\'t packaged. Register the servers and allowlist the tools in the new org first, then replace the tool actions from the asset library.', why: 'Registration is per org, for security.' },
+      { correct: true, text: 'Server registrations aren\'t packaged.', why: 'Registration is per org, for security.' },
       { correct: false, text: 'MCP actions can never be deployed', why: 'They can, with these steps.' },
-      { correct: false, text: 'The target org needs a different LLM', why: 'Not the cause.' },
+      { correct: false, text: 'The target org needs a different LLM provider', why: 'Not the cause.' },
       { correct: false, text: 'MCP only works in Developer Edition', why: 'Not a restriction.' }
     ],
     explanation: 'Changes to a server or its registration can break tool actions too. Remove the actions from the agent and asset library before changing or deleting a registration, then re-register and add the new actions.',
@@ -5404,7 +5395,7 @@ window.QUESTIONS = [
     group: 'mcp-limits',
     stem: 'An MCP server takes 75 seconds to answer a tool call. What happens?',
     options: [
-      { correct: true, text: 'The call times out, because the MCP client limit is 60 seconds (and the reasoning engine allows 120 seconds overall)', why: 'Stated timeouts.' },
+      { correct: true, text: 'It times out at 60 seconds.', why: 'Stated timeouts.' },
       { correct: false, text: 'The agent waits as long as needed', why: 'There are timeouts.' },
       { correct: false, text: 'It succeeds, as the limit is 300 seconds', why: 'The client limit is 60 seconds.' },
       { correct: false, text: 'The agent switches to another server', why: 'No automatic switching.' }
@@ -5423,9 +5414,9 @@ window.QUESTIONS = [
       'An admin applies an Agentforce Gateway policy, but it isn\'t enforced while testing a draft agent. Why?'
     ],
     options: [
-      { correct: true, text: 'Connections to MCP servers and to APIs in API Catalog. Policies apply only when the agent is committed or activated, not in draft.', why: 'Both statements are from Help.' },
+      { correct: true, text: 'MCP and API connections, for committed agents only', why: 'Both statements are from Help.' },
       { correct: false, text: 'Only Prompt Builder templates, in every state', why: 'Gateway protects MCP and API connections.' },
-      { correct: false, text: 'Policies apply to drafts only', why: 'The other way round.' },
+      { correct: false, text: 'Policies apply only while the agent is still in draft', why: 'The other way round.' },
       { correct: false, text: 'Gateway replaces the Trust Layer', why: 'It adds controls on connections.' }
     ],
     explanation: 'Gateway policies control access, set usage limits and support compliance. Create them from templates and apply them manually or by matching criteria, such as specific agents or MCP tools.',
