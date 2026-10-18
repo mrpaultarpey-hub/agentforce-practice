@@ -103,7 +103,10 @@ const SRC = {
   instructionAdherence: help('Instruction Adherence', 'ai.agent_guardrails_instruction_adherence'),
   taskResolution: help('Task Resolution', 'ai.agent_guardrails_task_resolution'),
   activateAgent: help('Activate or Deactivate Your Agent', 'ai.copilot_setup_activate_deactivate'),
-  auditFeedback: help('About Generative AI Audit and Feedback Data', 'ai.generative_ai_feedback_about')
+  auditFeedback: help('About Generative AI Audit and Feedback Data', 'ai.generative_ai_feedback_about'),
+  instructionsResolve: help('How Subagent Instructions are Resolved to Build a Prompt', 'ai.agent_topics_instructions_resolve'),
+  actionInstructions: help('Best Practices for Agent Action Instructions', 'ai.copilot_actions_instructions'),
+  legacyFilters: help('Create a Filter to Control Access to Subagents and Actions in the Legacy Builder', 'ai.agent_asset_filters')
 };
 
 window.QUESTIONS = [
@@ -1298,6 +1301,133 @@ window.QUESTIONS = [
     ],
     explanation: 'Other email limits: Reply All is limited to 20 recipients across To and CC, the MessagingSession record isn\'t available on email, and Salesforce for Outlook Email-to-Case routing addresses aren\'t supported.',
     source: SRC.emailAgent
+  },
+
+  {
+    id: 'AG-068',
+    section: 'agents',
+    objective: 'Explain the components and benefits of hybrid reasoning',
+    group: 'resolve',
+    stem: [
+      'When an agent enters a subagent, what happens to the logic in its reasoning instructions before the LLM is called?',
+      'Which statement about resolving a subagent\'s reasoning instructions is true?'
+    ],
+    options: [
+      { correct: true, text: 'It is resolved top to bottom with no LLM: variables are replaced, inline actions run and conditions are applied, exactly as written', why: 'Logic runs before any reasoning.' },
+      { correct: false, text: 'The LLM reads the logic and decides which lines to run', why: 'No LLM is used at this stage.' },
+      { correct: false, text: 'Logic lines run in random order for variety', why: 'They run in the order written.' },
+      { correct: false, text: 'Only the first condition is evaluated', why: 'Every logical expression is run.' }
+    ],
+    explanation: 'Think of logic as what the agent must do before reasoning, and prompt text as what it should consider during reasoning. Once resolved, the instructions contain real values, for example "the expected delivery date for order 1234 is February 10".',
+    source: SRC.instructionsResolve
+  },
+
+  {
+    id: 'AG-069',
+    section: 'agents',
+    objective: 'Explain the components and benefits of hybrid reasoning',
+    group: 'resolve',
+    stem: 'Which three are included in the prompt sent to the LLM after a subagent\'s instructions are resolved?',
+    options: [
+      { correct: true, text: 'Agent-level instructions', why: 'They apply to every interaction.' },
+      { correct: true, text: 'The recent conversation history, including the latest message', why: 'Gives the LLM context.' },
+      { correct: true, text: 'The resolved subagent instructions and the subagent\'s reasoning actions', why: 'What to consider and what it can do.' },
+      { correct: false, text: 'Every other subagent\'s instructions', why: 'Only the current subagent\'s.' },
+      { correct: false, text: 'The Apex source code of each action', why: 'Actions are described, not sent as code.' },
+      { correct: false, text: 'All records the agent user can access', why: 'Only what instructions and actions bring in.' }
+    ],
+    explanation: 'If a transition runs while the instructions are being resolved, the agent moves to the new subagent before any reasoning happens. Otherwise the resolved prompt goes to the LLM, which decides the next step.',
+    source: SRC.instructionsResolve
+  },
+
+  {
+    id: 'AG-070',
+    section: 'agents',
+    objective: 'Select and configure standard topics, custom topics, standard actions and custom actions',
+    group: 'action-instructions',
+    stem: [
+      'Which action description is most effective for an action that updates a phone number?',
+      'An agent sometimes calls the wrong action for phone number changes. Which description best helps it choose correctly?'
+    ],
+    options: [
+      { correct: true, text: '"Updates the user\'s phone number on their contact record. If no matching contact exists, creates a new contact record."', why: 'Says what, on which record, and edge cases.' },
+      { correct: false, text: '"Updates a phone number."', why: 'Too vague to tell actions apart.' },
+      { correct: false, text: '"Provides the ability to update data."', why: 'Generic phrasing repeated across actions.' },
+      { correct: false, text: '"Phone."', why: 'Not a description.' }
+    ],
+    explanation: 'Action instructions are usually one to three sentences written as an instruction to the LLM: the goal, use cases, and the objects or records used or changed. More relevant detail helps the LLM tell actions apart.',
+    source: SRC.actionInstructions
+  },
+
+  {
+    id: 'AG-071',
+    section: 'agents',
+    objective: 'Select and configure standard topics, custom topics, standard actions and custom actions',
+    group: 'action-instructions',
+    stem: 'An agent has actions named Get Order, Get Shipment, Get Invoice and Get Refund, all described with "Provides the ability to...". What does Salesforce suggest?',
+    options: [
+      { correct: true, text: 'Vary the verbs (Get, Find, Identify, Retrieve) and remove phrases repeated across descriptions', why: 'LLMs work best with varied, distinct language.' },
+      { correct: false, text: 'Make all names identical so the LLM treats them the same', why: 'Makes choosing harder.' },
+      { correct: false, text: 'Add "Provides the ability to" to every input as well', why: 'More repetition.' },
+      { correct: false, text: 'Merge all four into one action', why: 'Not the advice.' }
+    ],
+    explanation: 'Similar names and repeated boilerplate make actions hard to tell apart. Distinct verbs and specific descriptions help the reasoning engine pick the right one.',
+    source: SRC.actionInstructions
+  },
+
+  {
+    id: 'AG-072',
+    section: 'agents',
+    objective: 'Select and configure standard topics, custom topics, standard actions and custom actions',
+    group: 'action-instructions',
+    stem: 'Which two can be added to an action\'s instructions when testing shows it isn\'t used as expected?',
+    options: [
+      { correct: true, text: 'One to three example utterances that should trigger it, varied in wording and length', why: 'Helps match customer inputs.' },
+      { correct: true, text: 'Dependent actions by API name, such as "IdentifyRecordByName must be called first"', why: 'Fixes missing or out-of-order steps.' },
+      { correct: false, text: 'The full source code of the action', why: 'Not useful to the LLM.' },
+      { correct: false, text: 'Twenty near-identical example utterances', why: 'Keep to one to three, with little overlap.' },
+      { correct: false, text: 'A list of every other action in the org', why: 'Not helpful.' }
+    ],
+    explanation: 'Examples of how the action should behave can fix consistent mistakes. LLMs generally follow examples of what to do better than examples of what not to do.',
+    source: SRC.actionInstructions
+  },
+
+  {
+    id: 'AG-073',
+    section: 'agents',
+    objective: 'Select and configure standard topics, custom topics, standard actions and custom actions',
+    group: 'action-instructions',
+    stem: [
+      'Why should an input instruction say "an 18-character ID" rather than just "the record"?',
+      'What should instructions for an action\'s inputs include?'
+    ],
+    options: [
+      { correct: true, text: 'LLMs don\'t fully know Salesforce context, so state the data type, specific fields, how to get the value and any rules', why: 'Concise but detailed input instructions.' },
+      { correct: false, text: 'Input instructions are ignored by the LLM', why: 'They guide how inputs are filled.' },
+      { correct: false, text: 'Only the field label', why: 'Not enough detail.' },
+      { correct: false, text: 'SOQL for the LLM to run', why: 'Help\'s own example says "Don\'t generate SQL or SOQL".' }
+    ],
+    explanation: 'Good input instructions cover the data type, specific fields or values, where the value comes from, and special rules. Output instructions say what the result is and what the agent returns, for example "a JSON object with the recipient ID, subject line and body".',
+    source: SRC.actionInstructions
+  },
+
+  {
+    id: 'AG-074',
+    section: 'agents',
+    objective: 'Manage deterministic behaviour using filters, variables and template expressions',
+    group: 'legacy-filters',
+    stem: [
+      'In the legacy builder, an admin wants to add a filter to an agent that is active. What must they do first?',
+      'Which statement about filters in the legacy Agentforce builder is true?'
+    ],
+    options: [
+      { correct: true, text: 'Deactivate the agent, create the filter on the Context panel\'s Filters tab, then apply it to subagents or actions', why: 'Active agents must be deactivated first.' },
+      { correct: false, text: 'Filters apply to every agent in the org automatically', why: 'Applied per agent.' },
+      { correct: false, text: 'Filters can only use custom variables', why: 'Context, conversation and custom variables are supported.' },
+      { correct: false, text: 'Filters need Apex', why: 'They are configured with variables, operators and values.' }
+    ],
+    explanation: 'A filter has a name, conditions (variable, operator, value) and a rule for whether any or all conditions must be met. Restart the preview conversation to test. For customer channels, Salesforce recommends filters that require authentication for subagents and actions that do tasks for a user.',
+    source: SRC.legacyFilters
   },
 
   // ---------------- Prompt Engineering (20%) ----------------
