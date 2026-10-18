@@ -22,6 +22,9 @@ window.SECTIONS = [
   { id: 'multi', name: 'Multi-Agent Orchestration', weight: 5 }
 ];
 
+// Builds a source link to a Salesforce Help article from its id.
+const help = (title, id) => ({ title: 'Salesforce Help: ' + title, url: 'https://help.salesforce.com/s/articleView?id=' + id + '.htm&type=5' });
+
 const SRC = {
   agentScript: { title: 'Trailhead: Agent Script Basics', url: 'https://trailhead.salesforce.com/content/learn/modules/agent-script-basics/read-the-language-behind-the-canvas' },
   hybrid: { title: 'Salesforce Architects: Hybrid Reasoning with Agentforce Builder and Agent Script', url: 'https://architect.salesforce.com/docs/architect/fundamentals/guide/hybrid-reasoning-agentforce-builder-agent-script' },
@@ -66,7 +69,18 @@ const SRC = {
   slackDeploy: { title: 'Trailhead: Deploy an Agent in Slack', url: 'https://trailhead.salesforce.com/content/learn/modules/agentforce-configuration-for-slack-deployment/deploy-an-agent-in-slack' },
   employeeAgents: { title: 'Trailhead: Get Started with Agentforce for Employees', url: 'https://trailhead.salesforce.com/content/learn/modules/agentforce-for-employees-quick-look/get-started-with-agentforce-for-employees' },
   voiceSetup: { title: 'Trailhead: Set Up Your Agentforce Voice Agent', url: 'https://trailhead.salesforce.com/content/learn/modules/ai-integration-for-agentforce-contact-center/set-up-your-agentforce-voice-agent' },
-  voiceBuild: { title: 'Trailhead: Build Your Voice-Enabled Agent', url: 'https://trailhead.salesforce.com/content/learn/modules/agentforce-voice-quick-look/build-your-voice-enabled-agent' }
+  voiceBuild: { title: 'Trailhead: Build Your Voice-Enabled Agent', url: 'https://trailhead.salesforce.com/content/learn/modules/agentforce-voice-quick-look/build-your-voice-enabled-agent' },
+  templateTypes: help('Prompt Template Types', 'ai.prompt_builder_standard_template_types'),
+  templateVersions: help('Use Multiple Versions of a Prompt Template', 'ai.prompt_builder_use_multiple_versions'),
+  llmConfigs: help('Change LLM Configurations in Prompt Templates', 'ai.prompt_builder_changing_llm_configurations'),
+  promptBestPractices: help('Best Practices for Building Prompt Templates', 'ai.prompt_builder_best_practices'),
+  modelProviders: help('Manage Model Provider Access', 'ai.generative_ai_model_provider'),
+  maskConsiderations: help('LLM Data Masking Considerations and Limitations', 'ai.generative_ai_trust_data_mask_considerations'),
+  promptInjection: help('Prompt Injection Detection (Beta)', 'ai.generative_ai_trust_prompt_injection_detection'),
+  toxicity: help('Toxicity Detection', 'ai.generative_ai_trust_toxicity_detection'),
+  relatedListHelp: help('Grounding with Related List Merge Fields', 'ai.prompt_builder_ground_related_list'),
+  recordSnapshots: help('Grounding Prompts with Record Snapshots', 'ai.prompt_builder_ground_record_snapshots'),
+  retrieversInTemplates: help('About Retrievers in Prompt Templates', 'ai.prompt_builder_ground_rag_about')
 };
 
 window.QUESTIONS = [
@@ -1152,13 +1166,13 @@ window.QUESTIONS = [
     objective: 'Identify the appropriate grounding technique',
     stem: 'A template is grounded with a related list merge field. Which statement is true?',
     options: [
-      { correct: true, text: 'The fields come from the related list on the parent\'s page layout, limited to what the user can see.', why: 'Related list grounding follows the layout and user access.' },
-      { correct: false, text: 'You can add any filter, such as "priority is High".', why: 'Use a flow or Apex for custom filters.' },
+      { correct: true, text: 'The fields come from the related list on the parent object\'s page layout for the current user, and record-level filters aren\'t applied.', why: 'Stated in the Help article.' },
+      { correct: false, text: 'You can add any filter, such as "priority is High".', why: 'Record-level filters aren\'t applied. Use a flow or Apex for filtering.' },
       { correct: false, text: 'It always includes every field on the related object.', why: 'Only the fields on the layout\'s related list.' },
-      { correct: false, text: 'It ignores the user\'s field-level security.', why: 'Grounding respects the user\'s access.' }
+      { correct: false, text: 'It sends the data even if the user has no Read access to the related object.', why: 'Without the related list on their layout or Read permission, no related list data is sent.' }
     ],
-    explanation: 'Related list data is passed to the prompt as JSON. Very long related lists make the prompt harder for the model and cost more tokens. Use a flow or Apex when you need filtering or formatting.',
-    source: SRC.relatedLists
+    explanation: 'Related list data is rendered as JSON and shown in the resolution. Activities related lists aren\'t supported, nor are the User and Organization related lists. Use a flow or Apex when you need filtering or formatting.',
+    source: SRC.relatedListHelp
   },
 
   {
@@ -1293,8 +1307,340 @@ window.QUESTIONS = [
       { correct: false, text: 'Remove Prompt Template User from all users', why: 'Blocks every template, not one provider.' },
       { correct: false, text: 'Turn on data masking', why: 'Masks data. It doesn\'t block a provider.' }
     ],
-    explanation: 'The Einstein generative AI settings (the EinsteinGptSettings metadata type) include switches that turn off a provider and block access to its models, for example AWS Bedrock, Azure OpenAI, OpenAI and Vertex AI. There is also a switch to stop Azure OpenAI requests falling back to other regions.',
-    source: SRC.gptSettings
+    explanation: 'In Setup, open Einstein Setup and go to Configure Model Providers. Turn off a provider to block its models in agents, prompt templates, APIs and other generative AI features. It can take up to 10 minutes to take effect.\n\nThe same switches exist in the EinsteinGptSettings metadata type, for example for AWS Bedrock, Azure OpenAI, OpenAI and Vertex AI.',
+    source: SRC.modelProviders
+  },
+
+  {
+    id: 'PR-024',
+    section: 'prompt',
+    objective: 'Explain how to manage and prevent specific models from being accessed',
+    stem: 'An admin turns off a model provider in Einstein Setup. What should they expect?',
+    options: [
+      { correct: true, text: 'Agents, prompt templates and other features using that provider\'s models can stop working, and the change can take up to 10 minutes.', why: 'Help warns about both.' },
+      { correct: false, text: 'Templates automatically switch to another provider\'s model.', why: 'Affected components stop running. Test in a sandbox first.' },
+      { correct: false, text: 'Only new templates are affected. Existing ones keep using the provider.', why: 'Access is blocked for every feature.' },
+      { correct: false, text: 'Nothing changes until the next Salesforce release.', why: 'It takes effect within about 10 minutes.' }
+    ],
+    explanation: 'Turning off a provider can stop agents, agent actions, Testing Center, prompt templates, APIs, and features such as Service Replies and Sales Summaries. Help recommends testing in a sandbox before making the change in production.',
+    source: SRC.modelProviders
+  },
+
+  {
+    id: 'PR-025',
+    section: 'prompt',
+    objective: 'Considerations for prompt template types such as field generation and flex',
+    group: 'template-type-list',
+    stem: [
+      'Which prompt template type is used by the Summarize Record standard action?',
+      'An agent uses the Summarize Record action. Which template type can be customised to change its output?'
+    ],
+    options: [
+      { correct: true, text: 'Record Summary', why: 'Record Summary templates power Summarize Record.' },
+      { correct: false, text: 'Field Generation', why: 'Fills a field on a record page.' },
+      { correct: false, text: 'Sales Emails', why: 'Drafts personalised emails.' },
+      { correct: false, text: 'Work Summary', why: 'Drafts wrap-up summaries for voice calls and messaging sessions.' }
+    ],
+    explanation: 'Record Summary templates summarise record data. The Summarize Record invocable action and the Summarize Record agent action both use them.',
+    source: SRC.templateTypes
+  },
+
+  {
+    id: 'PR-026',
+    section: 'prompt',
+    objective: 'Considerations for prompt template types such as field generation and flex',
+    group: 'template-type-list',
+    stem: [
+      'Which prompt template type lets you customise how Agentforce agents answer questions from knowledge?',
+      'A team wants to change the tone and format of answers given by the Answer Questions with Knowledge action. Which template type should they customise?'
+    ],
+    options: [
+      { correct: true, text: 'Knowledge Answers', why: 'Customises how agents answer questions.' },
+      { correct: false, text: 'Flex', why: 'For needs other types don\'t cover.' },
+      { correct: false, text: 'Case Summary', why: 'Summarises a case.' },
+      { correct: false, text: 'Record Research', why: 'Researches records using web search.' }
+    ],
+    explanation: 'Knowledge Answers templates sit behind Answer Questions with Knowledge. Other types include Field Generation, Flex, Sales Emails, Record Summary, Work Summary, Case Summary and Record Research, which uses the Einstein Search Web Retriever.',
+    source: SRC.templateTypes
+  },
+
+  {
+    id: 'PR-027',
+    section: 'prompt',
+    objective: 'Considerations for prompt template types such as field generation and flex',
+    group: 'template-type-list',
+    stem: 'Which prompt template type drafts a Summary, Issue and Resolution in the Wrap Up component at the end of a voice call or messaging session?',
+    options: [
+      { correct: true, text: 'Work Summary', why: 'Built for the end-of-conversation wrap-up.' },
+      { correct: false, text: 'Record Summary', why: 'Summarises a record for agents and invocable actions.' },
+      { correct: false, text: 'Grounded Service Replies', why: 'Suggests replies during live chat and messaging.' },
+      { correct: false, text: 'Field Generation', why: 'Fills a field when a user clicks a button.' }
+    ],
+    explanation: 'Work Summary templates draft wrap-up notes for voice calls and messaging sessions. Service Replies templates (contextual and grounded) suggest replies during the conversation.',
+    source: SRC.templateTypes
+  },
+
+  {
+    id: 'PR-028',
+    section: 'prompt',
+    objective: 'Explain creating, activating and executing prompt templates',
+    group: 'versions',
+    stem: [
+      'An admin tries to edit a prompt template version that was active last month but has since been deactivated. What happens?',
+      'Which statement about activated prompt template versions is true?'
+    ],
+    options: [
+      { correct: true, text: 'Any version that was ever active is immutable. Save it as a new version to make changes.', why: 'Activation makes a version permanent.' },
+      { correct: false, text: 'Deactivating a version unlocks it for editing.', why: 'It stays immutable even after deactivation.' },
+      { correct: false, text: 'Only the Prompt Template User can edit it.', why: 'Nobody can edit it.' },
+      { correct: false, text: 'Edits are allowed but don\'t save until the next release.', why: 'It can\'t be edited at all.' }
+    ],
+    explanation: 'The first save creates Version 1. Use Save As > Save as a New Version for more versions. A new version isn\'t available to users until it is activated.\n\nSave As > Save as a New Template creates a separate template, but that option isn\'t supported for Flex templates.',
+    source: SRC.templateVersions
+  },
+
+  {
+    id: 'PR-029',
+    section: 'prompt',
+    objective: 'Explain creating, activating and executing prompt templates',
+    group: 'versions',
+    stem: 'Two versions of a prompt template use different LLMs. Version 1 is active and Version 2 is the latest draft. Which model generates responses for users?',
+    options: [
+      { correct: true, text: 'Version 1\'s model, because only the active version\'s model configuration is used', why: 'Each version can have its own model.' },
+      { correct: false, text: 'Version 2\'s model, because the latest version always wins', why: 'Only the active version runs.' },
+      { correct: false, text: 'Both, alternating between users', why: 'Only one version is active.' },
+      { correct: false, text: 'The org\'s default model, ignoring both versions', why: 'The active version\'s model is used.' }
+    ],
+    explanation: 'Each version of a template can have a different model configuration. Only the configuration in the activated version is used.',
+    source: SRC.llmConfigs
+  },
+
+  {
+    id: 'PR-030',
+    section: 'prompt',
+    objective: 'Explain how to manage and prevent specific models from being accessed',
+    stem: [
+      'An admin changes a setting on a standard LLM configuration in Prompt Builder. How is the changed configuration saved?',
+      'What is the difference between standard and custom LLM configurations in Prompt Builder?'
+    ],
+    options: [
+      { correct: true, text: 'Standard ones come with Prompt Builder. Custom ones come from BYO-LLM, and a modified standard configuration is saved as a custom one.', why: 'Both statements are from Help.' },
+      { correct: false, text: 'Standard configurations can be edited in place for every template.', why: 'A modified standard configuration becomes custom.' },
+      { correct: false, text: 'Custom configurations are only available in Developer Edition.', why: 'Not a restriction.' },
+      { correct: false, text: 'There is no difference.', why: 'They come from different places.' }
+    ],
+    explanation: 'Models are managed in AI Models (formerly Einstein Studio). The View this model link in Template Settings needs Data Cloud Admin permissions.',
+    source: SRC.llmConfigs
+  },
+
+  {
+    id: 'PR-031',
+    section: 'prompt',
+    objective: 'Explain how to manage and prevent specific models from being accessed',
+    stem: 'A model used by an active prompt template is hidden in AI Models. What happens?',
+    options: [
+      { correct: true, text: 'The template keeps running, but you must pick an available model before saving a new version.', why: 'Hidden models keep working. Replacing them is recommended.' },
+      { correct: false, text: 'The template stops at once.', why: 'It continues to run as before.' },
+      { correct: false, text: 'The template switches to a random model.', why: 'Nothing switches automatically.' },
+      { correct: false, text: 'The template is deleted.', why: 'Hiding a model doesn\'t delete templates.' }
+    ],
+    explanation: 'Help recommends replacing a hidden model with an available one. If you open a template whose model is unavailable, Prompt Builder makes you choose a different model before saving changes as a new version.',
+    source: SRC.llmConfigs
+  },
+
+  {
+    id: 'PR-032',
+    section: 'prompt',
+    objective: 'Best practices for writing effective prompts',
+    group: 'prompt-practice',
+    stem: [
+      'How does Salesforce suggest helping the LLM tell the difference between context and instructions in a prompt template?',
+      'Which practice from Salesforce\'s prompt template guidance separates instructions from context?'
+    ],
+    options: [
+      { correct: true, text: 'Add a line "Instructions:" and put the instructions inside triple quotes (""")', why: 'Salesforce\'s recommended layout.' },
+      { correct: false, text: 'Put the instructions in capital letters', why: 'Not the recommended method.' },
+      { correct: false, text: 'Put instructions in a separate template', why: 'They belong in the same template, clearly marked.' },
+      { correct: false, text: 'Leave instructions out and rely on the grounding data', why: 'The LLM needs clear instructions.' }
+    ],
+    explanation: 'Salesforce\'s best practices: keep templates concise in natural language, give the LLM a role and a goal, keep one consistent style, mark instructions clearly, tell it to generate only the content wanted, and iterate with user feedback.',
+    source: SRC.promptBestPractices
+  },
+
+  {
+    id: 'PR-033',
+    section: 'prompt',
+    objective: 'Best practices for writing effective prompts',
+    group: 'prompt-practice',
+    stem: 'An email template sometimes returns a paragraph describing how it wrote the email, followed by the email. What should be added?',
+    options: [
+      { correct: true, text: 'An instruction such as "Follow these instructions strictly to generate only the message to be sent to the customer."', why: 'Tells the LLM to return only the content.' },
+      { correct: false, text: 'More merge fields', why: 'Doesn\'t stop the commentary.' },
+      { correct: false, text: 'A higher token limit', why: 'Gives room for more commentary.' },
+      { correct: false, text: 'Emojis to set the tone', why: 'Style doesn\'t fix this.' }
+    ],
+    explanation: 'Direct instructions to generate only the expected content stop the LLM describing its process. Starting from the Example Prompt Template Library helps too.',
+    source: SRC.promptBestPractices
+  },
+
+  {
+    id: 'PR-034',
+    section: 'prompt',
+    objective: 'Identify the security and privacy features of the Trust Layer',
+    group: 'masking',
+    stem: [
+      'What is the difference between pattern-based and field-based data masking?',
+      'Which statement about field-based data masking is true?'
+    ],
+    options: [
+      { correct: true, text: 'Field-based masking uses Data Classification tags on fields and applies only to merge fields. Pattern-based masking scans all prompt text.', why: 'The two approaches as described in Help.' },
+      { correct: false, text: 'Field-based masking scans free text typed by users.', why: 'It applies only to merge fields from record fields and related lists.' },
+      { correct: false, text: 'Pattern-based masking needs every field classified first.', why: 'It detects values automatically.' },
+      { correct: false, text: 'They are two names for the same feature.', why: 'They work differently.' }
+    ],
+    explanation: 'Field-based masking works on record fields and related lists in prompt templates, based on the Data Classification you set. Pattern-based masking evaluates the whole prompt. Using both gives wider coverage.',
+    source: SRC.maskConsiderations
+  },
+
+  {
+    id: 'PR-035',
+    section: 'prompt',
+    objective: 'Identify the security and privacy features of the Trust Layer',
+    group: 'masking',
+    stem: 'A company needs the most reliable masking of customer names in its prompt templates. What does Salesforce recommend?',
+    options: [
+      { correct: true, text: 'Field-based masking on classified fields, because pattern-based detection can miss unusual names', why: 'Field-based is the more reliable option.' },
+      { correct: false, text: 'Pattern-based masking only, because it never misses a value', why: 'No model is 100% accurate. Missed values go to the LLM unmasked.' },
+      { correct: false, text: 'Masking for agents', why: 'Masking is disabled for agents.' },
+      { correct: false, text: 'Toxicity detection', why: 'Detects harmful content, not names.' }
+    ],
+    explanation: 'Pattern-based masking relies on model inference. Unusual or non-English names aren\'t always detected, and anything missed is sent to the LLM unmasked. Test with realistic data and use the audit trail to check masking.',
+    source: SRC.maskConsiderations
+  },
+
+  {
+    id: 'PR-036',
+    section: 'prompt',
+    objective: 'Identify the security and privacy features of the Trust Layer',
+    stem: 'Which two are types of attack that Salesforce Prompt Injection Detection recognises?',
+    options: [
+      { correct: true, text: 'Privilege escalation, such as "Do Anything Now" jailbreaks', why: 'Attempts to change or bypass system rules.' },
+      { correct: true, text: 'Prompt leakage, trying to extract system policies or knowledge documents', why: 'Attempts to gather sensitive information.' },
+      { correct: false, text: 'Slow network connections', why: 'Not an attack type.' },
+      { correct: false, text: 'Spelling mistakes in the prompt', why: 'Not an attack type.' },
+      { correct: false, text: 'Long prompts over the token limit', why: 'A limit, not an attack.' }
+    ],
+    explanation: 'Recognised types: pretending (role-play), privilege escalation, prompt leakage, encoding attacks, privacy attacks and malicious code generation. Injections can come directly in the prompt or indirectly through grounding data.\n\nDetected attempts are scored and logged in the audit trail in Data 360. The feature is in beta.',
+    source: SRC.promptInjection
+  },
+
+  {
+    id: 'PR-037',
+    section: 'prompt',
+    objective: 'Identify the security and privacy features of the Trust Layer',
+    group: 'toxicity',
+    stem: [
+      'Which statement about toxicity detection in the Einstein Trust Layer is true?',
+      'An admin wants toxicity checks on prompts as well as responses. What do they need to know?'
+    ],
+    options: [
+      { correct: true, text: 'Detection on responses is always on. Detection on prompts is a beta that is off by default and can be turned on.', why: 'Responses are always checked. Prompts are opt-in.' },
+      { correct: false, text: 'Both are off by default.', why: 'Response detection is always on.' },
+      { correct: false, text: 'Response detection can be turned off to save credits.', why: 'It can\'t be changed.' },
+      { correct: false, text: 'Toxicity is only checked in Slack.', why: 'It applies across AI features.' }
+    ],
+    explanation: 'Toxic content in prompts can come from untrusted sources such as public chat or web content. Scores run from 0 to 1, with 1 the most toxic. There is an overall score and a score per category, logged in the audit trail and stored in Data 360.',
+    source: SRC.toxicity
+  },
+
+  {
+    id: 'PR-038',
+    section: 'prompt',
+    objective: 'Identify the security and privacy features of the Trust Layer',
+    group: 'toxicity',
+    stem: 'Which three are categories recognised by Einstein toxicity detection?',
+    options: [
+      { correct: true, text: 'Violence', why: 'A toxicity category.' },
+      { correct: true, text: 'Hate', why: 'A toxicity category.' },
+      { correct: true, text: 'Profanity', why: 'A toxicity category.' },
+      { correct: false, text: 'Sarcasm', why: 'Not a listed category.' },
+      { correct: false, text: 'Off-topic', why: 'Not a toxicity category.' },
+      { correct: false, text: 'Spam', why: 'Not a listed category.' }
+    ],
+    explanation: 'The five categories are violence, sexual, profanity, hate and physical (substances, self-harm and similar). Each is scored, plus an overall score.',
+    source: SRC.toxicity
+  },
+
+  {
+    id: 'PR-039',
+    section: 'prompt',
+    objective: 'Identify the appropriate grounding technique',
+    group: 'related-list-help',
+    stem: 'A template is grounded on Account related lists. Which two statements are true?',
+    options: [
+      { correct: true, text: 'Activities related lists aren\'t supported.', why: 'Stated limitation.' },
+      { correct: true, text: 'Only Salesforce Files in a related list are used. Classic Attachments aren\'t.', why: 'Convert attachments to Files first.' },
+      { correct: false, text: 'Every related list on the object is available, even if not on the layout.', why: 'Only related lists on the page layout.' },
+      { correct: false, text: 'A related list with zero records makes the template fail.', why: 'The prompt still runs, without that content.' },
+      { correct: false, text: 'Record-level filters can be applied to each related list.', why: 'They aren\'t applied.' }
+    ],
+    explanation: 'Related lists come from the page layout. With custom record types, only related lists on the master record type\'s layout are available. The User and Organization related lists aren\'t supported.',
+    source: SRC.relatedListHelp
+  },
+
+  {
+    id: 'PR-040',
+    section: 'prompt',
+    objective: 'Identify the appropriate grounding technique',
+    stem: [
+      'An admin wants to ground a template with everything on the user\'s Account page layout in one click, without choosing fields one by one. Which option fits?',
+      'What does a Record Snapshot add to a prompt template?'
+    ],
+    options: [
+      { correct: true, text: 'A Record Snapshot, which includes the data on the user\'s page layout as one resource', why: 'One resource for the whole layout.' },
+      { correct: false, text: 'A Field Generation template', why: 'A template type, not a grounding resource.' },
+      { correct: false, text: 'A retriever', why: 'Searches indexed content in Data 360.' },
+      { correct: false, text: 'A Data Library', why: 'Holds unstructured content such as files.' }
+    ],
+    explanation: 'Record Snapshots use the page layout, not Dynamic Forms. They take the first 6 related lists with up to 5 records each, the next 5 tasks and events, and the 5 most recent emails. Empty values are filtered out.',
+    source: SRC.recordSnapshots
+  },
+
+  {
+    id: 'PR-041',
+    section: 'prompt',
+    objective: 'Identify the appropriate grounding technique',
+    group: 'retriever-settings',
+    stem: [
+      'An admin adds a retriever to a prompt template. What can the retriever\'s search text use?',
+      'Which statement about a retriever\'s search text in a prompt template is true?'
+    ],
+    options: [
+      { correct: true, text: 'Free text, globals and prompt inputs, up to 255 characters', why: 'Not related lists, flows or Apex.' },
+      { correct: false, text: 'Any flow or Apex merge field', why: 'Those sources aren\'t allowed in search text.' },
+      { correct: false, text: 'Related list merge fields only', why: 'Not allowed in search text.' },
+      { correct: false, text: 'Unlimited text from the whole record', why: 'Limited to 255 characters.' }
+    ],
+    explanation: 'In Template Settings you can tune the search text, the output fields returned and the number of results. If you leave output fields or number of results empty, the values from the retriever\'s own configuration are used. Data 360 permission sets control access to retrievers.',
+    source: SRC.retrieversInTemplates
+  },
+
+  {
+    id: 'PR-042',
+    section: 'prompt',
+    objective: 'Identify the appropriate grounding technique',
+    group: 'retriever-settings',
+    stem: 'Which three kinds of retriever can be added to a prompt template?',
+    options: [
+      { correct: true, text: 'Individual retrievers created in AI Models', why: 'Supported.' },
+      { correct: true, text: 'Ensemble retrievers created in AI Models', why: 'Supported.' },
+      { correct: true, text: 'Web retrievers created in Agentforce Data Library', why: 'Supported.' },
+      { correct: false, text: 'Report retrievers created in Reports', why: 'Not a retriever type.' },
+      { correct: false, text: 'Apex retrievers created in the Developer Console', why: 'Not a retriever type.' },
+      { correct: false, text: 'Flow retrievers created in Flow Builder', why: 'Not a retriever type.' }
+    ],
+    explanation: 'Retrievers search knowledge indexed in Data 360 and return relevant chunks, shown as JSON in the preview resolution. Older default individual retrievers still work, but new default ones are no longer created when an index is built.',
+    source: SRC.retrieversInTemplates
   },
 
   {
