@@ -62,7 +62,11 @@ const SRC = {
   monitorStart: { title: 'Trailhead: Get Started with Agent Monitoring', url: 'https://trailhead.salesforce.com/content/learn/modules/agent-analytics-and-monitoring/get-started-with-agent-monitoring' },
   monitorMetrics: { title: 'Trailhead: Monitor Agent Metrics and Scores', url: 'https://trailhead.salesforce.com/content/learn/modules/agent-analytics-and-monitoring/monitor-agent-metrics-and-scores' },
   monitorSessions: { title: 'Trailhead: Investigate Agent Sessions and Intents', url: 'https://trailhead.salesforce.com/content/learn/modules/agent-analytics-and-monitoring/investigate-agent-sessions-and-intents' },
-  monitorHealth: { title: 'Trailhead: Monitor Agent Health', url: 'https://trailhead.salesforce.com/content/learn/modules/agent-analytics-and-monitoring/monitor-agent-health' }
+  monitorHealth: { title: 'Trailhead: Monitor Agent Health', url: 'https://trailhead.salesforce.com/content/learn/modules/agent-analytics-and-monitoring/monitor-agent-health' },
+  slackDeploy: { title: 'Trailhead: Deploy an Agent in Slack', url: 'https://trailhead.salesforce.com/content/learn/modules/agentforce-configuration-for-slack-deployment/deploy-an-agent-in-slack' },
+  employeeAgents: { title: 'Trailhead: Get Started with Agentforce for Employees', url: 'https://trailhead.salesforce.com/content/learn/modules/agentforce-for-employees-quick-look/get-started-with-agentforce-for-employees' },
+  voiceSetup: { title: 'Trailhead: Set Up Your Agentforce Voice Agent', url: 'https://trailhead.salesforce.com/content/learn/modules/ai-integration-for-agentforce-contact-center/set-up-your-agentforce-voice-agent' },
+  voiceBuild: { title: 'Trailhead: Build Your Voice-Enabled Agent', url: 'https://trailhead.salesforce.com/content/learn/modules/agentforce-voice-quick-look/build-your-voice-enabled-agent' }
 };
 
 window.QUESTIONS = [
@@ -804,6 +808,151 @@ window.QUESTIONS = [
     ],
     explanation: 'Service agents use Omni-Channel. An Omni-Channel flow routes the messaging conversation to the agent, and the Enhanced Chat deployment puts the chat window on the site. The same Omni-Channel set-up is used to escalate to a human.',
     source: SRC.ascriptBlocks
+  },
+
+  {
+    id: 'AG-043',
+    section: 'agents',
+    objective: 'Connect agents to channels such as digital experience, email, voice and Slack',
+    group: 'slack',
+    stem: [
+      'An admin has requested a Slack connection for an employee agent in Agentforce Builder. Who can approve and install it in Slack?',
+      'Where does a Slack admin approve an Agentforce agent for a workspace?'
+    ],
+    options: [
+      { correct: true, text: 'A Slack org or workspace owner or admin, in the Slack Admin Dashboard on the Salesforce | Agentforce tab', why: 'They review the agent\'s permissions, allow it and pick workspaces.' },
+      { correct: false, text: 'Any Slack user, by typing the agent\'s name in a channel', why: 'Installation needs admin approval.' },
+      { correct: false, text: 'Only Salesforce Support, by raising a case', why: 'Admins do this themselves.' },
+      { correct: false, text: 'The agent user, by logging in to Slack', why: 'The agent user doesn\'t install apps.' }
+    ],
+    explanation: 'In Slack: Tools & settings > Organization settings opens the Admin Dashboard. On the Salesforce | Agentforce tab, select Review next to the agent, check its permissions, select Allow, choose the workspaces and save.\n\nAdmins can later see the workspaces, member permissions and agent permissions there.',
+    source: SRC.slackDeploy
+  },
+
+  {
+    id: 'AG-044',
+    section: 'agents',
+    objective: 'Connect agents to channels such as digital experience, email, voice and Slack',
+    group: 'slack',
+    stem: [
+      'Some employees use Slack but have no Salesforce CRM licence. How can they use an employee agent in Slack?',
+      'Which statement about employee agents in Slack is true?'
+    ],
+    options: [
+      { correct: true, text: 'With a Salesforce identity licence they can use Agentforce in Slack without an extra CRM licence, by @mentioning the agent or using the Agentforce Hub.', why: 'Identity licences cover non-CRM Slack users.' },
+      { correct: false, text: 'They each need a full Sales Cloud licence.', why: 'An identity licence is enough.' },
+      { correct: false, text: 'They can\'t. Agents in Slack are for CRM users only.', why: 'Non-CRM users can use them.' },
+      { correct: false, text: 'They must use the Agent API from a custom Slack bot.', why: 'Agentforce in Slack is built in.' }
+    ],
+    explanation: 'Any employee can call an employee agent in Slack with an @mention in a channel or direct message. The Agentforce Hub in Slack lists the available agents. Employee agents consume Flex Credits.',
+    source: SRC.employeeAgents
+  },
+
+  {
+    id: 'AG-045',
+    section: 'agents',
+    objective: 'Identify when to use an Employee or Service agent',
+    group: 'agent-type',
+    stem: [
+      'A manager and a team member ask the same employee agent for account details. Why might they see different results?',
+      'Whose permissions does an employee agent follow when it answers a question?'
+    ],
+    options: [
+      { correct: true, text: 'The agent runs as the person it is helping, so each sees only what their own access allows.', why: 'Employee agents follow the user\'s permissions and org security.' },
+      { correct: false, text: 'The agent picks randomly from the records it finds.', why: 'Results follow the user\'s access.' },
+      { correct: false, text: 'The agent runs as a shared agent user with the same access for everyone.', why: 'That is how service agents work.' },
+      { correct: false, text: 'Managers always get system administrator access through the agent.', why: 'The agent never raises a user\'s access.' }
+    ],
+    explanation: 'Employee agents are role-based helpers that run in the user\'s context and follow their permissions and the org\'s security settings. Service agents run as a dedicated agent user.',
+    source: SRC.employeeAgents
+  },
+
+  {
+    id: 'AG-046',
+    section: 'agents',
+    objective: 'Select and configure standard topics, custom topics, standard actions and custom actions',
+    stem: [
+      'An employee agent needs to answer questions from the company knowledge base. Which standard subagent and action does it use?',
+      'Which standard action lets an agent draw answers from the knowledge base?'
+    ],
+    options: [
+      { correct: true, text: 'The General FAQ subagent with the Answer Questions with Knowledge action', why: 'The standard pair for knowledge answers.' },
+      { correct: false, text: 'A custom Apex action that queries Knowledge articles', why: 'Possible, but a standard action already does this.' },
+      { correct: false, text: 'The Escalation subagent with the Transfer action', why: 'Hands over to a human.' },
+      { correct: false, text: 'A Field Generation prompt template', why: 'Fills a field. It doesn\'t answer questions.' }
+    ],
+    explanation: 'Employee agents come with subagents and actions for common uses. The General FAQ subagent and the Answer Questions with Knowledge action answer from the knowledge base and other data, such as an Agentforce Data Library.\n\nCheck for a standard action before building a custom one.',
+    source: SRC.employeeAgents
+  },
+
+  {
+    id: 'AG-047',
+    section: 'agents',
+    objective: 'Connect agents to channels such as digital experience, email, voice and Slack',
+    group: 'voice',
+    stem: [
+      'An admin is setting up an Agentforce voice agent for inbound calls. Which order is correct?',
+      'What must be done before inbound call routing can be configured for a voice agent?'
+    ],
+    options: [
+      { correct: true, text: 'Create a service agent, add a Telephony connection, set the voice, activate the agent, then build the flow that routes calls to it', why: 'Activation comes before inbound routing.' },
+      { correct: false, text: 'Build the routing flow first, then create the agent', why: 'The agent must exist and be active first.' },
+      { correct: false, text: 'Create an employee agent and connect it to Slack huddles', why: 'Inbound customer calls use a service agent.' },
+      { correct: false, text: 'Upload call recordings to a Data Library', why: 'Not part of voice setup.' }
+    ],
+    explanation: 'Start from the Agentforce Service Agent template, with a default language supported for voice. Under Connections, add Telephony. Configure Voice Settings, save and activate. Then build the flow that connects the agent to telephony routing and decides when a call goes to a human.',
+    source: SRC.voiceBuild
+  },
+
+  {
+    id: 'AG-048',
+    section: 'agents',
+    objective: 'Connect agents to channels such as digital experience, email, voice and Slack',
+    group: 'voice',
+    stem: [
+      'A voice agent keeps mishearing the brand name "Ursa Major" when customers say it. Which voice setting helps?',
+      'What is the difference between key-term prompting and the pronunciation dictionary in Agentforce voice settings?'
+    ],
+    options: [
+      { correct: true, text: 'Key-term prompting improves how the agent recognises terms customers say. The pronunciation dictionary controls how the agent says them.', why: 'One is listening, the other is speaking.' },
+      { correct: false, text: 'The pronunciation dictionary fixes recognition. Key-term prompting changes the voice persona.', why: 'The other way round, and neither changes the persona.' },
+      { correct: false, text: 'Both change only the speaking speed.', why: 'Speed is a separate setting.' },
+      { correct: false, text: 'Neither exists. Only the persona can be changed.', why: 'Both are advanced voice settings.' }
+    ],
+    explanation: 'Advanced voice settings include speed, similarity, stability, a pronunciation dictionary and key-term prompting. Use key-term prompting with care, only when the agent fails to recognise certain terms.',
+    source: SRC.voiceBuild
+  },
+
+  {
+    id: 'AG-049',
+    section: 'agents',
+    objective: 'Connect agents to channels such as digital experience, email, voice and Slack',
+    group: 'voice',
+    stem: 'A voice agent escalates a complex call to a human rep. What does the rep receive?',
+    options: [
+      { correct: true, text: 'The full transcript, including sentiment analysis, so the customer doesn\'t repeat themselves', why: 'Context passes with the call.' },
+      { correct: false, text: 'Nothing. The rep starts from scratch.', why: 'The transcript is passed on.' },
+      { correct: false, text: 'Only the customer\'s phone number', why: 'The full transcript is passed.' },
+      { correct: false, text: 'A recording that the rep must listen to first', why: 'The transcript is provided.' }
+    ],
+    explanation: 'The routing flow decides how calls reach the agent, what customer context is captured and when to transfer to a human. On transfer the rep gets the whole conversation with sentiment.',
+    source: SRC.voiceSetup
+  },
+
+  {
+    id: 'AG-050',
+    section: 'agents',
+    objective: 'Identify when to use an Employee or Service agent',
+    stem: 'Which two statements about employee agents are true?',
+    options: [
+      { correct: true, text: 'They can be deployed in Salesforce, in Slack and on mobile.', why: 'All three are supported.' },
+      { correct: true, text: 'They consume Flex Credits.', why: 'Usage-based credits.' },
+      { correct: false, text: 'They run as a dedicated agent user with its own permissions.', why: 'That describes service agents.' },
+      { correct: false, text: 'They are only for customers on the company website.', why: 'That describes service agents.' },
+      { correct: false, text: 'They can\'t be customised beyond the default subagents.', why: 'Agentforce Builder lets you add subagents and actions.' }
+    ],
+    explanation: 'Employee agents help staff with work such as account summaries, sales emails and HR questions. In Salesforce, users open the Agentforce panel in the app they are using and switch between agents. In Slack, they @mention the agent or use the Agentforce Hub.',
+    source: SRC.employeeAgents
   },
 
   // ---------------- Prompt Engineering (20%) ----------------
