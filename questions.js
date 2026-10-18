@@ -164,10 +164,10 @@ window.QUESTIONS = [
       'An insurer needs its agent to confirm a policy holder\'s identity before it ever reveals policy details. The current natural-language instruction is followed most of the time but not always. What is the best fix?'
     ],
     options: [
-      { correct: true, text: 'Set a verification variable with deterministic logic and gate the sensitive action with `available when` on that variable.', why: 'The platform hides a gated action from the LLM until the condition is true, so it can\'t be called early.' },
+      { correct: true, text: 'Gate the balance action with `available when` on a verified variable set by logic.', why: 'The platform hides a gated action from the LLM until the condition is true, so it can\'t be called early.' },
       { correct: false, text: 'Rewrite the subagent instructions in capital letters so the LLM treats the rule as more important.', why: 'Still a prompt instruction. The LLM can still ignore it.' },
-      { correct: false, text: 'Add the rule to the agent\'s description so the router sees it on every turn.', why: 'The description helps routing. It doesn\'t enforce anything.' },
-      { correct: false, text: 'Add a Testing Center test case for unverified customers.', why: 'Testing finds the problem. It doesn\'t stop it happening.' },
+      { correct: false, text: 'Add the rule to the agent\'s description so the router checks verification on every turn.', why: 'The description helps routing. It doesn\'t enforce anything.' },
+      { correct: false, text: 'Add a Testing Center test case that checks unverified customers can\'t see balances.', why: 'Testing finds the problem. It doesn\'t stop it happening.' },
       { correct: false, text: 'Lower the model temperature in the Trust Layer so the LLM is more consistent.', why: 'There is no such Trust Layer setting, and consistency isn\'t a guarantee.' }
     ],
     explanation: 'Hybrid reasoning says: if you can express a decision as code, write it as logic. `available when` is a platform-enforced gate. The LLM can\'t call an action it can\'t see.\n\nThe gate variable should be set deterministically. Letting the LLM set it brings the variability back.',
@@ -203,7 +203,7 @@ window.QUESTIONS = [
     options: [
       { correct: true, text: 'Natural-language prompt text added to the prompt for the LLM.', why: '`|` marks a prompt instruction.' },
       { correct: false, text: 'Deterministic logic that runs before the LLM is called.', why: 'That is `->`, which marks hybrid (logic) instructions.' },
-      { correct: false, text: 'A comment that the compiler ignores.', why: 'It is part of the prompt the LLM sees.' },
+      { correct: false, text: 'A comment for developers that the compiler ignores when it builds the agent.', why: 'It is part of the prompt the LLM sees.' },
       { correct: false, text: 'A pipe that passes one action\'s output into the next action.', why: 'Action chaining uses `run` and variables, not `|`.' },
       { correct: false, text: 'A message sent to the customer word for word without the LLM.', why: 'The LLM uses it to decide its response. It isn\'t sent verbatim.' }
     ],
@@ -241,10 +241,10 @@ window.QUESTIONS = [
       'What does Agent Script do with an action whose `available when` condition evaluates to False?'
     ],
     options: [
-      { correct: true, text: 'The action is left out of the LLM\'s list of tools, so the LLM can\'t call it.', why: 'A false gate hides the action.' },
-      { correct: false, text: 'The action runs with empty inputs and returns an error.', why: 'It never reaches the LLM\'s tool list, so it can\'t run.' },
+      { correct: true, text: 'The action is hidden from the LLM\'s tool list, so it can\'t be called.', why: 'A false gate hides the action.' },
+      { correct: false, text: 'The action still runs, with empty inputs, and returns an error to the customer.', why: 'It never reaches the LLM\'s tool list, so it can\'t run.' },
       { correct: false, text: 'The LLM sees the action and asks the user to confirm before running it.', why: 'The LLM doesn\'t see it at all.' },
-      { correct: false, text: 'The agent transitions to the default subagent.', why: '`available when` controls action visibility only.' }
+      { correct: false, text: 'The agent transitions to the default subagent until `interest` has a value.', why: '`available when` controls action visibility only.' }
     ],
     explanation: '`available when` gates whether an action appears in the LLM\'s tool list. Any false value hides it: `None`, `False`, `0` or an empty string.\n\nThis is a filter enforced by the platform, not a request to the LLM.',
     source: SRC.hybrid
@@ -311,8 +311,8 @@ window.QUESTIONS = [
       'A service agent can find a customer\'s orders but gets an error when its action tries to update the order status. The same flow works for the admin. Where should the admin look first?'
     ],
     options: [
-      { correct: true, text: 'The agent user\'s permission sets don\'t grant edit access to the object or fields.', why: 'Service agents run as the agent user, so its access decides what actions can do.' },
-      { correct: false, text: 'The customers lack edit access to the records.', why: 'Customers aren\'t the running user for a service agent.' },
+      { correct: true, text: 'The agent user lacks edit access to the object or fields.', why: 'Service agents run as the agent user, so its access decides what actions can do.' },
+      { correct: false, text: 'The customers\' own user records lack edit access to Case records.', why: 'Customers aren\'t the running user for a service agent.' },
       { correct: false, text: 'The Trust Layer masked the record Id so the update had no target.', why: 'Masking applies to text sent to the LLM, not to record Ids in actions.' },
       { correct: false, text: 'The flow must be converted to Apex before an agent can call it.', why: 'Agents can call flows directly as actions.' }
     ],
@@ -326,11 +326,11 @@ window.QUESTIONS = [
     objective: 'Explain the security context the agent runs in and how it affects actions',
     stem: 'Which two practices help keep a service agent\'s access to the minimum it needs?',
     options: [
-      { correct: true, text: 'Give the agent user a dedicated permission set with only the objects and fields its actions need.', why: 'Least privilege for the identity the agent runs as.' },
-      { correct: true, text: 'Require user verification before private actions that return non-public data or change records.', why: 'Salesforce says private actions need at least user verification.' },
-      { correct: false, text: 'Assign the System Administrator profile so no action fails.', why: 'Gives the agent far more access than it needs.' },
-      { correct: false, text: 'Run every flow in system context without sharing.', why: 'Bypasses sharing. Run in user context where possible.' },
-      { correct: false, text: 'Share the agent user\'s login with the support team.', why: 'Never share credentials. The agent user is for the agent.' }
+      { correct: true, text: 'Give the agent user its own permission set with only the objects and fields it needs.', why: 'Least privilege for the identity the agent runs as.' },
+      { correct: true, text: 'Require user verification before private actions that read or change records.', why: 'Salesforce says private actions need at least user verification.' },
+      { correct: false, text: 'Assign the System Administrator profile to the agent user so that no action ever fails.', why: 'Gives the agent far more access than it needs.' },
+      { correct: false, text: 'Run every flow behind the agent\'s actions in system context without sharing.', why: 'Bypasses sharing. Run in user context where possible.' },
+      { correct: false, text: 'Share the agent user\'s login with the support team so they can test its access.', why: 'Never share credentials. The agent user is for the agent.' }
     ],
     explanation: 'Classify custom actions as public or private. Private actions return non-public data or change records, and need user verification at minimum.\n\nKeep the agent user\'s access tight with its own permission set and sensible sharing.',
     source: SRC.actionSecurity
@@ -362,7 +362,7 @@ window.QUESTIONS = [
     stem: 'An agent needs the current messaging session\'s Id so its actions can use it. The value must come from the session and never be changed by the agent. How should it be declared?',
     options: [
       { correct: true, text: 'As a linked variable with `source: @MessagingSession.Id`', why: 'Linked variables are read-only and bound to session data.' },
-      { correct: false, text: 'As a `mutable` string with a default of empty', why: 'Mutable means the agent can change it.' },
+      { correct: false, text: 'As a `mutable` string with an empty default, set by the agent at the start', why: 'Mutable means the agent can change it.' },
       { correct: false, text: 'As a `|` prompt instruction asking the LLM for the Id', why: 'The LLM can\'t know the session Id and might invent one.' },
       { correct: false, text: 'As a value in the `config` block', why: '`config` holds agent identity, not runtime session data.' }
     ],
@@ -376,9 +376,9 @@ window.QUESTIONS = [
     objective: 'Select and configure standard and custom topics and actions',
     stem: 'An agent must look up delivery status in an external order management system through its REST API. No standard action does this. What should the Agentforce Specialist create?',
     options: [
-      { correct: true, text: 'A custom agent action that calls a flow or invocable Apex using a named credential.', why: 'Custom actions wrap flows, Apex or prompt templates.' },
+      { correct: true, text: 'A custom action that calls a flow or Apex using a named credential', why: 'Custom actions wrap flows, Apex or prompt templates.' },
       { correct: false, text: 'A new standard action in Setup', why: 'Standard actions come from Salesforce. You can\'t create new ones.' },
-      { correct: false, text: 'A prompt template that asks the LLM for the delivery status', why: 'The LLM has no access to the external system and would guess.' },
+      { correct: false, text: 'A prompt template that asks the LLM to look up the delivery status', why: 'The LLM has no access to the external system and would guess.' },
       { correct: false, text: 'An Agentforce Data Library loaded with yesterday\'s order export', why: 'Gives stale data, not a current lookup.' }
     ],
     explanation: 'Standard actions cover common jobs such as querying records or summarising. When nothing standard fits, create a custom action backed by a flow, invocable Apex or a prompt template.\n\nCallouts should use a named credential so the endpoint and authentication sit in Setup, not in code.',
@@ -430,9 +430,9 @@ window.QUESTIONS = [
       'What is the slot-fill token in Agent Script used for?'
     ],
     options: [
-      { correct: true, text: 'It tells the LLM to work out the value from the conversation (slot filling).', why: '`...` is the slot-fill token.' },
+      { correct: true, text: 'The LLM fills the value in from the conversation (slot filling).', why: '`...` is the slot-fill token.' },
       { correct: false, text: 'It passes every variable in the agent to the action.', why: 'Only the named input is filled.' },
-      { correct: false, text: 'It leaves the input empty so the action uses its default.', why: 'The LLM is asked to supply the value.' },
+      { correct: false, text: 'It leaves the input empty, so the action falls back to its default value.', why: 'The LLM is asked to supply the value.' },
       { correct: false, text: 'It reuses the value from the previous turn.', why: 'That would be binding to a variable, such as `= @variables.order_id`.' }
     ],
     explanation: '`with order_id = @variables.order_id` binds the input deterministically. `with order_id = ...` asks the LLM to extract it from what the customer said.\n\nAgentforce only tries to slot-fill inputs that are required and unbound.',
@@ -446,9 +446,9 @@ window.QUESTIONS = [
     group: 'tools-vs-actions',
     stem: 'A subagent has an `actions` block and a `reasoning.actions` block. What is the difference?',
     options: [
-      { correct: true, text: '`actions` defines actions you can run from logic. `reasoning.actions` lists the tools the LLM can choose to call.', why: 'Subagent actions are for logic. Reasoning actions are tools for the LLM.' },
+      { correct: true, text: '`actions` defines actions for logic to `run`. `reasoning.actions` lists tools the LLM may call.', why: 'Subagent actions are for logic. Reasoning actions are tools for the LLM.' },
       { correct: false, text: '`actions` is for flows and `reasoning.actions` is for Apex.', why: 'Both can point at flows, Apex or prompt templates.' },
-      { correct: false, text: 'They are the same. The second is kept for backwards compatibility.', why: 'They do different jobs.' },
+      { correct: false, text: 'They are the same thing. The second name is kept only for backwards compatibility.', why: 'They do different jobs.' },
       { correct: false, text: '`reasoning.actions` runs every time the subagent runs. `actions` only runs when the LLM decides.', why: 'The other way round. `run` in logic always runs. Tools run at the LLM\'s choice.' }
     ],
     explanation: 'Define an action once in the subagent\'s `actions` block (description, inputs, outputs, target). Call it from logic with `run`, or expose it to the LLM by pointing to it from `reasoning.actions`.\n\nReasoning actions are also called tools because they can include utils such as transitions and `@utils.setVariables`, not only actions. In Canvas view the split is handled for you.',
@@ -465,7 +465,7 @@ window.QUESTIONS = [
       'An action must run on every parse of a subagent and store its output in variables. Which approach guarantees this?'
     ],
     options: [
-      { correct: true, text: '`run @actions.check_business_hours` in the logic part of the reasoning instructions', why: 'Logic runs deterministically, so the action runs every time.' },
+      { correct: true, text: '`run @actions.check_business_hours` in the logic instructions', why: 'Logic runs deterministically, so the action runs every time.' },
       { correct: false, text: 'List it in `reasoning.actions` with a clear description', why: 'The LLM chooses whether to call a tool.' },
       { correct: false, text: 'Mention it in a `|` prompt with `{!@actions.check_business_hours}`', why: 'Points the LLM at the tool, but the LLM still decides.' },
       { correct: false, text: 'Set `require_user_confirmation: True`', why: 'Asks the customer to confirm. It doesn\'t force the action to run.' }
@@ -519,8 +519,8 @@ window.QUESTIONS = [
       'What does `@utils.escalate` need before it can hand a conversation to a human service rep?'
     ],
     options: [
-      { correct: true, text: 'An active Omni-Channel connection, set in a `connection messaging` block with an outbound route type and name', why: 'Escalation routes through Omni-Channel.' },
-      { correct: false, text: 'A prompt template that writes the handover message', why: 'The escalation message is set on the connection block.' },
+      { correct: true, text: 'An Omni-Channel route set in a `connection messaging` block', why: 'Escalation routes through Omni-Channel.' },
+      { correct: false, text: 'A prompt template that writes the handover message for the rep', why: 'The escalation message is set on the connection block.' },
       { correct: false, text: 'A Slack workspace connected to the org', why: 'Slack isn\'t needed for escalation.' },
       { correct: false, text: 'A Testing Center test that covers escalation', why: 'Tests check behaviour. They don\'t enable it.' }
     ],
@@ -642,7 +642,7 @@ window.QUESTIONS = [
       { correct: true, text: 'Check for both `is None` and `== ""`', why: 'Covers "never set" and "set to empty".' },
       { correct: false, text: 'Check `== 0`', why: 'That is for numbers.' },
       { correct: false, text: 'Check `== False`', why: 'That is for booleans.' },
-      { correct: false, text: 'Check `is None` only', why: 'Misses a variable set to an empty string.' }
+      { correct: false, text: 'Check `is None` only, because empty strings count as None', why: 'Misses a variable set to an empty string.' }
     ],
     explanation: '`None` means the variable has no value and works for any type. Strings can also be set to `""`. For string checks, Salesforce suggests testing both.',
     source: SRC.ascriptVariables
@@ -713,7 +713,7 @@ window.QUESTIONS = [
       'An agent often picks the wrong subagent for a request. What does the reasoning engine mainly use to choose a subagent?'
     ],
     options: [
-      { correct: true, text: 'The subagents\' names and descriptions: clear, distinct and using the customer\'s own words', why: 'Classification relies on the name and description.' },
+      { correct: true, text: 'Their subagent names and descriptions', why: 'Classification relies on the name and description.' },
       { correct: false, text: 'Add more actions to the Returns subagent', why: 'Actions are chosen after the subagent is picked.' },
       { correct: false, text: 'Add more instructions to the Returns subagent', why: 'Instructions are used after the subagent is picked.' },
       { correct: false, text: 'Increase the conversation history sent to the LLM', why: 'Doesn\'t fix overlapping descriptions.' }
@@ -748,7 +748,7 @@ window.QUESTIONS = [
       'Which is the most reliable place for a critical business rule such as a refund limit?'
     ],
     options: [
-      { correct: true, text: 'In the action\'s own logic (the flow or Apex that processes the refund)', why: 'Code always enforces it, whatever the LLM does.' },
+      { correct: true, text: 'In the logic of the refund action itself', why: 'Code always enforces it, whatever the LLM does.' },
       { correct: false, text: 'In the subagent instructions', why: 'Instructions are interpreted by the LLM and aren\'t deterministic.' },
       { correct: false, text: 'In the action\'s description', why: 'Descriptions help the LLM choose the action. They don\'t enforce rules.' },
       { correct: false, text: 'In the welcome message, so customers know the rule', why: 'Telling customers isn\'t enforcing it.' }
@@ -764,10 +764,10 @@ window.QUESTIONS = [
     group: 'variables',
     stem: 'In the Agentforce builder, which statement about context variables and custom variables is true?',
     options: [
-      { correct: true, text: 'Custom variables can be updated by actions. Context variables come from the session and don\'t change during it.', why: 'Context variables are set at session start.' },
-      { correct: false, text: 'Context variables can store action outputs.', why: 'Only custom variables can be action outputs.' },
+      { correct: true, text: 'Actions can update custom variables. Context variables stay fixed.', why: 'Context variables are set at session start.' },
+      { correct: false, text: 'Context variables can store action outputs for later subagents to use.', why: 'Only custom variables can be action outputs.' },
       { correct: false, text: 'Only context variables can be used in filters.', why: 'Both kinds can be used in filters.' },
-      { correct: false, text: 'Custom variables are filled from the pre-chat form.', why: 'Pre-chat data feeds context variables.' }
+      { correct: false, text: 'Custom variables are filled automatically from the pre-chat form.', why: 'Pre-chat data feeds context variables.' }
     ],
     explanation: 'Context variables come from the messaging session: Messaging Session fields, pre-chat data and earlier sessions. They are inputs to actions and filters but don\'t change.\n\nCustom variables store action outputs, track state such as "verified" and link actions together.',
     source: SRC.legacyGuide
@@ -780,10 +780,10 @@ window.QUESTIONS = [
     group: 'deterministic-gate',
     stem: 'Account and payment subagents must only be available once a customer is verified. What is the deterministic way to do this?',
     options: [
-      { correct: true, text: 'Gate the router\'s transitions to those subagents with `available when @variables.verified == True` (a filter in the older builder).', why: 'Unavailable subagents can\'t be chosen.' },
+      { correct: true, text: 'Gate those transitions with `available when @variables.verified == True`', why: 'Unavailable subagents can\'t be chosen.' },
       { correct: false, text: 'Tell the router in its instructions to check verification first.', why: 'Instructions aren\'t deterministic.' },
       { correct: false, text: 'Mention "verified customers only" in the subagent descriptions.', why: 'Descriptions guide classification. They don\'t block it.' },
-      { correct: false, text: 'Remove the subagents and add their actions to every other subagent.', why: 'Makes the problem worse.' }
+      { correct: false, text: 'Remove those subagents and copy their actions into every other subagent instead.', why: 'Makes the problem worse.' }
     ],
     explanation: 'Filters (older builder) and `available when` (Agent Script) are system-level gates. They include or exclude subagents and actions based on variable values before the LLM chooses. Fewer options also improve routing accuracy.',
     source: SRC.ascriptBlocks
@@ -799,10 +799,10 @@ window.QUESTIONS = [
       'A developer is preparing to call the Agent API from a server-side integration. What do they need to create first?'
     ],
     options: [
-      { correct: true, text: 'An external client app with the client credentials flow and the api, chatbot_api and sfap_api scopes', why: 'All Agent API calls need a token from such an app.' },
+      { correct: true, text: 'An external client app using the client credentials flow', why: 'All Agent API calls need a token from such an app.' },
       { correct: false, text: 'An Experience Cloud site with guest access', why: 'Not used by the Agent API.' },
       { correct: false, text: 'A Prompt Builder Flex template for each message', why: 'The API talks to an agent, not a template.' },
-      { correct: false, text: 'A named credential pointing at the external system', why: 'Named credentials are for Salesforce calling out, not for calling in.' }
+      { correct: false, text: 'A named credential that points at the external system\'s endpoint', why: 'Named credentials are for Salesforce calling out, not for calling in.' }
     ],
     explanation: 'Create an external client app, enable OAuth with the api, refresh_token/offline_access, chatbot_api and sfap_api scopes, and turn on the client credentials flow with a Run As user. Use the consumer key and secret to get a token, then start a session.\n\nUse your My Domain URL, not the lightning.force.com domain.',
     source: SRC.agentApiStart
@@ -815,10 +815,10 @@ window.QUESTIONS = [
     group: 'agent-api-setup',
     stem: 'An Agent API call to start a session includes `"bypassUser": true`. What does that do?',
     options: [
-      { correct: true, text: 'The session runs as the agent\'s assigned user rather than the user tied to the token.', why: 'True means use the agent user.' },
+      { correct: true, text: 'It runs as the agent\'s assigned user, not the token\'s user.', why: 'True means use the agent user.' },
       { correct: false, text: 'It skips authentication for the call.', why: 'A token is always required.' },
       { correct: false, text: 'It skips the Trust Layer for faster replies.', why: 'Not what this flag does.' },
-      { correct: false, text: 'It lets anonymous users call the API without a token.', why: 'A token is always required.' }
+      { correct: false, text: 'It lets anonymous users call the API without first getting a token.', why: 'A token is always required.' }
     ],
     explanation: 'With `bypassUser` true, the API uses the user assigned to the agent. With false, it uses the user associated with the token. The client credentials example sets it to true.',
     source: SRC.agentApiStart
@@ -833,7 +833,7 @@ window.QUESTIONS = [
       'A team plans to use the Agent API. Which consideration should they know about?'
     ],
     options: [
-      { correct: true, text: 'It isn\'t supported for agents of type "Agentforce (Default)".', why: 'Stated in the Agent API considerations.' },
+      { correct: true, text: 'It doesn\'t support "Agentforce (Default)" agents.', why: 'Stated in the Agent API considerations.' },
       { correct: false, text: 'Calls have no timeout, so long actions always finish.', why: 'There is a 120-second timeout.' },
       { correct: false, text: 'Usage doesn\'t consume any credits.', why: 'Agent API usage affects credit consumption.' },
       { correct: false, text: 'It only works with employee agents.', why: 'Service agents are the common case.' }
@@ -867,10 +867,10 @@ window.QUESTIONS = [
     objective: 'Explain how an agent works and the building blocks of Agent Script',
     stem: 'An employee agent should remember a user\'s preferences across conversations. How is this turned on, and what else is needed?',
     options: [
-      { correct: true, text: 'Enable `memory` in the `context` block. Each employee in Lightning Experience also opts in.', why: 'Employee agent users opt in individually.' },
+      { correct: true, text: 'Turn on `memory` in the `context` block.', why: 'Employee agent users opt in individually.' },
       { correct: false, text: 'Make every variable `mutable`.', why: 'Variables last for a session, not across conversations.' },
       { correct: false, text: 'Set `reset_to_initial_node: False`.', why: 'Controls where each turn starts, not memory.' },
-      { correct: false, text: 'Store preferences in a linked variable.', why: 'Linked variables are read-only session data.' }
+      { correct: false, text: 'Store each preference in a linked variable for the next session.', why: 'Linked variables are read-only session data.' }
     ],
     explanation: 'The `context` block has `memory` and `user_profile`, both off by default. Memory lets the agent recall details from earlier conversations. Turning it off later stops new memories but keeps the existing ones.\n\n`user_profile` adds the user\'s name, locale and time zone to the prompt.',
     source: SRC.ascriptBlocks
@@ -882,8 +882,8 @@ window.QUESTIONS = [
     objective: 'Connect agents to channels such as digital experience, email, voice and Slack',
     stem: 'A service agent should chat with customers on the company\'s Experience Cloud help site. Which setup is used?',
     options: [
-      { correct: true, text: 'An Enhanced Chat (Messaging for In-App and Web) channel with an Omni-Channel flow that routes conversations to the agent', why: 'The standard way to put a service agent on a website.' },
-      { correct: false, text: 'An employee agent added to the site\'s utility bar', why: 'Employee agents are for internal users.' },
+      { correct: true, text: 'Enhanced Chat with an Omni-Channel flow routing to the agent', why: 'The standard way to put a service agent on a website.' },
+      { correct: false, text: 'An employee agent added to the utility bar of the site\'s pages', why: 'Employee agents are for internal users.' },
       { correct: false, text: 'Email-to-Case with the agent reading the inbox', why: 'Email, not chat.' },
       { correct: false, text: 'The Agent API called from the site\'s footer', why: 'Possible for custom builds, but not the standard setup.' }
     ],
@@ -901,8 +901,8 @@ window.QUESTIONS = [
       'Where does a Slack admin approve an Agentforce agent for a workspace?'
     ],
     options: [
-      { correct: true, text: 'A Slack org or workspace owner or admin, in the Slack Admin Dashboard on the Salesforce | Agentforce tab', why: 'They review the agent\'s permissions, allow it and pick workspaces.' },
-      { correct: false, text: 'Any Slack user, by typing the agent\'s name in a channel', why: 'Installation needs admin approval.' },
+      { correct: true, text: 'A Slack org or workspace admin, in the Slack Admin Dashboard', why: 'They review the agent\'s permissions, allow it and pick workspaces.' },
+      { correct: false, text: 'Any Slack user, by typing the agent\'s name in a channel to install it', why: 'Installation needs admin approval.' },
       { correct: false, text: 'Only Salesforce Support, by raising a case', why: 'Admins do this themselves.' },
       { correct: false, text: 'The agent user, by logging in to Slack', why: 'The agent user doesn\'t install apps.' }
     ],
@@ -920,10 +920,10 @@ window.QUESTIONS = [
       'Which statement about employee agents in Slack is true?'
     ],
     options: [
-      { correct: true, text: 'With a Salesforce identity licence they can use Agentforce in Slack without an extra CRM licence, by @mentioning the agent or using the Agentforce Hub.', why: 'Identity licences cover non-CRM Slack users.' },
+      { correct: true, text: 'Use a Salesforce identity licence and @mention the agent in Slack.', why: 'Identity licences cover non-CRM Slack users.' },
       { correct: false, text: 'They each need a full Sales Cloud licence.', why: 'An identity licence is enough.' },
       { correct: false, text: 'They can\'t. Agents in Slack are for CRM users only.', why: 'Non-CRM users can use them.' },
-      { correct: false, text: 'They must use the Agent API from a custom Slack bot.', why: 'Agentforce in Slack is built in.' }
+      { correct: false, text: 'Build a custom Slack bot that calls the Agent API for each message.', why: 'Agentforce in Slack is built in.' }
     ],
     explanation: 'Any employee can call an employee agent in Slack with an @mention in a channel or direct message. The Agentforce Hub in Slack lists the available agents. Employee agents consume Flex Credits.',
     source: SRC.employeeAgents
@@ -939,7 +939,7 @@ window.QUESTIONS = [
       'Whose permissions does an employee agent follow when it answers a question?'
     ],
     options: [
-      { correct: true, text: 'The agent runs as the person it is helping, so each sees only what their own access allows.', why: 'Employee agents follow the user\'s permissions and org security.' },
+      { correct: true, text: 'The agent runs as each user, so each sees only what they can access.', why: 'Employee agents follow the user\'s permissions and org security.' },
       { correct: false, text: 'The agent picks randomly from the records it finds.', why: 'Results follow the user\'s access.' },
       { correct: false, text: 'The agent runs as a shared agent user with the same access for everyone.', why: 'That is how service agents work.' },
       { correct: false, text: 'Managers always get system administrator access through the agent.', why: 'The agent never raises a user\'s access.' }
@@ -957,9 +957,9 @@ window.QUESTIONS = [
       'Which standard action lets an agent draw answers from the knowledge base?'
     ],
     options: [
-      { correct: true, text: 'The General FAQ subagent with the Answer Questions with Knowledge action', why: 'The standard pair for knowledge answers.' },
-      { correct: false, text: 'A custom Apex action that queries Knowledge articles', why: 'Possible, but a standard action already does this.' },
-      { correct: false, text: 'The Escalation subagent with the Transfer action', why: 'Hands over to a human.' },
+      { correct: true, text: 'General FAQ with the Answer Questions with Knowledge action', why: 'The standard pair for knowledge answers.' },
+      { correct: false, text: 'A custom Apex action that runs SOQL queries on Knowledge articles', why: 'Possible, but a standard action already does this.' },
+      { correct: false, text: 'The Escalation subagent, which hands the question to a knowledge expert', why: 'Escalation hands over to a human. It doesn\'t answer from knowledge.' },
       { correct: false, text: 'A Field Generation prompt template', why: 'Fills a field. It doesn\'t answer questions.' }
     ],
     explanation: 'Employee agents come with subagents and actions for common uses. The General FAQ subagent and the Answer Questions with Knowledge action answer from the knowledge base and other data, such as an Agentforce Data Library.\n\nCheck for a standard action before building a custom one.',
@@ -976,9 +976,9 @@ window.QUESTIONS = [
       'What must be done before inbound call routing can be configured for a voice agent?'
     ],
     options: [
-      { correct: true, text: 'Create a service agent, add a Telephony connection, set the voice, activate the agent, then build the flow that routes calls to it', why: 'Activation comes before inbound routing.' },
-      { correct: false, text: 'Build the routing flow first, then create the agent', why: 'The agent must exist and be active first.' },
-      { correct: false, text: 'Create an employee agent and connect it to Slack huddles', why: 'Inbound customer calls use a service agent.' },
+      { correct: true, text: 'Service agent, Telephony connection, voice settings, activate, then the routing flow', why: 'Activation comes before inbound routing.' },
+      { correct: false, text: 'Build the routing flow first, then create and activate the agent with its voice', why: 'The agent must exist and be active first.' },
+      { correct: false, text: 'Create an employee agent, add a Telephony connection, then connect it to Slack huddles', why: 'Inbound customer calls use a service agent.' },
       { correct: false, text: 'Upload call recordings to a Data Library', why: 'Not part of voice setup.' }
     ],
     explanation: 'Start from the Agentforce Service Agent template, with a default language supported for voice. Under Connections, add Telephony. Configure Voice Settings, save and activate. Then build the flow that connects the agent to telephony routing and decides when a call goes to a human.',
@@ -995,7 +995,7 @@ window.QUESTIONS = [
       'What is the difference between key-term prompting and the pronunciation dictionary in Agentforce voice settings?'
     ],
     options: [
-      { correct: true, text: 'Key-term prompting improves how the agent recognises terms customers say. The pronunciation dictionary controls how the agent says them.', why: 'One is listening, the other is speaking.' },
+      { correct: true, text: 'Key-term prompting helps it hear terms. The pronunciation dictionary sets how it says them.', why: 'One is listening, the other is speaking.' },
       { correct: false, text: 'The pronunciation dictionary fixes recognition. Key-term prompting changes the voice persona.', why: 'The other way round, and neither changes the persona.' },
       { correct: false, text: 'Both change only the speaking speed.', why: 'Speed is a separate setting.' },
       { correct: false, text: 'Neither exists. Only the persona can be changed.', why: 'Both are advanced voice settings.' }
@@ -1011,7 +1011,7 @@ window.QUESTIONS = [
     group: 'voice',
     stem: 'A voice agent escalates a complex call to a human rep. What does the rep receive?',
     options: [
-      { correct: true, text: 'The full transcript, including sentiment analysis, so the customer doesn\'t repeat themselves', why: 'Context passes with the call.' },
+      { correct: true, text: 'The full transcript, with sentiment analysis', why: 'Context passes with the call.' },
       { correct: false, text: 'Nothing. The rep starts from scratch.', why: 'The transcript is passed on.' },
       { correct: false, text: 'Only the customer\'s phone number', why: 'The full transcript is passed.' },
       { correct: false, text: 'A recording that the rep must listen to first', why: 'The transcript is provided.' }
@@ -1046,7 +1046,7 @@ window.QUESTIONS = [
       'When does a service agent run as the logged-in site user instead of the agent user?'
     ],
     options: [
-      { correct: true, text: 'The logged-in site user\'s profile, permissions, field-level security and sharing, when credential-based user verification is on for an Experience Cloud site', why: 'Credential-based verification switches the context.' },
+      { correct: true, text: 'The logged-in site user\'s access', why: 'Credential-based verification switches the context.' },
       { correct: false, text: 'Always the agent user, whatever the channel', why: 'Credential-based verification changes this.' },
       { correct: false, text: 'The system administrator who built the agent', why: 'Agents never run as their builder.' },
       { correct: false, text: 'The Agentforce Guest User', why: 'That is for unidentified users.' }
@@ -1065,7 +1065,7 @@ window.QUESTIONS = [
       'What do context variables such as `MessagingSession.ContactId` do for a service agent?'
     ],
     options: [
-      { correct: true, text: 'They tell the agent who the user is, but don\'t control data access. The customer can reach whatever the agent user can, unless you scope it.', why: 'You must limit access yourself.' },
+      { correct: true, text: 'They identify the customer but don\'t limit data access.', why: 'You must limit access yourself.' },
       { correct: false, text: 'They restrict every query to that contact\'s records automatically.', why: 'They don\'t control access.' },
       { correct: false, text: 'They switch the agent to run as that contact.', why: 'Contacts aren\'t users.' },
       { correct: false, text: 'They encrypt the customer\'s data.', why: 'Not what context variables do.' }
@@ -1081,8 +1081,8 @@ window.QUESTIONS = [
     group: 'verification',
     stem: 'Which two steps limit a service agent to the verified customer\'s own records?',
     options: [
-      { correct: true, text: 'Scope the flows and Apex behind actions with a condition such as `WHERE ContactId = VerifiedCustomerId`', why: 'Restricts the data each action returns.' },
-      { correct: true, text: 'Add filters so subagents and actions are only available when `VerifiedCustomerId is not None`', why: 'Blocks access until the customer is verified.' },
+      { correct: true, text: 'Scope action queries with `WHERE ContactId = VerifiedCustomerId`', why: 'Restricts the data each action returns.' },
+      { correct: true, text: 'Filter subagents and actions on `VerifiedCustomerId is not None`', why: 'Blocks access until the customer is verified.' },
       { correct: false, text: 'Tell the agent in its instructions to only show the customer\'s own data', why: 'Instructions aren\'t enforcement.' },
       { correct: false, text: 'Give the agent user the System Administrator profile', why: 'Widens access.' },
       { correct: false, text: 'Rely on `MessagingSession.ContactId` alone', why: 'Context variables don\'t control access.' }
@@ -1101,7 +1101,7 @@ window.QUESTIONS = [
       'Which statement about a new service agent user is true?'
     ],
     options: [
-      { correct: true, text: 'In the agent\'s `[Agent_Name]_Permissions` permission set. The agent user starts with minimal access and uses the Einstein Agent licence and profile.', why: 'Secure by default, extended by least privilege.' },
+      { correct: true, text: 'In the agent\'s `[Agent_Name]_Permissions` permission set', why: 'Secure by default, extended by least privilege.' },
       { correct: false, text: 'It starts with full access, which should be reduced later.', why: 'It starts with minimal access.' },
       { correct: false, text: 'In any permission set, whatever licence it is tied to.', why: 'Permission sets must suit the Einstein Agent licence and profile.' },
       { correct: false, text: 'Agent users can\'t be given object access.', why: 'They are managed like other users.' }
@@ -1120,7 +1120,7 @@ window.QUESTIONS = [
       'What is the Agentforce Guest User?'
     ],
     options: [
-      { correct: true, text: 'An Agentforce Guest User with minimal permissions, no permission sets and no record access', why: 'Handles unauthenticated conversations safely.' },
+      { correct: true, text: 'An Agentforce Guest User with no record access', why: 'Handles unauthenticated conversations safely.' },
       { correct: false, text: 'A full Salesforce user for each visitor', why: 'Visitors don\'t get user records.' },
       { correct: false, text: 'A Contact record with Community licence', why: 'Not what happens.' },
       { correct: false, text: 'An Experience Cloud guest user with access to all public records', why: 'The Agentforce Guest User can\'t access records.' }
@@ -1136,8 +1136,8 @@ window.QUESTIONS = [
     group: 'agent-user',
     stem: 'A service agent runs as its agent user. Which sharing settings apply to it?',
     options: [
-      { correct: true, text: 'Org-wide defaults for internal users, plus its role and sharing rules', why: 'The agent user is an internal user.' },
-      { correct: false, text: 'External org-wide defaults, because it talks to customers', why: 'Internal OWD apply to the agent user.' },
+      { correct: true, text: 'Internal org-wide defaults, plus its role and sharing rules', why: 'The agent user is an internal user.' },
+      { correct: false, text: 'External org-wide defaults, because the agent only talks to customers', why: 'Internal OWD apply to the agent user.' },
       { correct: false, text: 'No sharing at all. Agents see everything.', why: 'Sharing applies.' },
       { correct: false, text: 'The customer\'s sharing settings', why: 'The customer isn\'t the running user.' }
     ],
@@ -1154,8 +1154,8 @@ window.QUESTIONS = [
       'Why is a flow in system context without sharing risky behind a service agent action?'
     ],
     options: [
-      { correct: true, text: 'All objects and fields, with sharing ignored, so it can return records the customer shouldn\'t see', why: 'Full access, no sharing.' },
-      { correct: false, text: 'Only the customer\'s records', why: 'Nothing restricts it to the customer.' },
+      { correct: true, text: 'All objects and fields, ignoring sharing', why: 'Full access, no sharing.' },
+      { correct: false, text: 'Only the records of the customer in the conversation', why: 'Nothing restricts it to the customer.' },
       { correct: false, text: 'Only the agent user\'s records', why: 'System context without sharing ignores the agent user\'s sharing.' },
       { correct: false, text: 'No access, so it fails', why: 'It has full access.' }
     ],
@@ -1188,9 +1188,9 @@ window.QUESTIONS = [
     objective: 'Connect agents to channels such as digital experience, email, voice and Slack',
     stem: 'Which channels does an employee agent support?',
     options: [
-      { correct: true, text: 'Lightning Experience, the Salesforce mobile app, Slack, and Enhanced Web Chat v1 on Experience Cloud sites', why: 'The supported employee channels.' },
+      { correct: true, text: 'Lightning Experience, mobile, Slack and Enhanced Web Chat v1', why: 'The supported employee channels.' },
       { correct: false, text: 'Outbound email only', why: 'That is Lead Nurturing.' },
-      { correct: false, text: 'Public websites for anonymous visitors', why: 'Employee agents aren\'t for unauthenticated customers.' },
+      { correct: false, text: 'Public websites, WhatsApp and SMS for anonymous customer visitors', why: 'Employee agents aren\'t for unauthenticated customers.' },
       { correct: false, text: 'Telephony only', why: 'Voice is a service agent channel.' }
     ],
     explanation: 'Employee agents serve internal users and run as the logged-in user, so queries don\'t need to be scoped to the user by hand. Access to employee agents is managed with permission sets or profiles.',
@@ -1207,8 +1207,8 @@ window.QUESTIONS = [
       'How can you stop the Agent Router from selecting a particular subagent?'
     ],
     options: [
-      { correct: true, text: 'Remove the subagent\'s transition from the Agent Router\'s reasoning actions, or add a filter to it', why: 'The router can only pick subagents it has transitions to.' },
-      { correct: false, text: 'Delete the subagent\'s description', why: 'The subagent stays available and routing gets worse.' },
+      { correct: true, text: 'Remove its transition from the Agent Router, or filter it', why: 'The router can only pick subagents it has transitions to.' },
+      { correct: false, text: 'Delete the subagent\'s description so the router can\'t match it', why: 'The subagent stays available and routing gets worse.' },
       { correct: false, text: 'Rename it with a leading underscore', why: 'Names can\'t start with an underscore and this doesn\'t hide it.' },
       { correct: false, text: 'Move it to the end of the script', why: 'Order doesn\'t control routing.' }
     ],
@@ -1226,10 +1226,10 @@ window.QUESTIONS = [
       'What happens if `model_config` is removed from the `start_agent` block?'
     ],
     options: [
-      { correct: true, text: 'The Salesforce HyperClassifier model. Without `model_config`, classification uses the Agentforce model option chosen in Setup.', why: 'Both statements are from Help.' },
-      { correct: false, text: 'Always the same LLM used for responses. `model_config` is ignored.', why: 'The router has its own model setting.' },
+      { correct: true, text: 'HyperClassifier, or the Setup model option if `model_config` is removed', why: 'Both statements are from Help.' },
+      { correct: false, text: 'The same LLM as responses, and `model_config` is ignored entirely', why: 'The router has its own model setting.' },
       { correct: false, text: 'A keyword matcher with no AI', why: 'HyperClassifier is a model.' },
-      { correct: false, text: 'The agent stops routing when `model_config` is removed.', why: 'It falls back to the Setup choice.' }
+      { correct: false, text: 'HyperClassifier, and the agent stops routing if `model_config` is removed', why: 'Without `model_config` it falls back to the Setup model option.' }
     ],
     explanation: 'From April 2026, default-template agents use `model: "model://sfdc_ai__DefaultEinsteinHyperClassifier"` in the router\'s `model_config`. Salesforce says it beats standard LLMs for speed and precision, especially with complex or negative instructions.',
     source: SRC.routing
@@ -1245,10 +1245,10 @@ window.QUESTIONS = [
       'Which statement about agent versions in the new Agentforce Builder is true?'
     ],
     options: [
-      { correct: true, text: 'Commit the version, which saves a snapshot to metadata and locks it. Only committed versions can be activated.', why: 'Drafts can\'t be activated.' },
+      { correct: true, text: 'Commit the version. Only committed versions can be activated.', why: 'Drafts can\'t be activated.' },
       { correct: false, text: 'Drafts can be activated directly.', why: 'A draft must be committed first.' },
       { correct: false, text: 'A committed version can still be edited.', why: 'Committed versions are locked. Create a draft to keep editing.' },
-      { correct: false, text: 'Versions are only available through the Metadata API.', why: 'You switch versions from the builder\'s header.' }
+      { correct: false, text: 'Versions can only be activated after deploying them with the Metadata API.', why: 'You switch versions from the builder\'s header.' }
     ],
     explanation: 'Create the agent (an editable draft), change and test it, commit it, then activate. To keep iterating, create a new draft version. You can compare versions and copy changes between them.',
     source: SRC.agentVersions
@@ -1264,10 +1264,10 @@ window.QUESTIONS = [
       'What is the difference between Simulate and Live Test modes in Agentforce Builder?'
     ],
     options: [
-      { correct: true, text: 'Simulate mode checks configuration and logic without changing data. Live Test mode runs real actions and updates Salesforce data.', why: 'Risk-free first, realistic second.' },
-      { correct: false, text: 'Live Test mode never changes data.', why: 'It runs actions as if the agent were active.' },
+      { correct: true, text: 'Simulate leaves data alone. Live Test runs real actions.', why: 'Risk-free first, realistic second.' },
+      { correct: false, text: 'Live Test mode runs actions but never changes any records.', why: 'It runs actions as if the agent were active.' },
       { correct: false, text: 'Simulate mode can only be used in production.', why: 'It is a builder preview mode.' },
-      { correct: false, text: 'They are the same.', why: 'One changes data and one doesn\'t.' }
+      { correct: false, text: 'They are the same mode with two names.', why: 'One changes data and one doesn\'t.' }
     ],
     explanation: 'Use Simulate mode to confirm configuration, then Live Test mode to check actions, data and integrations under near-production conditions. The preview gives a step-by-step trace of what the agent did.',
     source: SRC.testModes
@@ -1283,7 +1283,7 @@ window.QUESTIONS = [
       'Which parts of an inbound email does Agentforce Service Agent on Email process?'
     ],
     options: [
-      { correct: true, text: 'Only the text in the subject and body. Images and attachments aren\'t processed.', why: 'Stated limitation.' },
+      { correct: true, text: 'Only the subject and body text', why: 'Stated limitation.' },
       { correct: false, text: 'The subject, body and all attachments', why: 'Attachments aren\'t processed.' },
       { correct: false, text: 'Only the attachments', why: 'It uses the subject and body.' },
       { correct: false, text: 'Only the subject line', why: 'The body is processed too.' }
@@ -1319,10 +1319,10 @@ window.QUESTIONS = [
       'A service agent on email fails while handling a case. Where does the case go?'
     ],
     options: [
-      { correct: true, text: 'A case comment is added with the error details and the case is reassigned to the org\'s default case owner.', why: 'So a person can pick it up.' },
+      { correct: true, text: 'Comments on the case and reassigns it to the default owner', why: 'So a person can pick it up.' },
       { correct: false, text: 'The case is deleted.', why: 'Cases aren\'t deleted.' },
-      { correct: false, text: 'The customer gets the Error system message by email.', why: 'System messages aren\'t used on email.' },
-      { correct: false, text: 'Nothing. The case waits for the agent to retry.', why: 'It is reassigned.' }
+      { correct: false, text: 'The customer gets the agent\'s Error system message by email.', why: 'System messages aren\'t used on email.' },
+      { correct: false, text: 'Nothing. The case waits in the agent\'s queue until it retries.', why: 'It is reassigned.' }
     ],
     explanation: 'For the agent to use Case Assignment Rules, its user needs View access on Case. To update cases, it needs View and Update. Grant no more than that.',
     source: SRC.emailAgent
@@ -1336,9 +1336,9 @@ window.QUESTIONS = [
     stem: 'What is the default daily limit on inbound emails handled by Agentforce Service Agent on Email?',
     options: [
       { correct: true, text: '5,000 transactions a day', why: 'The default, which Support can raise after consistent use.' },
-      { correct: false, text: '500 a day', why: 'Too low.' },
-      { correct: false, text: '50,000 a day', why: 'Too high for the default.' },
-      { correct: false, text: 'Unlimited', why: 'There is a daily limit.' }
+      { correct: false, text: '500 transactions a day', why: 'Too low.' },
+      { correct: false, text: '50,000 transactions a day', why: 'Too high for the default.' },
+      { correct: false, text: 'No limit on transactions', why: 'There is a daily limit.' }
     ],
     explanation: 'Other email limits: Reply All is limited to 20 recipients across To and CC, the MessagingSession record isn\'t available on email, and Salesforce for Outlook Email-to-Case routing addresses aren\'t supported.',
     source: SRC.emailAgent
@@ -1354,7 +1354,7 @@ window.QUESTIONS = [
       'Which statement about resolving a subagent\'s reasoning instructions is true?'
     ],
     options: [
-      { correct: true, text: 'It is resolved top to bottom with no LLM: variables are replaced, inline actions run and conditions are applied, exactly as written', why: 'Logic runs before any reasoning.' },
+      { correct: true, text: 'It runs top to bottom as written, with no LLM', why: 'Logic runs before any reasoning.' },
       { correct: false, text: 'The LLM reads the logic and decides which lines to run', why: 'No LLM is used at this stage.' },
       { correct: false, text: 'Logic lines run in random order for variety', why: 'They run in the order written.' },
       { correct: false, text: 'Only the first condition is evaluated', why: 'Every logical expression is run.' }
@@ -1391,10 +1391,10 @@ window.QUESTIONS = [
       'An agent sometimes calls the wrong action for phone number changes. Which description best helps it choose correctly?'
     ],
     options: [
-      { correct: true, text: '"Updates the user\'s phone number on their contact record. If no matching contact exists, creates a new contact record."', why: 'Says what, on which record, and edge cases.' },
-      { correct: false, text: '"Updates a phone number."', why: 'Too vague to tell actions apart.' },
-      { correct: false, text: '"Provides the ability to update data."', why: 'Generic phrasing repeated across actions.' },
-      { correct: false, text: '"Phone."', why: 'Not a description.' }
+      { correct: true, text: '"Updates the user\'s phone number on their contact record, or creates a contact if none exists."', why: 'Says what, on which record, and edge cases.' },
+      { correct: false, text: '"Provides the ability to update phone numbers and other contact information."', why: 'Boilerplate opening and no detail on which record.' },
+      { correct: false, text: '"Updates any field on any record the user mentions, including phone numbers and emails."', why: 'Too broad. It overlaps with every other update action.' },
+      { correct: false, text: '"Phone number action. Call it when needed."', why: 'Says nothing about what it does or when.' }
     ],
     explanation: 'Action instructions are usually one to three sentences written as an instruction to the LLM: the goal, use cases, and the objects or records used or changed. More relevant detail helps the LLM tell actions apart.',
     source: SRC.actionInstructions
@@ -1407,9 +1407,9 @@ window.QUESTIONS = [
     group: 'action-instructions',
     stem: 'An agent has actions named Get Order, Get Shipment, Get Invoice and Get Refund, all described with "Provides the ability to...". What does Salesforce suggest?',
     options: [
-      { correct: true, text: 'Vary the verbs (Get, Find, Identify, Retrieve) and remove phrases repeated across descriptions', why: 'LLMs work best with varied, distinct language.' },
+      { correct: true, text: 'Use varied verbs and cut phrases repeated across descriptions', why: 'LLMs work best with varied, distinct language.' },
       { correct: false, text: 'Make all names identical so the LLM treats them the same', why: 'Makes choosing harder.' },
-      { correct: false, text: 'Add "Provides the ability to" to every input as well', why: 'More repetition.' },
+      { correct: false, text: 'Add "Provides the ability to" to every input instruction as well', why: 'More repetition.' },
       { correct: false, text: 'Merge all four into one action', why: 'Not the advice.' }
     ],
     explanation: 'Similar names and repeated boilerplate make actions hard to tell apart. Distinct verbs and specific descriptions help the reasoning engine pick the right one.',
@@ -1423,10 +1423,10 @@ window.QUESTIONS = [
     group: 'action-instructions',
     stem: 'Which two can be added to an action\'s instructions when testing shows it isn\'t used as expected?',
     options: [
-      { correct: true, text: 'One to three example utterances that should trigger it, varied in wording and length', why: 'Helps match customer inputs.' },
-      { correct: true, text: 'Dependent actions by API name, such as "IdentifyRecordByName must be called first"', why: 'Fixes missing or out-of-order steps.' },
+      { correct: true, text: 'One to three varied example utterances', why: 'Helps match customer inputs.' },
+      { correct: true, text: 'Dependent actions by API name', why: 'Fixes missing or out-of-order steps.' },
       { correct: false, text: 'The full source code of the action', why: 'Not useful to the LLM.' },
-      { correct: false, text: 'Twenty near-identical example utterances', why: 'Keep to one to three, with little overlap.' },
+      { correct: false, text: 'Twenty near-identical example utterances for each action', why: 'Keep to one to three, with little overlap.' },
       { correct: false, text: 'A list of every other action in the org', why: 'Not helpful.' }
     ],
     explanation: 'Examples of how the action should behave can fix consistent mistakes. LLMs generally follow examples of what to do better than examples of what not to do.',
@@ -1443,9 +1443,9 @@ window.QUESTIONS = [
       'What should instructions for an action\'s inputs include?'
     ],
     options: [
-      { correct: true, text: 'LLMs don\'t fully know Salesforce context, so state the data type, specific fields, how to get the value and any rules', why: 'Concise but detailed input instructions.' },
+      { correct: true, text: 'LLMs don\'t know Salesforce details, such as ID lengths', why: 'Concise but detailed input instructions.' },
       { correct: false, text: 'Input instructions are ignored by the LLM', why: 'They guide how inputs are filled.' },
-      { correct: false, text: 'Only the field label', why: 'Not enough detail.' },
+      { correct: false, text: 'Only the field label, because the LLM reads the schema itself', why: 'Not enough detail.' },
       { correct: false, text: 'SOQL for the LLM to run', why: 'Help\'s own example says "Don\'t generate SQL or SOQL".' }
     ],
     explanation: 'Good input instructions cover the data type, specific fields or values, where the value comes from, and special rules. Output instructions say what the result is and what the agent returns, for example "a JSON object with the recipient ID, subject line and body".',
@@ -1462,7 +1462,7 @@ window.QUESTIONS = [
       'Which statement about filters in the legacy Agentforce builder is true?'
     ],
     options: [
-      { correct: true, text: 'Deactivate the agent, create the filter on the Context panel\'s Filters tab, then apply it to subagents or actions', why: 'Active agents must be deactivated first.' },
+      { correct: true, text: 'Deactivate the agent first', why: 'Active agents must be deactivated first.' },
       { correct: false, text: 'Filters apply to every agent in the org automatically', why: 'Applied per agent.' },
       { correct: false, text: 'Filters can only use custom variables', why: 'Context, conversation and custom variables are supported.' },
       { correct: false, text: 'Filters need Apex', why: 'They are configured with variables, operators and values.' }
@@ -1481,10 +1481,10 @@ window.QUESTIONS = [
       'What is the difference between `available when` filtering and a conditional transition?'
     ],
     options: [
-      { correct: true, text: 'Filtering only removes options, so the LLM can still pick something that needs no verification. A conditional transition runs before any reasoning and guarantees the route.', why: 'Filters restrict. Transitions enforce.' },
-      { correct: false, text: 'They behave the same.', why: 'One leaves the choice to the LLM.' },
+      { correct: true, text: 'Filters only hide options. A transition forces the route first.', why: 'Filters restrict. Transitions enforce.' },
+      { correct: false, text: 'They behave the same way, so either one is fine.', why: 'One leaves the choice to the LLM.' },
       { correct: false, text: '`available when` forces a transition when the condition is false.', why: 'It only hides tools.' },
-      { correct: false, text: 'A conditional transition asks the LLM whether to move.', why: 'It runs as logic, with no LLM.' }
+      { correct: false, text: 'A conditional transition asks the LLM whether to move the customer on.', why: 'It runs as logic, with no LLM.' }
     ],
     explanation: 'Put `if @variables.verified == False:` then `transition to @subagent.Identity` at the top of the Agent Router\'s instructions. Unverified users go straight to Identity, with no subagent classification and no prompt sent to the LLM.',
     source: SRC.requiredFlow
