@@ -135,7 +135,10 @@ const SRC = {
   agentTypes: help('Agent Types and Considerations', 'ai.agent_setup_explore_types'),
   defaultAgent: help('Agentforce (Default) Considerations', 'ai.agent_default_considerations'),
   sessionTraceSetup: help('Set Up Agentforce Session Tracing', 'ai.generative_ai_session_trace_setup'),
-  optimizeAbout: help('About Agent Optimization', 'ai.generative_ai_optimize_about')
+  optimizeAbout: help('About Agent Optimization', 'ai.generative_ai_optimize_about'),
+  ensembleRetriever: help('Add an Ensemble Retriever to a Prompt Template', 'ai.prompt_builder_retriever_ensemble'),
+  chatContextVars: help('Use Context Variables in Enhanced Chat v2 Conversations', 'ai.agent_enhanced_chat_v2_context_variables'),
+  employeeConsiderations: help('Considerations for Agentforce Employee Agent', 'ai.agent_employee_agent_considerations')
 };
 
 window.QUESTIONS = [
@@ -1852,6 +1855,60 @@ window.QUESTIONS = [
     source: SRC.defaultAgent
   },
 
+  {
+    id: 'AG-097',
+    section: 'agents',
+    objective: 'Manage deterministic behaviour using filters, variables and template expressions',
+    group: 'chat-context',
+    stem: [
+      'A service agent on Enhanced Chat v2 should use the order number the customer typed into the pre-chat form, without asking again. How?',
+      'Which statement about context variables in Enhanced Chat v2 is true?'
+    ],
+    options: [
+      { correct: true, text: 'Map the Messaging Session field to a context variable and use it in instructions and action inputs. Test it on a connected channel, not in the builder.', why: 'Context variables need a real Messaging Session record.' },
+      { correct: false, text: 'Use the context variable to authenticate the customer', why: 'Salesforce doesn\'t recommend context variables for authentication.' },
+      { correct: false, text: 'Test it in the builder preview', why: 'The preview has no Messaging Session record.' },
+      { correct: false, text: 'Context variables only work for employee agents', why: 'They are for service agents on messaging.' }
+    ],
+    explanation: 'Deactivate the agent before adding context variables. Add custom fields to Messaging Session to expose more data. Website context, such as the current page, can be passed with context events through the Enhanced Web Chat API.',
+    source: SRC.chatContextVars
+  },
+
+  {
+    id: 'AG-098',
+    section: 'agents',
+    objective: 'Identify when to use an Employee or Service agent',
+    group: 'employee-billing',
+    stem: [
+      'How is a metered Agentforce Employee agent conversation billed?',
+      'An employee agent calls two standard actions and one custom action in a text conversation. How is that metered?'
+    ],
+    options: [
+      { correct: true, text: 'In Flex Credits per action called: each standard action and each custom action counts as one, whatever the token count', why: 'Per-action metering.' },
+      { correct: false, text: 'Per token, by length of the reply', why: 'Metered per action.' },
+      { correct: false, text: 'A fixed fee per user per month only', why: 'Usage is per action unless unmetered.' },
+      { correct: false, text: 'It is always free', why: 'Usage is metered unless the user has unmetered access.' }
+    ],
+    explanation: 'Usage is unmetered for users with the Unmetered User-Based AI permission. Related features, such as Data Libraries or Audit and Feedback, can use credits on other cards. Digital Wallet shows consumption.',
+    source: SRC.employeeConsiderations
+  },
+
+  {
+    id: 'AG-099',
+    section: 'agents',
+    objective: 'Identify when to use an Employee or Service agent',
+    stem: 'A company plans several employee agents for HR, IT and Sales. Which two practices does Salesforce recommend?',
+    options: [
+      { correct: true, text: 'Describe each agent\'s purpose, such as its department or function, so subagents don\'t overlap', why: 'Prevents overlap.' },
+      { correct: true, text: 'Grant access to each agent with permission sets or profiles by role or group', why: 'Users see the agents relevant to them.' },
+      { correct: false, text: 'Give every employee every agent', why: 'Grant by role.' },
+      { correct: false, text: 'Use one identical description for all agents', why: 'Causes overlap.' },
+      { correct: false, text: 'Skip extra steps for Slack and mobile', why: 'They need extra authentication or licensing.' }
+    ],
+    explanation: 'Employee agents work in the Agentforce panel in Lightning Experience, Slack and the Salesforce mobile app. Keep a clear subagent structure as you scale.',
+    source: SRC.employeeConsiderations
+  },
+
   // ---------------- Prompt Engineering (20%) ----------------
 
   {
@@ -2955,7 +3012,7 @@ window.QUESTIONS = [
       { correct: false, text: 'A related list merge field', why: 'Not a retriever. It grounds on related records.' }
     ],
     explanation: 'A search index covers one data model object. An individual retriever reads from one search index. To ground on several sources, use an ensemble retriever. Retrievers are created in AI Models (Einstein Studio).',
-    source: SRC.retrieverTypes
+    source: SRC.ensembleRetriever
   },
 
   {
@@ -3482,6 +3539,25 @@ window.QUESTIONS = [
     ],
     explanation: 'Custom retriever libraries list only active retrievers. Prompt templates use an active retriever as a resource. Each save of a retriever creates a new version, and one version is active.',
     source: SRC.libraryCustomRetriever
+  },
+
+  {
+    id: 'DA-042',
+    section: 'data',
+    objective: 'Foundational Data 360 concepts: chunking, indexing and retrievers',
+    group: 'retriever-types',
+    stem: [
+      'What does an ensemble retriever do when it runs?',
+      'How does an ensemble retriever produce its results?'
+    ],
+    options: [
+      { correct: true, text: 'Runs its individual retrievers in parallel, combines their results into one list, reranks by relevance and returns the most relevant', why: 'As described in Help.' },
+      { correct: false, text: 'Runs one retriever at random', why: 'It runs them all.' },
+      { correct: false, text: 'Returns every result from every source unranked', why: 'It reranks and returns the most relevant.' },
+      { correct: false, text: 'Merges the search indexes into one new index', why: 'The indexes stay separate.' }
+    ],
+    explanation: 'Ensemble retrievers are created in AI Models. Adding one to a prompt template needs Prompt Template Manager (or Customize Application). Managing retrievers needs a Data Cloud permission set, and running prompts with Einstein Search needs Data Cloud User.',
+    source: SRC.ensembleRetriever
   },
 
   {
