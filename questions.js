@@ -141,7 +141,10 @@ const SRC = {
   employeeConsiderations: help('Considerations for Agentforce Employee Agent', 'ai.agent_employee_agent_considerations'),
   healthSetup: help('Set Up Agent Health Monitoring', 'ai.agent_monitor_health_setup'),
   legacyEvaluations: help('Choose Evaluations', 'ai.agent_testing_center_evaluations'),
-  structuredOutputs: help('Use Structured Outputs to Format Model Responses', 'ai.prompt_builder_use_structured_outputs_responses')
+  structuredOutputs: help('Use Structured Outputs to Format Model Responses', 'ai.prompt_builder_use_structured_outputs_responses'),
+  agentFromFlow: help('Call an Agent from a Flow or Apex Class', 'ai.agent_custom_invocable_action_flow_apex'),
+  groundDmo: help('Ground with Data 360 DMO Merge Fields', 'ai.prompt_builder_ground_dmo'),
+  dataGraphs: help('Grounding with Data Graphs', 'ai.prompt_builder_ground_data_graphs')
 };
 
 window.QUESTIONS = [
@@ -1912,6 +1915,42 @@ window.QUESTIONS = [
     source: SRC.employeeConsiderations
   },
 
+  {
+    id: 'AG-100',
+    section: 'agents',
+    objective: 'Identify when to use the Agent API',
+    group: 'agent-from-flow',
+    stem: [
+      'When a case is created, a flow should ask the service agent to summarise it and then draft a reply. What is the recommended way to call the agent?',
+      'What is the difference between custom agent invocable actions and standard Agent API invocable actions?'
+    ],
+    options: [
+      { correct: true, text: 'Custom agent invocable actions, configured with clicks and recommended for most cases. Standard Agent API actions (Start Session, Send Message, End Session, Submit Feedback) give finer control for advanced cases.', why: 'Both are from Help.' },
+      { correct: false, text: 'Only the external Agent API with a connected app', why: 'Flows and Apex can call agents directly.' },
+      { correct: false, text: 'A prompt template action in the flow', why: 'That runs a template, not the agent.' },
+      { correct: false, text: 'Agents can\'t be called from flows', why: 'They can.' }
+    ],
+    explanation: 'With a custom agent invocable action you give the agent a user message describing the task, and it picks subagents and actions as if chatting. You can call the same agent, or several agents, more than once in one flow.',
+    source: SRC.agentFromFlow
+  },
+
+  {
+    id: 'AG-101',
+    section: 'agents',
+    objective: 'Explain the security context the agent runs in and how it affects actions',
+    group: 'agent-from-flow',
+    stem: 'Which two statements about calling an agent from a flow are true?',
+    options: [
+      { correct: true, text: 'Agent invocable actions can only be used in asynchronous paths, not paths that run immediately.', why: 'Stated limitation.' },
+      { correct: true, text: 'A flow calling a service agent runs as the agent user. A flow calling an employee agent runs as the authenticated user.', why: 'Context depends on the agent type.' },
+      { correct: false, text: 'Experience Cloud site users can trigger these actions.', why: 'Not supported for site users.' },
+      { correct: false, text: 'The Platform Integration User can call them.', why: 'Not supported.' },
+      { correct: false, text: 'Custom variables are fully supported.', why: 'Custom agent invocable actions don\'t support custom variables.' }
+    ],
+    explanation: 'Standard subagents and actions are designed for conversations and might not work well this way, so consider custom actions. Give a service agent\'s user access to the records its actions need.',
+    source: SRC.agentFromFlow
+  },
+
   // ---------------- Prompt Engineering (20%) ----------------
 
   {
@@ -3596,6 +3635,44 @@ window.QUESTIONS = [
     ],
     explanation: 'Ensemble retrievers are created in AI Models. Adding one to a prompt template needs Prompt Template Manager (or Customize Application). Managing retrievers needs a Data Cloud permission set, and running prompts with Einstein Search needs Data Cloud User.',
     source: SRC.ensembleRetriever
+  },
+
+  {
+    id: 'DA-043',
+    section: 'data',
+    objective: 'Foundational Data 360 concepts: chunking, indexing and retrievers',
+    group: 'structured-grounding',
+    stem: [
+      'A prompt template on Contact should include loyalty data held in a Data 360 data model object. How is this enabled?',
+      'How do Data 360 DMO fields become available for grounding in Prompt Builder?'
+    ],
+    options: [
+      { correct: true, text: 'Create a Data 360 enrichment (copy fields or a related list of the DMO) on Contact or Lead, then use the new fields like native Salesforce data', why: 'Enrichments link DMOs to CRM objects.' },
+      { correct: false, text: 'Paste the DMO\'s data into the template by hand', why: 'Use enrichments.' },
+      { correct: false, text: 'DMO data can never be used in prompts', why: 'It can, through enrichments.' },
+      { correct: false, text: 'Convert the DMO into a knowledge article', why: 'Not needed.' }
+    ],
+    explanation: 'Data model objects are harmonised groupings of data built from data streams and other sources. Enrichments currently support Contact and Lead. After enrichment, the DMO appears in the Insert Resources menu in Prompt Builder.',
+    source: SRC.groundDmo
+  },
+
+  {
+    id: 'DA-044',
+    section: 'data',
+    objective: 'Foundational Data 360 concepts: chunking, indexing and retrievers',
+    group: 'structured-grounding',
+    stem: [
+      'A sales email template should use a 360-degree customer view combining CRM data and a third-party source. Which grounding option fits?',
+      'Which statement about grounding with data graphs is true?'
+    ],
+    options: [
+      { correct: true, text: 'A data graph, which unifies several sources through identity resolution. Prompt Builder uses whole data graphs only.', why: 'Subgraphs aren\'t supported.' },
+      { correct: false, text: 'A related list merge field', why: 'Only covers related records in the org.' },
+      { correct: false, text: 'A subgraph of a larger data graph', why: 'Subgraphs aren\'t supported.' },
+      { correct: false, text: 'A data graph on a lookup field input', why: 'Not supported.' }
+    ],
+    explanation: 'A data graph is referenced as `DataGraph:InputName:DataGraphName` and previewed as JSON. The object input\'s DMO must be the graph\'s root or linked to a Unified Profile DMO at the root. Before deploying by change set, make sure the data graph exists in the target org.',
+    source: SRC.dataGraphs
   },
 
   {
