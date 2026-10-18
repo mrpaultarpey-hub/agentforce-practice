@@ -120,7 +120,9 @@ const SRC = {
   trustSetup: help('Set up Einstein Trust Layer', 'ai.generative_ai_trust_setup'),
   citations: help('Build Trust in AI Responses with Citations', 'ai.generative_ai_trust_citations'),
   agentMasking: help('Data Masking Limitations in Agentforce', 'ai.agent_trust_data_masking'),
-  indexSetup: { title: 'Salesforce Developers: Ground Agentforce on Your Website, Create Search Index and Retriever', url: 'https://developer.salesforce.com/docs/ai/ground-agentforce-on-website/guide/aes-create-search-index-and-retriever.html' }
+  indexSetup: { title: 'Salesforce Developers: Ground Agentforce on Your Website, Create Search Index and Retriever', url: 'https://developer.salesforce.com/docs/ai/ground-agentforce-on-website/guide/aes-create-search-index-and-retriever.html' },
+  multiScript: help('Agent Script in Multi-Agent Solutions', 'ai.agent_multi_orch_script'),
+  contextEngineering: help('An Agentforce Guide to Context Engineering', 'ai.agent_context_engineering')
 };
 
 window.QUESTIONS = [
@@ -1658,6 +1660,42 @@ window.QUESTIONS = [
     ],
     explanation: 'Up to 10 allowed or 10 excluded domains per action. Enter base domains as a comma-separated list. Domain settings apply whichever provider is selected.',
     source: SRC.searchWeb
+  },
+
+  {
+    id: 'AG-087',
+    section: 'agents',
+    objective: 'Explain the components and benefits of hybrid reasoning',
+    group: 'context-eng',
+    stem: [
+      'An agent has many subagents and tools it rarely needs, and it now behaves inconsistently and slowly. Which context problem is this?',
+      'What is "context confusion" in Salesforce\'s context engineering guide?'
+    ],
+    options: [
+      { correct: true, text: 'Context confusion: too much irrelevant content or too many unnecessary tools', why: 'Causes inconsistency and latency.' },
+      { correct: false, text: 'Context clash: conflicting instructions', why: 'That is about contradictions.' },
+      { correct: false, text: 'Context poisoning: incorrect or outdated information', why: 'That is about bad data.' },
+      { correct: false, text: 'Context overflow: running out of storage', why: 'Not one of the named problems.' }
+    ],
+    explanation: 'The three problems are context clash (conflicting instructions), context confusion (too much irrelevant content or too many tools) and context poisoning (wrong or outdated information). Limit subagents and actions to the essentials, add them gradually, and use filters and routing.',
+    source: SRC.contextEngineering
+  },
+
+  {
+    id: 'AG-088',
+    section: 'agents',
+    objective: 'Explain the components and benefits of hybrid reasoning',
+    group: 'context-eng',
+    stem: 'Which two statements match Salesforce\'s context engineering guidance?',
+    options: [
+      { correct: true, text: 'Flows, Apex and APIs are more deterministic actions. Prompt template actions are more probabilistic.', why: 'Choose the right kind of action for the job.' },
+      { correct: true, text: 'Re-test agents whenever part of the solution changes, including a model update', why: 'Context depends on every part.' },
+      { correct: false, text: 'Give every agent as many subagents as possible from the start', why: 'Start with the essentials.' },
+      { correct: false, text: 'Keep all business logic in natural-language prompts', why: 'Use logic for critical workflows.' },
+      { correct: false, text: 'Outdated knowledge articles don\'t affect agents', why: 'That is context poisoning.' }
+    ],
+    explanation: 'Context covers prompts and instructions, actions and tools, data inputs (CRM, Data 360, knowledge, files, Slack) and memory, both short-term and long-term. Remove contradictions across all of them.',
+    source: SRC.contextEngineering
   },
 
   // ---------------- Prompt Engineering (20%) ----------------
@@ -4481,5 +4519,94 @@ window.QUESTIONS = [
     ],
     explanation: 'After registering a server, add the MCP tool action to the agent from the asset library. MCP tool actions can be tested in builder previews and Testing Center, and their activity appears in the Session Tracing Data Model.',
     source: SRC.mcp
+  },
+
+  {
+    id: 'MU-018',
+    section: 'multi',
+    objective: 'Decide whether a multi-agent architecture is appropriate',
+    group: 'handoff-supervisor',
+    stem: [
+      'What is the difference between handoff mode and supervisor mode in multi-agent orchestration?',
+      'In which mode does the orchestrator stay in charge of the conversation and combine results from connected subagents?'
+    ],
+    options: [
+      { correct: true, text: 'Handoff passes control to the connected subagent, which replies to the user. Supervisor calls subagents as tools and the orchestrator combines the results and replies.', why: 'The core difference.' },
+      { correct: false, text: 'Handoff calls several agents per turn. Supervisor calls one.', why: 'The other way round.' },
+      { correct: false, text: 'Supervisor mode has lower latency than handoff', why: 'Supervisor needs an extra LLM call, so it is slower.' },
+      { correct: false, text: 'They are two names for the same thing', why: 'They route differently.' }
+    ],
+    explanation: 'Handoff uses `@utils.transition to @connected_subagent.X`. Supervisor uses `@connected_subagent.X` as a tool. Supervisor can call several agents per turn but adds latency. Handoff allows one handoff per turn.',
+    source: SRC.multiScript
+  },
+
+  {
+    id: 'MU-019',
+    section: 'multi',
+    objective: 'Decide whether a multi-agent architecture is appropriate',
+    group: 'handoff-supervisor',
+    stem: 'An orchestrator in handoff mode routes poorly. What does Salesforce say the Agent Router needs for handoff to work correctly?',
+    options: [
+      { correct: true, text: 'The HyperClassifier model in `model_config`, with each connected subagent\'s description written like a function signature with a clear scope', why: 'Handoff relies on HyperClassifier reading descriptions.' },
+      { correct: false, text: 'No model configuration at all', why: 'Without HyperClassifier, handoff doesn\'t work correctly.' },
+      { correct: false, text: 'A prompt template per connected subagent', why: 'Not required.' },
+      { correct: false, text: 'Supervisor mode turned on as well', why: 'They are alternative patterns.' }
+    ],
+    explanation: 'When you connect an agent as a subagent, the system adds `model_config` with the HyperClassifier and a transition to the connected subagent in the Agent Router.',
+    source: SRC.multiScript
+  },
+
+  {
+    id: 'MU-020',
+    section: 'multi',
+    objective: 'Decide whether a multi-agent architecture is appropriate',
+    group: 'after-response',
+    stem: [
+      'After a connected subagent replies, an email agent must always run next. Where is this chaining defined?',
+      'What is the `after_response` block used for?'
+    ],
+    options: [
+      { correct: true, text: 'In the connected subagent\'s `after_response` block, which runs deterministically after it replies (for example `transition to @connected_subagent.EmailAgent`)', why: 'Post-reply chaining in handoff mode.' },
+      { correct: false, text: 'In `after_reasoning` of the connected subagent definition', why: '`after_reasoning` is for internal subagents.' },
+      { correct: false, text: 'In a prompt instruction asking the LLM to call the email agent', why: 'Not deterministic.' },
+      { correct: false, text: 'In the `config` block', why: 'Not where chaining goes.' }
+    ],
+    explanation: '`after_response` exists only for connected subagents and uses no LLM. It supports `transition`, `if` conditions and `set`. Anything written after a `transition` is skipped, so set variables first.',
+    source: SRC.multiScript
+  },
+
+  {
+    id: 'MU-021',
+    section: 'multi',
+    objective: 'Decide whether a multi-agent architecture is appropriate',
+    group: 'after-response',
+    stem: 'A pipeline of connected subagents loses data between steps. What is the usual cause?',
+    options: [
+      { correct: true, text: 'A missing `inputs` mapping. Context doesn\'t flow automatically, so the next agent only gets values through its `inputs` block.', why: 'The usual dataflow error.' },
+      { correct: false, text: 'Too many agents in the pipeline', why: 'Not the usual cause.' },
+      { correct: false, text: 'The HyperClassifier deletes variables', why: 'It doesn\'t.' },
+      { correct: false, text: 'Linked variables can\'t be used', why: 'They can be mapped as inputs.' }
+    ],
+    explanation: 'Set the variables in `after_response`, then transition. Map them on the connected subagent with an `inputs` block, for example `currentRecordId: string = @variables.currentRecordId`.',
+    source: SRC.multiScript
+  },
+
+  {
+    id: 'MU-022',
+    section: 'multi',
+    objective: 'Decide whether a multi-agent architecture is appropriate',
+    group: 'multi-escalation',
+    stem: [
+      'A user deep in a billing conversation asks for a human. The Billing connected subagent has `delegate_escalation: True`. Whose escalation flow runs?',
+      'What does `delegate_escalation: True` on a connected subagent do?'
+    ],
+    options: [
+      { correct: true, text: 'The connected subagent\'s own escalation flow', why: 'True lets the connected subagent escalate.' },
+      { correct: false, text: 'The orchestrator\'s escalation flow, always', why: 'Only when the setting is False, unset, or in supervisor mode.' },
+      { correct: false, text: 'No escalation is possible in multi-agent solutions', why: 'Both levels can escalate.' },
+      { correct: false, text: 'The user is asked to start a new chat', why: 'Not what happens.' }
+    ],
+    explanation: 'If the connected subagent has no escalation routing, the request goes up to the orchestrator. If every route fails, for example all human queues are offline, the agent gives an AI fallback message.',
+    source: SRC.multiScript
   }
 ];
