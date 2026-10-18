@@ -138,7 +138,10 @@ const SRC = {
   optimizeAbout: help('About Agent Optimization', 'ai.generative_ai_optimize_about'),
   ensembleRetriever: help('Add an Ensemble Retriever to a Prompt Template', 'ai.prompt_builder_retriever_ensemble'),
   chatContextVars: help('Use Context Variables in Enhanced Chat v2 Conversations', 'ai.agent_enhanced_chat_v2_context_variables'),
-  employeeConsiderations: help('Considerations for Agentforce Employee Agent', 'ai.agent_employee_agent_considerations')
+  employeeConsiderations: help('Considerations for Agentforce Employee Agent', 'ai.agent_employee_agent_considerations'),
+  healthSetup: help('Set Up Agent Health Monitoring', 'ai.agent_monitor_health_setup'),
+  legacyEvaluations: help('Choose Evaluations', 'ai.agent_testing_center_evaluations'),
+  structuredOutputs: help('Use Structured Outputs to Format Model Responses', 'ai.prompt_builder_use_structured_outputs_responses')
 };
 
 window.QUESTIONS = [
@@ -2847,6 +2850,41 @@ window.QUESTIONS = [
     source: SRC.citations
   },
 
+  {
+    id: 'PR-055',
+    section: 'prompt',
+    objective: 'Explain creating, activating and executing prompt templates',
+    group: 'structured-output',
+    stem: [
+      'A flow parses a prompt template\'s JSON reply, but the field names keep changing between runs. What is the most reliable fix?',
+      'Why select a Lightning Type with the JSON response format?'
+    ],
+    options: [
+      { correct: true, text: 'Set the response format to JSON and select a Lightning Type, so the model fills a fixed schema instead of choosing its own structure', why: 'The schema is enforced as metadata.' },
+      { correct: false, text: 'Add "please use the same fields" to the prompt', why: 'Prompt-only structure still varies.' },
+      { correct: false, text: 'Switch the format to HTML', why: 'HTML is for rendering, not parsing.' },
+      { correct: false, text: 'Lower the template\'s version number', why: 'Unrelated.' }
+    ],
+    explanation: 'Structured Outputs sets the format (Default, JSON or HTML) once per template using system-level instructions. Lightning Types can be object-based (built in Prompt Builder) or Apex-based (built in Setup). Use them when automation, integrations or UI components consume the output.',
+    source: SRC.structuredOutputs
+  },
+
+  {
+    id: 'PR-056',
+    section: 'prompt',
+    objective: 'Explain creating, activating and executing prompt templates',
+    group: 'structured-output',
+    stem: 'A template set to the JSON response format needs to return a JSON array. What should the admin do?',
+    options: [
+      { correct: true, text: 'Use the Default format and describe the array structure in the prompt instructions', why: 'The JSON format returns a single object.' },
+      { correct: false, text: 'Keep JSON. It returns arrays by default.', why: 'JSON format returns a single JSON object.' },
+      { correct: false, text: 'Use HTML format', why: 'Not for data arrays.' },
+      { correct: false, text: 'Arrays can\'t be generated', why: 'Use Default format with instructions.' }
+    ],
+    explanation: 'JSON responses are best viewed in the raw view. HTML format uses the lightning-formatted-rich-text component, which supports a subset of tags and is meant for use within Salesforce. Default format renders Markdown the same way an agent does.',
+    source: SRC.structuredOutputs
+  },
+
   // ---------------- Data 360 Fundamentals (20%) ----------------
 
   {
@@ -3980,6 +4018,41 @@ window.QUESTIONS = [
     source: SRC.promptTemplateTests
   },
 
+  {
+    id: 'TE-024',
+    section: 'testing',
+    objective: 'Explain how Testing Center evaluations work',
+    group: 'quality-evals',
+    stem: [
+      'An agent returns correct data as raw JSON instead of a friendly sentence. Which Testing Center quality evaluation would flag this?',
+      'What does the Coherence evaluation check?'
+    ],
+    options: [
+      { correct: true, text: 'Coherence: whether the response is grammatical, conversational language rather than raw data', why: 'Raw JSON fails coherence.' },
+      { correct: false, text: 'Conciseness: whether the response is short but accurate', why: 'Length, not form.' },
+      { correct: false, text: 'Completeness: whether all expected information is included', why: 'Coverage, not form.' },
+      { correct: false, text: 'Latency: execution time in milliseconds', why: 'Speed, not form.' }
+    ],
+    explanation: 'Optional quality evaluations are completeness, coherence, conciseness, latency and instruction adherence. Default evaluations (response, subagent assertion and action assertion) always run.',
+    source: SRC.legacyEvaluations
+  },
+
+  {
+    id: 'TE-025',
+    section: 'testing',
+    objective: 'Test an agent using Testing Center',
+    group: 'quality-evals',
+    stem: 'An admin wants AI-generated tests for a custom object and the Answer Questions with Knowledge action. What should they do?',
+    options: [
+      { correct: true, text: 'Put specific instructions in the test description, naming the custom object with sample utterances, or the knowledge articles to use', why: 'Generated tests cover Account, Lead, Opportunity and Contact by default.' },
+      { correct: false, text: 'Nothing. Every object is covered automatically.', why: 'Custom objects need instructions.' },
+      { correct: false, text: 'Generated tests can\'t cover knowledge', why: 'They can, with instructions.' },
+      { correct: false, text: 'Write the tests in Apex', why: 'Not needed.' }
+    ],
+    explanation: 'For example: "Generate test cases for the Answer Questions with Knowledge action. Use these knowledge articles: ...". Generated tests can be downloaded as CSV, edited and uploaded again.',
+    source: SRC.legacyEvaluations
+  },
+
   // ---------------- Governance and Observability (10%) ----------------
 
   {
@@ -4062,6 +4135,24 @@ window.QUESTIONS = [
     ],
     explanation: 'Users with Data Cloud Architect, and System Admins under the default Allow All policy, can query all Data 360 objects. Salesforce suggests deleting or narrowing the Allow All policy.',
     source: SRC.sessionTraceSetup
+  },
+
+  {
+    id: 'GO-037',
+    section: 'governance',
+    objective: 'Explain the process for managing and monitoring agents',
+    group: 'health-alerts',
+    stem: 'Which three are needed before Agent Health Monitoring alerts can work?',
+    options: [
+      { correct: true, text: 'Data Cloud enabled, Einstein turned on and an active agent', why: 'Stated prerequisites.' },
+      { correct: true, text: 'Agentforce Session Tracing and Agentforce Health Monitoring turned on in Einstein Audit, Analytics, and Monitoring Setup', why: 'Health monitoring builds on tracing.' },
+      { correct: true, text: 'Salesforce Standard Data Model version 1.130 or higher, and the latest Agent Analytics apps', why: 'Required versions.' },
+      { correct: false, text: 'A Shield Event Monitoring licence', why: 'Not listed.' },
+      { correct: false, text: 'A MuleSoft connection', why: 'Not listed.' },
+      { correct: false, text: 'Classic Experience turned on', why: 'Not relevant.' }
+    ],
+    explanation: 'Health Monitoring is available in sandboxes too. Turning data collection on or off needs View Setup and Customize Application.',
+    source: SRC.healthSetup
   },
 
   {
