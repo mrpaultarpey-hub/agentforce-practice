@@ -113,7 +113,10 @@ const SRC = {
   actionChaining: { title: 'Agentforce Developer Guide: Action Chaining and Sequencing', url: 'https://developer.salesforce.com/docs/ai/agentforce/guide/ascript-patterns-action-chaining.html' },
   queryRecords: help('Agentforce Platform | Query Records', 'ai.copilot_actions_ref_query_records'),
   answerKnowledge: help('Agentforce Platform | Answer Questions with Knowledge', 'ai.copilot_actions_ref_answer_questions_with_knowledge'),
-  searchWeb: help('Agentforce Platform | Search the Web', 'ai.copilot_actions_ref_search_the_web')
+  searchWeb: help('Agentforce Platform | Search the Web', 'ai.copilot_actions_ref_search_the_web'),
+  templateRuntime: help('Prompt Template Run-time Execution', 'ai.prompt_builder_runtime'),
+  templateLimits: help('Prompt Builder Limits', 'ai.prompt_builder_limits'),
+  conditionalLogic: help('Use Conditional Logic in Prompt Templates', 'ai.prompt_builder_use_conditional_logic')
 };
 
 window.QUESTIONS = [
@@ -2379,6 +2382,127 @@ window.QUESTIONS = [
     ],
     explanation: 'Masking replaces detected values with tokenised placeholders, so the LLM keeps the context without seeing the real data. The values are restored in the response.',
     source: SRC.trustJourney
+  },
+
+  {
+    id: 'PR-043',
+    section: 'prompt',
+    objective: 'Explain creating, activating and executing prompt templates',
+    group: 'runtime',
+    stem: [
+      'At run time, which step happens after the LLM returns its response?',
+      'A prompt template is invoked from a flow. Which step comes last before the response is returned to the flow?'
+    ],
+    options: [
+      { correct: true, text: 'The response is logged for audit, toxicity detection runs, masked values are demasked, then it is returned', why: 'The return journey.' },
+      { correct: false, text: 'Merge fields are resolved', why: 'That happens before the LLM is called.' },
+      { correct: false, text: 'Data masking is applied', why: 'Masking happens on the way out.' },
+      { correct: false, text: 'Prompt defense is added', why: 'Added before the prompt reaches the LLM.' }
+    ],
+    explanation: 'Run-time steps: invoke with input, resolve the prompt (secure data retrieval and grounding), apply Trust Layer masking and prompt defense, send through the LLM gateway, log the response, apply toxicity detection and demasking, and return the response raw or structured.\n\nPrompt resolution is also called "hydration" or "prompt grounding".',
+    source: SRC.templateRuntime
+  },
+
+  {
+    id: 'PR-044',
+    section: 'prompt',
+    objective: 'Explain creating, activating and executing prompt templates',
+    group: 'runtime',
+    stem: 'A prompt template is run by an agent, a flow or Apex. Whose permissions govern access to the merge field data?',
+    options: [
+      { correct: true, text: 'The executing user\'s permissions', why: 'Secure data retrieval follows the running user.' },
+      { correct: false, text: 'The template author\'s permissions', why: 'Authors don\'t lend their access.' },
+      { correct: false, text: 'System administrator permissions, always', why: 'Grounding isn\'t system mode by default.' },
+      { correct: false, text: 'The LLM provider\'s permissions', why: 'Providers don\'t hold Salesforce permissions.' }
+    ],
+    explanation: 'For a service agent, the executing user is usually the agent user. Dynamic grounding can also pull Data 360 content through retrievers, flows and SOQL.',
+    source: SRC.templateRuntime
+  },
+
+  {
+    id: 'PR-045',
+    section: 'prompt',
+    objective: 'Explain creating, activating and executing prompt templates',
+    group: 'runtime',
+    stem: 'How can an admin see the full run-time behaviour of a prompt template before activating it?',
+    options: [
+      { correct: true, text: 'Use Prompt Builder\'s preview: give sample input, check the resolved prompt, then the generated response', why: 'Preview simulates the complete run.' },
+      { correct: false, text: 'Activate it in production and watch users', why: 'Preview first.' },
+      { correct: false, text: 'Read the template\'s metadata XML', why: 'Doesn\'t show the resolved prompt or response.' },
+      { correct: false, text: 'It can\'t be previewed', why: 'Preview is built in.' }
+    ],
+    explanation: 'The resolution shows exactly what will be sent to the LLM, including data from merge fields, related lists (as JSON) and retrievers. That makes grounding problems easy to spot.',
+    source: SRC.templateRuntime
+  },
+
+  {
+    id: 'PR-046',
+    section: 'prompt',
+    objective: 'Explain creating, activating and executing prompt templates',
+    group: 'template-limits',
+    stem: [
+      'Which is a documented Prompt Builder limit?',
+      'An admin wants to ground one template with eight different Apex classes. What will stop them?'
+    ],
+    options: [
+      { correct: true, text: 'A maximum of 5 Apex merge fields per template (also 5 flow and 5 related list merge fields)', why: 'Stated limits.' },
+      { correct: false, text: 'A maximum of 1 Apex merge field per template', why: 'The limit is 5.' },
+      { correct: false, text: 'Unlimited merge fields of every kind', why: 'There are limits.' },
+      { correct: false, text: 'A maximum of 500 versions per template', why: 'The limit is 50.' }
+    ],
+    explanation: 'Limits: 128,000 characters per template, 50 versions, 50 merge fields, 5 flow, 5 Apex and 5 related list merge fields, and 5 inputs for a Flex template.',
+    source: SRC.templateLimits
+  },
+
+  {
+    id: 'PR-047',
+    section: 'prompt',
+    objective: 'Explain creating, activating and executing prompt templates',
+    group: 'template-limits',
+    stem: 'A user attaches 12 files totalling 20 MB to a prompt request. What happens?',
+    options: [
+      { correct: true, text: 'Files over the limits (10 files, 15 MB per request) are excluded, and the Resolution panel lists them', why: 'Limits apply across all models.' },
+      { correct: false, text: 'The request fails completely', why: 'Excess files are excluded.' },
+      { correct: false, text: 'All files are sent, as there are no file limits', why: 'There are limits.' },
+      { correct: false, text: 'Files are compressed automatically to fit', why: 'They are excluded, not compressed.' }
+    ],
+    explanation: 'Files that convert to PDF count towards the 15 MB after conversion. Some models have lower per-type limits, shown in the model\'s details.',
+    source: SRC.templateLimits
+  },
+
+  {
+    id: 'PR-048',
+    section: 'prompt',
+    objective: 'Best practices for writing effective prompts',
+    group: 'conditional',
+    stem: [
+      'A team has five nearly identical case reply templates, one per priority and customer tier. What can replace them?',
+      'What does conditional logic in the Prompt Builder Block Editor let you do?'
+    ],
+    options: [
+      { correct: true, text: 'One template with if, else if and else blocks that include different text based on merge field values', why: 'Adapts the prompt to context.' },
+      { correct: false, text: 'Run different LLMs for each condition', why: 'Conditions control prompt text, not models.' },
+      { correct: false, text: 'Loop through every related record in a list', why: 'Conditional blocks don\'t iterate collections.' },
+      { correct: false, text: 'Make the LLM choose which instructions to follow', why: 'The condition is evaluated before the prompt is sent.' }
+    ],
+    explanation: 'When a condition is true, its text is included in the prompt. Operators: `==`, `!=`, `>`, `<`, `>=`, `<=`, `and`, `or`, `not` and `in`. Blocks can be nested, for example priority High and then tier Premium.',
+    source: SRC.conditionalLogic
+  },
+
+  {
+    id: 'PR-049',
+    section: 'prompt',
+    objective: 'Best practices for writing effective prompts',
+    group: 'conditional',
+    stem: 'A conditional block is meant to check each of the files related to a case. Why doesn\'t it work?',
+    options: [
+      { correct: true, text: 'Conditional blocks evaluate a single related record and don\'t iterate over a collection', why: 'Stated limitation.' },
+      { correct: false, text: 'Files can\'t be used in prompt templates', why: 'File inputs are supported.' },
+      { correct: false, text: 'Conditions only work with Flex templates', why: 'Not the reason.' },
+      { correct: false, text: 'The `in` operator isn\'t supported', why: 'It is supported.' }
+    ],
+    explanation: 'To loop through records, use a flow or Apex as the grounding resource and pass the prepared text to the template.',
+    source: SRC.conditionalLogic
   },
 
   // ---------------- Data 360 Fundamentals (20%) ----------------
