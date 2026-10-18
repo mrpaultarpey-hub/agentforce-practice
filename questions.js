@@ -57,7 +57,12 @@ const SRC = {
   promptTemplateMeta: { title: 'Metadata API Developer Guide: GenAiPromptTemplate', url: 'https://developer.salesforce.com/docs/atlas.en-us.api_meta.meta/api_meta/meta_genaiprompttemplate.htm' },
   soma: { title: 'Salesforce Admins: When to Build a Super Agent or a Single Agent', url: 'https://admin.salesforce.com/blog/2026/what-is-soma-and-when-to-build-a-super-agent-or-a-single-agent' },
   superAgent: { title: 'Salesforce Admins: How to Set Up a Super Agent with Connected Subagents', url: 'https://admin.salesforce.com/blog/2026/how-to-set-up-a-super-agent-with-connected-subagents' },
-  multiAgentPage: { title: 'Salesforce: Multi-Agent Orchestration', url: 'https://www.salesforce.com/agentforce/multi-agent-orchestration/' }
+  multiAgentPage: { title: 'Salesforce: Multi-Agent Orchestration', url: 'https://www.salesforce.com/agentforce/multi-agent-orchestration/' },
+  fileLibrary: { title: 'Trailhead: Build a File-Based Data Library for an Agent', url: 'https://trailhead.salesforce.com/content/learn/modules/agentforce-data-library-basics/build-a-file-based-data-library-for-an-agent' },
+  monitorStart: { title: 'Trailhead: Get Started with Agent Monitoring', url: 'https://trailhead.salesforce.com/content/learn/modules/agent-analytics-and-monitoring/get-started-with-agent-monitoring' },
+  monitorMetrics: { title: 'Trailhead: Monitor Agent Metrics and Scores', url: 'https://trailhead.salesforce.com/content/learn/modules/agent-analytics-and-monitoring/monitor-agent-metrics-and-scores' },
+  monitorSessions: { title: 'Trailhead: Investigate Agent Sessions and Intents', url: 'https://trailhead.salesforce.com/content/learn/modules/agent-analytics-and-monitoring/investigate-agent-sessions-and-intents' },
+  monitorHealth: { title: 'Trailhead: Monitor Agent Health', url: 'https://trailhead.salesforce.com/content/learn/modules/agent-analytics-and-monitoring/monitor-agent-health' }
 };
 
 window.QUESTIONS = [
@@ -1451,6 +1456,60 @@ window.QUESTIONS = [
     source: SRC.searchIndexTypes
   },
 
+  {
+    id: 'DA-016',
+    section: 'data',
+    objective: 'Considerations of Agentforce Data Library',
+    group: 'file-library',
+    stem: [
+      'What are the upload size limits for a file-based Agentforce Data Library?',
+      'An admin wants to upload a 60 MB PDF and an 8 MB HTML file to a Data Library. What happens?'
+    ],
+    options: [
+      { correct: true, text: '4 MB for text and HTML files, 100 MB for PDFs. The PDF fits and the HTML file is too big.', why: 'The limits differ by file type.' },
+      { correct: false, text: '10 MB for every file type, so neither fits.', why: 'Not the stated limits.' },
+      { correct: false, text: 'No limits, because Data 360 scales automatically.', why: 'There are size limits.' },
+      { correct: false, text: '100 MB for every file type, so both fit.', why: 'Text and HTML are limited to 4 MB.' }
+    ],
+    explanation: 'Keep uploads within 4 MB for text and HTML and 100 MB for PDFs. On save, the platform sets up the data streams, data objects, search index and retriever in Data 360.',
+    source: SRC.fileLibrary
+  },
+
+  {
+    id: 'DA-017',
+    section: 'data',
+    objective: 'Considerations of Agentforce Data Library',
+    group: 'file-library',
+    stem: 'An admin created a Data Library from uploaded files and now wants it to use knowledge articles instead. What should they know?',
+    options: [
+      { correct: true, text: 'The data source can\'t be changed after it is chosen, so they need a new library.', why: 'Choose the source carefully.' },
+      { correct: false, text: 'Edit the library and switch the source type.', why: 'The source can\'t be changed.' },
+      { correct: false, text: 'Libraries can only ever use files.', why: 'Knowledge articles are also a source.' },
+      { correct: false, text: 'Delete the search index and the library switches over automatically.', why: 'The source stays the same.' }
+    ],
+    explanation: 'A new library starts with a name and description, then a choice of source: knowledge articles or file uploads. That choice is fixed once made.',
+    source: SRC.fileLibrary
+  },
+
+  {
+    id: 'DA-018',
+    section: 'data',
+    objective: 'Considerations of Agentforce Data Library',
+    group: 'file-library',
+    stem: [
+      'How is an Agentforce Data Library connected to an agent?',
+      'An admin has built a Data Library. What are the next steps to let the agent use it?'
+    ],
+    options: [
+      { correct: true, text: 'Open the agent in the builder, select the library on the Knowledge tab, save and activate.', why: 'The library is chosen in the agent\'s Knowledge settings.' },
+      { correct: false, text: 'Paste the library\'s files into the agent\'s instructions.', why: 'The retriever supplies the content.' },
+      { correct: false, text: 'Add the library as a variable in the `config` block.', why: 'Not how libraries are linked.' },
+      { correct: false, text: 'Nothing. Every agent uses every library automatically.', why: 'You select the library for the agent.' }
+    ],
+    explanation: 'Open the agent in the builder, go to the Knowledge tab and select the library (or create a new one). Save and activate.\n\nTo test, check the search index and library are ready, restart the preview conversation, ask questions and check the answers against the source files.',
+    source: SRC.fileLibrary
+  },
+
   // ---------------- Testing, Deployment and Maintenance (10%) ----------------
 
   {
@@ -1810,6 +1869,271 @@ window.QUESTIONS = [
     ],
     explanation: 'The Session Tracing Data Model logs each event down to a single turn: user input, planner decisions, prompt and action flows, gateway inputs and outputs, errors and the final output. Sessions, interactions and steps are structured tables, so analytics and alerts build straight from them.',
     source: SRC.observability
+  },
+
+  {
+    id: 'GO-009',
+    section: 'governance',
+    objective: 'Explain the process for managing and monitoring agents',
+    group: 'monitor-setup',
+    stem: 'Which three settings must be turned on before Agent Analytics can show full data?',
+    options: [
+      { correct: true, text: 'Agentforce Session Tracing', why: 'Captures each conversation step by step.' },
+      { correct: true, text: 'Audit and Feedback', why: 'Needed for quality and trust scores.' },
+      { correct: true, text: 'Knowledge/RAG Quality Data and Metrics', why: 'Needed for retrieval quality scores.' },
+      { correct: false, text: 'Field History Tracking on Case', why: 'Not part of agent analytics setup.' },
+      { correct: false, text: 'Debug logs for the agent user', why: 'Not part of agent analytics setup.' },
+      { correct: false, text: 'Setup Audit Trail export', why: 'Tracks configuration changes, not conversations.' }
+    ],
+    explanation: 'Turn on Agentforce Session Tracing, Audit and Feedback, and Knowledge/RAG Quality Data and Metrics, then install the analytics apps for each agent type. Data collection starts from that point. The data is aggregated in a Data 360 data model.',
+    source: SRC.monitorStart
+  },
+
+  {
+    id: 'GO-010',
+    section: 'governance',
+    objective: 'Explain the process for managing and monitoring agents',
+    group: 'adlc',
+    stem: [
+      'What is the difference between testing and monitoring an agent?',
+      'In the Agent Development Lifecycle, how does monitoring differ from testing?'
+    ],
+    options: [
+      { correct: true, text: 'Testing checks the agent before release with designed test cases. Monitoring watches it over time with real conversations.', why: 'Lab versus real-world conditions.' },
+      { correct: false, text: 'They are the same thing with different names.', why: 'They happen at different stages with different data.' },
+      { correct: false, text: 'Monitoring happens only in sandboxes.', why: 'Monitoring looks at real usage.' },
+      { correct: false, text: 'Testing happens only after the agent is in production.', why: 'Testing comes before release.' }
+    ],
+    explanation: 'The Agent Development Lifecycle (ADLC) runs Ideate, Build, Test, Deploy and Monitor, then round again. Observability applies mainly in the Test and Monitor phases.',
+    source: SRC.monitorStart
+  },
+
+  {
+    id: 'GO-011',
+    section: 'governance',
+    objective: 'Explain agent analytics and agent optimisation',
+    group: 'outcome-metrics',
+    stem: [
+      'In Agent Analytics, what is the deflection rate?',
+      'A session ended without being handed to a service rep or another agent. How is it counted?'
+    ],
+    options: [
+      { correct: true, text: 'Deflected: the share of sessions that ended without escalation to a rep or another agent', why: 'Resolved without a handoff.' },
+      { correct: false, text: 'The share of sessions where the user gave up', why: 'That is abandonment.' },
+      { correct: false, text: 'The share of sessions where an action ran', why: 'That is engagement.' },
+      { correct: false, text: 'The share of responses with a low toxicity score', why: 'That is a trust metric.' }
+    ],
+    explanation: 'Session outcomes are Deflected, Escalated, Abandoned or Ambiguous. Escalation counts handoffs to a rep or another agent. Abandonment counts sessions that timed out or ended without engagement.',
+    source: SRC.monitorMetrics
+  },
+
+  {
+    id: 'GO-012',
+    section: 'governance',
+    objective: 'Explain agent analytics and agent optimisation',
+    group: 'outcome-metrics',
+    stem: 'What is the default timeout after which an inactive agent session counts as abandoned?',
+    options: [
+      { correct: true, text: '2 hours', why: 'The default abandonment timeout.' },
+      { correct: false, text: '5 minutes', why: 'Not the default.' },
+      { correct: false, text: '24 hours', why: 'Not the default.' },
+      { correct: false, text: 'There is no timeout. Sessions stay open for ever.', why: 'There is a default of 2 hours.' }
+    ],
+    explanation: 'Abandonment Rate is the share of sessions that timed out or ended without engagement. The default timeout is 2 hours.',
+    source: SRC.monitorMetrics
+  },
+
+  {
+    id: 'GO-013',
+    section: 'governance',
+    objective: 'Explain agent analytics and agent optimisation',
+    group: 'outcome-metrics',
+    stem: [
+      'In Agent Analytics, when does a session count as engaged?',
+      'What does the Engagement Rate measure?'
+    ],
+    options: [
+      { correct: true, text: 'When the user got a reply tied to an action the agent triggered. At least one action must run.', why: 'No action, no engagement.' },
+      { correct: false, text: 'When the user sent more than three messages.', why: 'Message count isn\'t the rule.' },
+      { correct: false, text: 'When the user gave a thumbs up.', why: 'That is user satisfaction.' },
+      { correct: false, text: 'When the session lasted longer than a minute.', why: 'Duration isn\'t the rule.' }
+    ],
+    explanation: 'Other effectiveness metrics: Success Rate is the share of interactions with action steps that completed without errors. Task Resolution Rate is the share of sessions the Trust Layer\'s task resolution detector judged fully resolved.',
+    source: SRC.monitorMetrics
+  },
+
+  {
+    id: 'GO-014',
+    section: 'governance',
+    objective: 'Explain agent analytics and agent optimisation',
+    group: 'quality-scores',
+    stem: [
+      'Which quality score shows how closely an agent\'s answers stick to the grounded source data, such as knowledge articles?',
+      'An agent\'s answers often contradict the knowledge base. Which score would show this?'
+    ],
+    options: [
+      { correct: true, text: 'Answer Faithfulness', why: 'Measures adherence to grounded source data (0 to 1).' },
+      { correct: false, text: 'Context Relevance', why: 'Measures whether the right data source was retrieved.' },
+      { correct: false, text: 'Answer Relevance', why: 'Measures relevance to the question.' },
+      { correct: false, text: 'Engagement Rate', why: 'Measures whether actions ran.' }
+    ],
+    explanation: 'Quality scores come from an LLM evaluator. Quality Score runs from 1 to 5. Answer Faithfulness, Answer Relevance and Context Relevance run from 0 to 1. They need Audit and Feedback and Knowledge/RAG Quality Data and Metrics turned on.',
+    source: SRC.monitorMetrics
+  },
+
+  {
+    id: 'GO-015',
+    section: 'governance',
+    objective: 'Explain agent analytics and agent optimisation',
+    group: 'quality-scores',
+    stem: 'An agent gives sensible answers but often pulls them from the wrong knowledge source. Which score is most likely low?',
+    options: [
+      { correct: true, text: 'Context Relevance', why: 'Measures whether the agent retrieved the correct data source.' },
+      { correct: false, text: 'Answer Faithfulness', why: 'Measures sticking to whatever was retrieved.' },
+      { correct: false, text: 'Average Agent Toxicity Score', why: 'A trust metric.' },
+      { correct: false, text: 'Interruption Rate', why: 'A voice metric.' }
+    ],
+    explanation: 'Context Relevance checks retrieval. Answer Faithfulness checks the answer against what was retrieved. Answer Relevance checks the answer against the question. Together they show whether a problem is in retrieval or generation.',
+    source: SRC.monitorMetrics
+  },
+
+  {
+    id: 'GO-016',
+    section: 'governance',
+    objective: 'Explain agent analytics and agent optimisation',
+    stem: [
+      'Where do the Trust tab metrics in Agent Analytics come from, and what do they show?',
+      'Which statement about the Average Agent Toxicity Score is true?'
+    ],
+    options: [
+      { correct: true, text: 'From the Einstein Trust Layer: Adherence Response Rate and Average Agent Toxicity Score, where lower toxicity is better', why: 'Trust metrics come from the Trust Layer.' },
+      { correct: false, text: 'From Testing Center: higher toxicity is better', why: 'Lower is better, and it comes from the Trust Layer.' },
+      { correct: false, text: 'From Setup Audit Trail: changes made by admins', why: 'Unrelated.' },
+      { correct: false, text: 'From the LLM provider\'s logs', why: 'Providers keep no data under zero data retention.' }
+    ],
+    explanation: 'Adherence Response Rate is the share of responses meeting the high-adherence threshold. Average Agent Toxicity Score runs from 0 to 1, lower is better. Both need Audit and Feedback turned on.',
+    source: SRC.monitorMetrics
+  },
+
+  {
+    id: 'GO-017',
+    section: 'governance',
+    objective: 'Explain agent analytics and agent optimisation',
+    stem: [
+      'An admin wants to find which subagents, intents or actions drive poor outcomes. Which Agent Analytics view fits?',
+      'Which Agent Analytics tab compares a metric across subagents, intents or actions with colour-coded bars?'
+    ],
+    options: [
+      { correct: true, text: 'Performance Insights', why: 'Breaks metrics down by subagent, intent or action.' },
+      { correct: false, text: 'Usage', why: 'Counts sessions, interactions and users.' },
+      { correct: false, text: 'Health', why: 'Shows error rate and durations.' },
+      { correct: false, text: 'Voice', why: 'Shows interruption rate.' }
+    ],
+    explanation: 'Performance Insights shows one row per segment, with bar length for the value and colour for performance: green good, orange or red needs attention. The dashboards run on Tableau Next under Agentforce Studio > Observe & Optimize.',
+    source: SRC.monitorMetrics
+  },
+
+  {
+    id: 'GO-018',
+    section: 'governance',
+    objective: 'Explain agent analytics and agent optimisation',
+    group: 'intents',
+    stem: [
+      'Some sessions in Sessions & Intents have no intent tag. Why?',
+      'When does a cluster tag get created for intents?'
+    ],
+    options: [
+      { correct: true, text: 'A tag needs at least 10 similar intents, and clustering runs weekly, so new or rare intents stay untagged for a while.', why: 'Clustering needs volume and runs weekly.' },
+      { correct: false, text: 'Tags are added by hand by an admin.', why: 'An LLM pipeline creates them.' },
+      { correct: false, text: 'Only escalated sessions get tags.', why: 'Any processed session can.' },
+      { correct: false, text: 'Tags are created live as the customer types.', why: 'Processing happens after sessions close.' }
+    ],
+    explanation: 'The intent pipeline extracts intents from closed sessions, usually 4 to 5 hours after they close. The clustering pipeline runs weekly and tags groups of at least 10 similar intents. Sessions still processing appear under Unprocessed, but you can use the Trace tab straight away.',
+    source: SRC.monitorSessions
+  },
+
+  {
+    id: 'GO-019',
+    section: 'governance',
+    objective: 'Explain agent analytics and agent optimisation',
+    group: 'intents',
+    stem: 'A session has a low quality score. Which field explains why, and is the most useful starting point for a fix?',
+    options: [
+      { correct: true, text: 'The quality score reasoning in the Interaction Summary', why: 'The LLM\'s explanation of the score.' },
+      { correct: false, text: 'The session ID', why: 'Identifies the session. It doesn\'t explain it.' },
+      { correct: false, text: 'The transcript download button', why: 'Useful, but doesn\'t explain the score.' },
+      { correct: false, text: 'The Usage tab', why: 'Shows counts, not reasons.' }
+    ],
+    explanation: 'The Interaction Summary shows the agent, latency, turns, subagents and actions triggered, the intent tag, the quality score and its reasoning. The Trace tab shows each processing step in time order, such as routing, retrieval and response generation, and where behaviour differed from the builder configuration.',
+    source: SRC.monitorSessions
+  },
+
+  {
+    id: 'GO-020',
+    section: 'governance',
+    objective: 'Explain agent analytics and agent optimisation',
+    stem: 'A subagent has a low quality score, high escalation and low Answer Faithfulness. The traces show it retrieving overlapping knowledge articles. What is the best fix?',
+    options: [
+      { correct: true, text: 'Merge and archive the conflicting articles, update the subagent instructions, test in Testing Center, deploy, then recheck analytics', why: 'Fix the cause, test, then confirm.' },
+      { correct: false, text: 'Turn off the groundedness check', why: 'Makes unfaithful answers more likely.' },
+      { correct: false, text: 'Delete the subagent', why: 'Removes the capability instead of fixing it.' },
+      { correct: false, text: 'Raise the abandonment timeout', why: 'Doesn\'t touch answer quality.' }
+    ],
+    explanation: 'Filter Sessions & Intents by subagent, escalated outcome and low quality. Read the chat logs and quality reasoning, and use the Trace to see which articles were retrieved. Then fix the content and instructions, test, deploy and recheck the metrics.',
+    source: SRC.monitorSessions
+  },
+
+  {
+    id: 'GO-021',
+    section: 'governance',
+    objective: 'Explain the process for managing and monitoring agents',
+    group: 'health-alerts',
+    stem: [
+      'An admin sets up an agent health alert. What does each alert define?',
+      'Which details make up an Agentforce health monitoring alert?'
+    ],
+    options: [
+      { correct: true, text: 'A metric, an agent, a threshold condition (at or above, or at or below) and a threshold value', why: 'The four parts of an alert.' },
+      { correct: false, text: 'A prompt template and a model', why: 'Not part of an alert.' },
+      { correct: false, text: 'A list of customers to email', why: 'Notifications go to the people who own the alert.' },
+      { correct: false, text: 'An Apex trigger', why: 'Alerts are configured, not coded.' }
+    ],
+    explanation: 'Alerts are set up in Agentforce Studio under Observe & Optimize. Notifications arrive by email or in-app and show the alert, the metric, the agent and when it fired. Opening a triggered alert shows its sessions.',
+    source: SRC.monitorHealth
+  },
+
+  {
+    id: 'GO-022',
+    section: 'governance',
+    objective: 'Explain the process for managing and monitoring agents',
+    group: 'health-alerts',
+    stem: 'How should an admin choose the threshold for an interaction duration alert?',
+    options: [
+      { correct: true, text: 'Review at least 30 days of history, find the normal range, agree acceptable performance with the business, and set it where normal variation ends', why: 'Avoids noisy or useless alerts.' },
+      { correct: false, text: 'Set it to 0 so every slow response alerts', why: 'Produces constant noise.' },
+      { correct: false, text: 'Copy a threshold from another company', why: 'Normal ranges differ.' },
+      { correct: false, text: 'Set it once and never change it', why: 'Thresholds need tuning as behaviour changes.' }
+    ],
+    explanation: 'In the Trailhead example, normal interaction duration was 1.8 to 4.6 seconds, so the alert was set at 5 seconds or more.\n\nStart with a small set of high-value alerts. Give each an owner and a playbook, and investigate sessions before changing templates, subagents or actions.',
+    source: SRC.monitorHealth
+  },
+
+  {
+    id: 'GO-023',
+    section: 'governance',
+    objective: 'Explain agent analytics and agent optimisation',
+    stem: [
+      'Which Agent Analytics metric is available only for employee agents?',
+      'Where would you see thumbs up and thumbs down feedback counts in Agent Analytics?'
+    ],
+    options: [
+      { correct: true, text: 'User satisfaction (thumbs up and thumbs down), on the employee agent dashboard', why: 'Employee agents only.' },
+      { correct: false, text: 'Deflection rate', why: 'A service agent effectiveness metric.' },
+      { correct: false, text: 'Interruption rate', why: 'A voice metric.' },
+      { correct: false, text: 'Error rate', why: 'A health metric for any agent.' }
+    ],
+    explanation: 'Measurement categories are effectiveness, usage, quality, health, trust, user satisfaction (employee agents only) and voice. Available metrics depend on the agent type you pick in the dashboard.',
+    source: SRC.monitorStart
   },
 
   // ---------------- Multi-Agent Orchestration (5%) ----------------
