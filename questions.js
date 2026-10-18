@@ -133,7 +133,9 @@ const SRC = {
   promptTemplateTests: help('Test Prompt Templates', 'ai.agent_studio_testing_center_prompt_templates'),
   agentApiLifecycle: { title: 'Agentforce Developer Guide: Agent API Session Lifecycle', url: 'https://developer.salesforce.com/docs/ai/agentforce/guide/agent-api-lifecycle.html' },
   agentTypes: help('Agent Types and Considerations', 'ai.agent_setup_explore_types'),
-  defaultAgent: help('Agentforce (Default) Considerations', 'ai.agent_default_considerations')
+  defaultAgent: help('Agentforce (Default) Considerations', 'ai.agent_default_considerations'),
+  sessionTraceSetup: help('Set Up Agentforce Session Tracing', 'ai.generative_ai_session_trace_setup'),
+  optimizeAbout: help('About Agent Optimization', 'ai.generative_ai_optimize_about')
 };
 
 window.QUESTIONS = [
@@ -3915,8 +3917,8 @@ window.QUESTIONS = [
       { correct: false, text: 'Older sessions were masked by the Trust Layer.', why: 'Masking doesn\'t hide sessions from analytics.' },
       { correct: false, text: 'The agent must be reactivated before old sessions appear.', why: 'Reactivating doesn\'t backfill data.' }
     ],
-    explanation: 'Session tracing writes each session, turn, LLM call and action to the Session Tracing Data Model in Data 360. Analytics and monitoring build on that data, so nothing exists for sessions before it was set up.',
-    source: SRC.observability
+    explanation: 'Session tracing starts collecting data in Data 360 once it is turned on, every five minutes. Analytics and monitoring build on that data, so nothing exists for sessions before then. If collection is suspended, dashboards show a gap for that period.',
+    source: SRC.sessionTraceSetup
   },
 
   {
@@ -3925,13 +3927,65 @@ window.QUESTIONS = [
     objective: 'Explain agent analytics and agent optimisation',
     stem: 'An admin wants to group similar conversations to find which topics and actions give poor answers. Which capability fits?',
     options: [
-      { correct: true, text: 'Agent optimisation in Agentforce Command Center, which clusters sessions to find weak topics and actions.', why: 'Built to analyse and cluster sessions.' },
+      { correct: true, text: 'Agent Optimization, part of Agentforce Observability, which groups interactions into intents and scores their quality.', why: 'Built to analyse sessions and find weak subagents.' },
       { correct: false, text: 'The Setup Audit Trail', why: 'Tracks configuration changes, not conversations.' },
       { correct: false, text: 'Field history tracking on the Case object', why: 'Tracks field changes on records.' },
       { correct: false, text: 'Debug logs for the agent user', why: 'Too low-level and short-lived for this.' }
     ],
-    explanation: 'Analytics answers "how many": sessions, escalations, deflections and feedback. Optimisation goes deeper, clustering moments in conversations by intent and scoring answer quality, so you can fix the topics and actions that cause problems.',
-    source: SRC.commandCenter
+    explanation: 'Analytics answers "how many": sessions, escalations, deflections and feedback. Agent Optimization goes deeper. Intents are generated daily and clustered and tagged weekly, LLM quality scores show how relevant answers were, and trends point to low-performing subagents.',
+    source: SRC.optimizeAbout
+  },
+
+  {
+    id: 'GO-034',
+    section: 'governance',
+    objective: 'Explain the process for managing and monitoring agents',
+    group: 'trace-setup',
+    stem: [
+      'Where is Agentforce Session Tracing turned on, and what does it need?',
+      'An admin can\'t turn on Agentforce Session Tracing. What should they check?'
+    ],
+    options: [
+      { correct: true, text: 'Einstein Audit, Analytics, and Monitoring Setup. It needs Einstein Generative AI and Agentforce turned on and Salesforce Standard Data Model version 1.130 or higher.', why: 'Stated prerequisites.' },
+      { correct: false, text: 'Debug Logs in Setup. It needs a Shield licence.', why: 'Not where it is turned on.' },
+      { correct: false, text: 'Agentforce Builder\'s Canvas view. It needs Agent Script.', why: 'Not where it is turned on.' },
+      { correct: false, text: 'It is always on and can\'t be changed', why: 'It can be turned on and off.' }
+    ],
+    explanation: 'Session tracing is off by default, except in orgs with a single data space, where it turns on with Agentforce. Turning it on provisions the data model, then collects data every five minutes.',
+    source: SRC.sessionTraceSetup
+  },
+
+  {
+    id: 'GO-035',
+    section: 'governance',
+    objective: 'Explain the process for managing and monitoring agents',
+    group: 'trace-setup',
+    stem: 'An admin changes the data space used for session tracing. What happens to the data already collected?',
+    options: [
+      { correct: true, text: 'It stays in the old data space until deleted by hand. It isn\'t migrated, and new data goes to the new space.', why: 'No migration.' },
+      { correct: false, text: 'It moves to the new data space automatically', why: 'Data isn\'t migrated.' },
+      { correct: false, text: 'It is deleted at once', why: 'It remains until deleted manually.' },
+      { correct: false, text: 'It is copied to both spaces', why: 'Collection stops in the old space.' }
+    ],
+    explanation: 'Tell your admin team about any data space change. To add to earlier data, choose the same data space as before.',
+    source: SRC.sessionTraceSetup
+  },
+
+  {
+    id: 'GO-036',
+    section: 'governance',
+    objective: 'Explain the process for managing and monitoring agents',
+    group: 'trace-setup',
+    stem: 'Session trace data can include personal, health or payment information. Which two steps does Salesforce recommend to protect it?',
+    options: [
+      { correct: true, text: 'Use Data 360 dynamic data masking policies to redact, nullify or round sensitive values', why: 'Hides sensitive data from unauthorised users.' },
+      { correct: true, text: 'Apply permissions at the data space level, and review the default Allow All policy', why: 'Only authorised users can query it.' },
+      { correct: false, text: 'Turn off the Trust Layer', why: 'Makes things less safe.' },
+      { correct: false, text: 'Store trace data in a public Chatter group', why: 'Exposes it.' },
+      { correct: false, text: 'Give everyone the Data Cloud Architect permission set', why: 'That grants access to all data.' }
+    ],
+    explanation: 'Users with Data Cloud Architect, and System Admins under the default Allow All policy, can query all Data 360 objects. Salesforce suggests deleting or narrowing the Allow All policy.',
+    source: SRC.sessionTraceSetup
   },
 
   {
@@ -3945,8 +3999,8 @@ window.QUESTIONS = [
       { correct: false, text: 'At the LLM provider', why: 'Zero data retention means the provider keeps nothing.' },
       { correct: false, text: 'In a text file in the agent\'s AiAuthoringBundle', why: 'The bundle holds the agent definition, not session data.' }
     ],
-    explanation: 'Session tracing records sessions, interactions and steps as structured data in Data 360. That is what analytics, optimisation and health monitoring read from.',
-    source: SRC.observability
+    explanation: 'Session tracing records sessions, interactions and steps as structured data in a Data 360 data space. That is what analytics, optimisation and health monitoring read from.',
+    source: SRC.sessionTracingHelp
   },
 
   {
