@@ -128,7 +128,10 @@ const SRC = {
   testData: help('Select Your Test Data', 'ai.agent_studio_testing_center_add_data'),
   mcpConsiderations: help('Considerations for MCP for Agentforce', 'ai.agent_mcp_considerations'),
   gateway: help('Agentforce Gateway', 'ai.agentforce_gateway_policies'),
-  useCase: help('Define an Agentforce Use Case', 'ai.agent_plan_use_case_define')
+  useCase: help('Define an Agentforce Use Case', 'ai.agent_plan_use_case_define'),
+  voiceConsiderations: help('Agentforce Voice Considerations', 'ai.agentforce_voice_considerations'),
+  promptTemplateTests: help('Test Prompt Templates', 'ai.agent_studio_testing_center_prompt_templates'),
+  agentApiLifecycle: { title: 'Agentforce Developer Guide: Agent API Session Lifecycle', url: 'https://developer.salesforce.com/docs/ai/agentforce/guide/agent-api-lifecycle.html' }
 };
 
 window.QUESTIONS = [
@@ -1702,6 +1705,76 @@ window.QUESTIONS = [
     ],
     explanation: 'Context covers prompts and instructions, actions and tools, data inputs (CRM, Data 360, knowledge, files, Slack) and memory, both short-term and long-term. Remove contradictions across all of them.',
     source: SRC.contextEngineering
+  },
+
+  {
+    id: 'AG-089',
+    section: 'agents',
+    objective: 'Connect agents to channels such as digital experience, email, voice and Slack',
+    group: 'voice-limits',
+    stem: [
+      'A voice agent\'s default language is English, and French and German are in Allowed Languages. A caller speaks French. What happens?',
+      'Which statement about languages for Agentforce Voice agents is true?'
+    ],
+    options: [
+      { correct: true, text: 'The voice agent only listens and responds in its default language. Allowed Languages applies to text agents only.', why: 'Voice agents are monolingual.' },
+      { correct: false, text: 'It switches to French automatically', why: 'Voice agents don\'t switch language.' },
+      { correct: false, text: 'It responds in all three languages', why: 'One language only.' },
+      { correct: false, text: 'It hands the call to a French-speaking agent automatically', why: 'Not described behaviour.' }
+    ],
+    explanation: 'Make sure the default language matches a supported persona in Voice Settings. Beta languages have limited advanced settings, such as the pronunciation dictionary, and are only in the new builder.',
+    source: SRC.voiceConsiderations
+  },
+
+  {
+    id: 'AG-090',
+    section: 'agents',
+    objective: 'Connect agents to channels such as digital experience, email, voice and Slack',
+    group: 'voice-limits',
+    stem: 'Which two statements about Agentforce Voice usage are true?',
+    options: [
+      { correct: true, text: 'The default limit is 500 concurrent calls per org.', why: 'Support can raise it.' },
+      { correct: true, text: 'Voice Minutes are rounded up, so a 61-second call counts as 2 minutes.', why: 'Partial minutes count as full minutes.' },
+      { correct: false, text: 'When both are enabled, Voice Actions are billed instead of Voice Minutes.', why: 'Voice Minutes take precedence.' },
+      { correct: false, text: 'Calls are unlimited in every org.', why: 'There is a concurrency limit.' },
+      { correct: false, text: 'Speech is always processed outside Salesforce.', why: 'Speech models normally run inside the Salesforce trust boundary.' }
+    ],
+    explanation: 'Agentforce Voice normally processes speech inside the Salesforce trust boundary (Deepgram speech-to-text, ElevenLabs and Kotoba text-to-speech). If limits are reached it fails over to the providers\' infrastructure under zero data retention.',
+    source: SRC.voiceConsiderations
+  },
+
+  {
+    id: 'AG-091',
+    section: 'agents',
+    objective: 'Connect agents to channels such as digital experience, email, voice and Slack',
+    group: 'voice-limits',
+    stem: 'Testing of a voice agent in a sandbox suddenly stops working because Omni-Channel has stopped. What is the likely cause and fix?',
+    options: [
+      { correct: true, text: 'Call recordings filled the 200 MB sandbox storage. Turn off call recording in sandboxes and bulk delete recordings.', why: 'Recordings fill sandbox storage quickly.' },
+      { correct: false, text: 'Voice agents can\'t be tested in sandboxes', why: 'They can.' },
+      { correct: false, text: 'The agent needs a new version', why: 'Storage is the issue.' },
+      { correct: false, text: 'The telephony provider blocked the sandbox', why: 'Storage is the issue.' }
+    ],
+    explanation: 'Turn off "Record Voice Calls with Agents" on the Agentforce Voice setup page in sandboxes. For production-like voice testing, Salesforce suggests a Full or Partial Copy sandbox with more storage.',
+    source: SRC.voiceConsiderations
+  },
+
+  {
+    id: 'AG-092',
+    section: 'agents',
+    objective: 'Identify when to use the Agent API',
+    stem: [
+      'A web app shows an agent\'s reply word by word as it is generated. Which Agent API option fits?',
+      'What are the stages of an Agent API conversation?'
+    ],
+    options: [
+      { correct: true, text: 'Start a session, send messages (streaming for word-by-word display, synchronous for a single reply), then end the session', why: 'The session lifecycle.' },
+      { correct: false, text: 'Send one message with no session', why: 'A session is created first.' },
+      { correct: false, text: 'Open a session per message and never end it', why: 'One session holds the conversation context.' },
+      { correct: false, text: 'Only synchronous messages are supported', why: 'Streaming is also available.' }
+    ],
+    explanation: 'The agent keeps track of context throughout the session. There is also an endpoint for submitting feedback on a response.',
+    source: SRC.agentApiLifecycle
   },
 
   // ---------------- Prompt Engineering (20%) ----------------
@@ -3736,6 +3809,24 @@ window.QUESTIONS = [
     ],
     explanation: 'Subagent and action tests are formatted as conversations and check that the agent triggers the right behaviour, especially after updates or before launch. Knowledge tests check answers from articles or PDFs. A CSV template gives full control for specific business logic.',
     source: SRC.testData
+  },
+
+  {
+    id: 'TE-023',
+    section: 'testing',
+    objective: 'Test an agent using Testing Center',
+    stem: [
+      'An admin wants to check a prompt template against 300 different inputs before activating it. What should they use?',
+      'How can a prompt template be tested at scale?'
+    ],
+    options: [
+      { correct: true, text: 'A prompt template test suite in the new Testing Center: upload a CSV of test cases for that template version and choose scorers', why: 'Batch testing for templates.' },
+      { correct: false, text: 'Click Preview in Prompt Builder 300 times', why: 'Preview tests one input at a time.' },
+      { correct: false, text: 'Activate it and wait for user feedback', why: 'Test before activating.' },
+      { correct: false, text: 'Prompt templates can\'t be batch tested', why: 'Testing Center supports it.' }
+    ],
+    explanation: 'Scorers check dimensions such as coherence, completeness, factuality and instruction following, so gaps and edge cases show up before users see them.',
+    source: SRC.promptTemplateTests
   },
 
   // ---------------- Governance and Observability (10%) ----------------
