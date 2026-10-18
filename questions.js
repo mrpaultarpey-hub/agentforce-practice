@@ -86,7 +86,13 @@ const SRC = {
   libraryWeb: help('Use Web Search', 'ai.data_library_web_search'),
   libraryCustomRetriever: help('Use a Custom Retriever', 'ai.data_library_custom_retriever'),
   libraryPrepare: help('Prepare Your Source Content', 'ai.data_library_prepare'),
-  ragAbout: help('About Retrieval Augmented Generation', 'ai.generative_ai_rag_about')
+  ragAbout: help('About Retrieval Augmented Generation', 'ai.generative_ai_rag_about'),
+  executionContext: help('Agent Execution Context and Data Access by Type', 'ai.agent_execution_data'),
+  serviceAgentAccess: help('Configure Service Agent Access', 'ai.agent_user'),
+  routing: help('Subagent Classification and Routing', 'ai.agent_topics_routing'),
+  agentVersions: help('Versioning and Editing Agents', 'ai.agent_versions_lifecycle'),
+  testModes: help('Simulate and Live Test Modes', 'ai.agent_simulate_and_live_modes'),
+  emailAgent: help('Considerations for Agentforce Service Agent on Email', 'ai.service_agent_considerations_1')
 };
 
 window.QUESTIONS = [
@@ -973,6 +979,314 @@ window.QUESTIONS = [
     ],
     explanation: 'Employee agents help staff with work such as account summaries, sales emails and HR questions. In Salesforce, users open the Agentforce panel in the app they are using and switch between agents. In Slack, they @mention the agent or use the Agentforce Hub.',
     source: SRC.employeeAgents
+  },
+
+  {
+    id: 'AG-051',
+    section: 'agents',
+    objective: 'Explain the security context the agent runs in and how it affects actions',
+    group: 'verification',
+    stem: [
+      'A service agent is deployed with Enhanced Chat to an Experience Cloud site, with credential-based user verification turned on. Whose access applies?',
+      'When does a service agent run as the logged-in site user instead of the agent user?'
+    ],
+    options: [
+      { correct: true, text: 'The logged-in site user\'s profile, permissions, field-level security and sharing, when credential-based user verification is on for an Experience Cloud site', why: 'Credential-based verification switches the context.' },
+      { correct: false, text: 'Always the agent user, whatever the channel', why: 'Credential-based verification changes this.' },
+      { correct: false, text: 'The system administrator who built the agent', why: 'Agents never run as their builder.' },
+      { correct: false, text: 'The Agentforce Guest User', why: 'That is for unidentified users.' }
+    ],
+    explanation: 'Without credential-based user verification, a service agent runs as the agent user (EinsteinServiceAgent User). With it switched on for Enhanced Chat on an Experience Cloud site, the agent runs as the logged-in site user.',
+    source: SRC.executionContext
+  },
+
+  {
+    id: 'AG-052',
+    section: 'agents',
+    objective: 'Explain the security context the agent runs in and how it affects actions',
+    group: 'verification',
+    stem: [
+      'A service agent knows the customer\'s contact Id from `MessagingSession.ContactId`. Does that limit which records the agent can return?',
+      'What do context variables such as `MessagingSession.ContactId` do for a service agent?'
+    ],
+    options: [
+      { correct: true, text: 'They tell the agent who the user is, but don\'t control data access. The customer can reach whatever the agent user can, unless you scope it.', why: 'You must limit access yourself.' },
+      { correct: false, text: 'They restrict every query to that contact\'s records automatically.', why: 'They don\'t control access.' },
+      { correct: false, text: 'They switch the agent to run as that contact.', why: 'Contacts aren\'t users.' },
+      { correct: false, text: 'They encrypt the customer\'s data.', why: 'Not what context variables do.' }
+    ],
+    explanation: 'Help warns that without extra configuration the customer has access to all records the agent user can see. Scope actions to the verified customer and filter subagents and actions.',
+    source: SRC.executionContext
+  },
+
+  {
+    id: 'AG-053',
+    section: 'agents',
+    objective: 'Explain the security context the agent runs in and how it affects actions',
+    group: 'verification',
+    stem: 'Which two steps limit a service agent to the verified customer\'s own records?',
+    options: [
+      { correct: true, text: 'Scope the flows and Apex behind actions with a condition such as `WHERE ContactId = VerifiedCustomerId`', why: 'Restricts the data each action returns.' },
+      { correct: true, text: 'Add filters so subagents and actions are only available when `VerifiedCustomerId is not None`', why: 'Blocks access until the customer is verified.' },
+      { correct: false, text: 'Tell the agent in its instructions to only show the customer\'s own data', why: 'Instructions aren\'t enforcement.' },
+      { correct: false, text: 'Give the agent user the System Administrator profile', why: 'Widens access.' },
+      { correct: false, text: 'Rely on `MessagingSession.ContactId` alone', why: 'Context variables don\'t control access.' }
+    ],
+    explanation: 'The standard Customer Verification and Service Customer Verification subagents store the verified Id in `VerifiedCustomerId`. Some standard actions, such as Get Cases for Verified Contact, already check it. Test and customise each action.',
+    source: SRC.serviceAgentAccess
+  },
+
+  {
+    id: 'AG-054',
+    section: 'agents',
+    objective: 'Explain the security context the agent runs in and how it affects actions',
+    group: 'agent-user',
+    stem: [
+      'A new service agent needs to read Product records. Where should the admin grant this?',
+      'Which statement about a new service agent user is true?'
+    ],
+    options: [
+      { correct: true, text: 'In the agent\'s `[Agent_Name]_Permissions` permission set. The agent user starts with minimal access and uses the Einstein Agent licence and profile.', why: 'Secure by default, extended by least privilege.' },
+      { correct: false, text: 'It starts with full access, which should be reduced later.', why: 'It starts with minimal access.' },
+      { correct: false, text: 'In any permission set, whatever licence it is tied to.', why: 'Permission sets must suit the Einstein Agent licence and profile.' },
+      { correct: false, text: 'Agent users can\'t be given object access.', why: 'They are managed like other users.' }
+    ],
+    explanation: 'The agent user (EinsteinServiceAgent User) has the Einstein Agent licence, the Einstein Agent User profile, the Agentforce Service Agent Secure Base permission set and an agent-specific permissions set. Enhanced Messaging also needs access to the Messaging Session object.\n\nOnly admins can view or edit agent users.',
+    source: SRC.serviceAgentAccess
+  },
+
+  {
+    id: 'AG-055',
+    section: 'agents',
+    objective: 'Explain the security context the agent runs in and how it affects actions',
+    group: 'agent-user',
+    stem: [
+      'An unidentified visitor starts a service agent chat on Enhanced Web Chat for the first time. Which user record is created?',
+      'What is the Agentforce Guest User?'
+    ],
+    options: [
+      { correct: true, text: 'An Agentforce Guest User with minimal permissions, no permission sets and no record access', why: 'Handles unauthenticated conversations safely.' },
+      { correct: false, text: 'A full Salesforce user for each visitor', why: 'Visitors don\'t get user records.' },
+      { correct: false, text: 'A Contact record with Community licence', why: 'Not what happens.' },
+      { correct: false, text: 'An Experience Cloud guest user with access to all public records', why: 'The Agentforce Guest User can\'t access records.' }
+    ],
+    explanation: 'For unidentified and verified-but-not-logged-in customers, the agent runs as the agent user. Data access follows the agent user\'s profile, permissions, field-level security and sharing.',
+    source: SRC.serviceAgentAccess
+  },
+
+  {
+    id: 'AG-056',
+    section: 'agents',
+    objective: 'Explain the security context the agent runs in and how it affects actions',
+    group: 'agent-user',
+    stem: 'A service agent runs as its agent user. Which sharing settings apply to it?',
+    options: [
+      { correct: true, text: 'Org-wide defaults for internal users, plus its role and sharing rules', why: 'The agent user is an internal user.' },
+      { correct: false, text: 'External org-wide defaults, because it talks to customers', why: 'Internal OWD apply to the agent user.' },
+      { correct: false, text: 'No sharing at all. Agents see everything.', why: 'Sharing applies.' },
+      { correct: false, text: 'The customer\'s sharing settings', why: 'The customer isn\'t the running user.' }
+    ],
+    explanation: 'Restrict internal OWD, assign the agent user a role that gives just the record access it needs, and use sharing rules to open access selectively. Follow least privilege.',
+    source: SRC.serviceAgentAccess
+  },
+
+  {
+    id: 'AG-057',
+    section: 'agents',
+    objective: 'Explain the security context the agent runs in and how it affects actions',
+    stem: [
+      'A service agent action calls a flow that runs in system context without sharing. What access does it have?',
+      'Why is a flow in system context without sharing risky behind a service agent action?'
+    ],
+    options: [
+      { correct: true, text: 'All objects and fields, with sharing ignored, so it can return records the customer shouldn\'t see', why: 'Full access, no sharing.' },
+      { correct: false, text: 'Only the customer\'s records', why: 'Nothing restricts it to the customer.' },
+      { correct: false, text: 'Only the agent user\'s records', why: 'System context without sharing ignores the agent user\'s sharing.' },
+      { correct: false, text: 'No access, so it fails', why: 'It has full access.' }
+    ],
+    explanation: 'Flows run in user context, system context with sharing, or system context without sharing. Both the flow\'s context and the agent\'s context apply. Without credential-based verification, the flow\'s running user is the agent user, not the customer.',
+    source: SRC.executionContext
+  },
+
+  {
+    id: 'AG-058',
+    section: 'agents',
+    objective: 'Identify when to use an Employee or Service agent',
+    group: 'agent-type',
+    stem: [
+      'Which agent runs as a dedicated EinsteinSDRAgent User and engages leads through outbound email?',
+      'A sales team wants an agent to email new leads around the clock, answer their questions and book meetings. Which agent type fits?'
+    ],
+    options: [
+      { correct: true, text: 'A Lead Nurturing agent', why: 'Top-of-funnel outreach running as EinsteinSDRAgent User.' },
+      { correct: false, text: 'An employee agent', why: 'Runs as the signed-in internal user.' },
+      { correct: false, text: 'A service agent on Enhanced Chat', why: 'For customers who start a chat.' },
+      { correct: false, text: 'A Flex prompt template', why: 'Generates text. It doesn\'t run outreach.' }
+    ],
+    explanation: 'Lead Nurturing agents work 24/7 by email. Prospects are assigned to them by assignment rules, automation or sales users. They run as the EinsteinSDRAgent User, which gets system-level permissions during setup.',
+    source: SRC.executionContext
+  },
+
+  {
+    id: 'AG-059',
+    section: 'agents',
+    objective: 'Connect agents to channels such as digital experience, email, voice and Slack',
+    stem: 'Which channels does an employee agent support?',
+    options: [
+      { correct: true, text: 'Lightning Experience, the Salesforce mobile app, Slack, and Enhanced Web Chat v1 on Experience Cloud sites', why: 'The supported employee channels.' },
+      { correct: false, text: 'Outbound email only', why: 'That is Lead Nurturing.' },
+      { correct: false, text: 'Public websites for anonymous visitors', why: 'Employee agents aren\'t for unauthenticated customers.' },
+      { correct: false, text: 'Telephony only', why: 'Voice is a service agent channel.' }
+    ],
+    explanation: 'Employee agents serve internal users and run as the logged-in user, so queries don\'t need to be scoped to the user by hand. Access to employee agents is managed with permission sets or profiles.',
+    source: SRC.executionContext
+  },
+
+  {
+    id: 'AG-060',
+    section: 'agents',
+    objective: 'Select and configure standard topics, custom topics, standard actions and custom actions',
+    group: 'routing',
+    stem: [
+      'A subagent should only ever be reached by a transition from another subagent, never chosen directly from the customer\'s first message. What should the admin do?',
+      'How can you stop the Agent Router from selecting a particular subagent?'
+    ],
+    options: [
+      { correct: true, text: 'Remove the subagent\'s transition from the Agent Router\'s reasoning actions, or add a filter to it', why: 'The router can only pick subagents it has transitions to.' },
+      { correct: false, text: 'Delete the subagent\'s description', why: 'The subagent stays available and routing gets worse.' },
+      { correct: false, text: 'Rename it with a leading underscore', why: 'Names can\'t start with an underscore and this doesn\'t hide it.' },
+      { correct: false, text: 'Move it to the end of the script', why: 'Order doesn\'t control routing.' }
+    ],
+    explanation: 'The Agent Router compares recent conversation history with the names and descriptions of the subagents in its reasoning actions. You can edit it like any subagent: add conditions, actions and variables, filter subagents out, or make a different subagent the starting one.',
+    source: SRC.routing
+  },
+
+  {
+    id: 'AG-061',
+    section: 'agents',
+    objective: 'Explain how an agent works and the building blocks of Agent Script',
+    group: 'routing',
+    stem: [
+      'Which model do agents created from the default Employee and Service templates in the new builder use for subagent classification?',
+      'What happens if `model_config` is removed from the `start_agent` block?'
+    ],
+    options: [
+      { correct: true, text: 'The Salesforce HyperClassifier model. Without `model_config`, classification uses the Agentforce model option chosen in Setup.', why: 'Both statements are from Help.' },
+      { correct: false, text: 'Always the same LLM used for responses. `model_config` is ignored.', why: 'The router has its own model setting.' },
+      { correct: false, text: 'A keyword matcher with no AI', why: 'HyperClassifier is a model.' },
+      { correct: false, text: 'The agent stops routing when `model_config` is removed.', why: 'It falls back to the Setup choice.' }
+    ],
+    explanation: 'From April 2026, default-template agents use `model: "model://sfdc_ai__DefaultEinsteinHyperClassifier"` in the router\'s `model_config`. Salesforce says it beats standard LLMs for speed and precision, especially with complex or negative instructions.',
+    source: SRC.routing
+  },
+
+  {
+    id: 'AG-062',
+    section: 'agents',
+    objective: 'Explain how an agent works and the building blocks of Agent Script',
+    group: 'agent-versions',
+    stem: [
+      'An admin has finished changes to an agent draft and wants to activate it. What must happen first?',
+      'Which statement about agent versions in the new Agentforce Builder is true?'
+    ],
+    options: [
+      { correct: true, text: 'Commit the version, which saves a snapshot to metadata and locks it. Only committed versions can be activated.', why: 'Drafts can\'t be activated.' },
+      { correct: false, text: 'Drafts can be activated directly.', why: 'A draft must be committed first.' },
+      { correct: false, text: 'A committed version can still be edited.', why: 'Committed versions are locked. Create a draft to keep editing.' },
+      { correct: false, text: 'Versions are only available through the Metadata API.', why: 'You switch versions from the builder\'s header.' }
+    ],
+    explanation: 'Create the agent (an editable draft), change and test it, commit it, then activate. To keep iterating, create a new draft version. You can compare versions and copy changes between them.',
+    source: SRC.agentVersions
+  },
+
+  {
+    id: 'AG-063',
+    section: 'agents',
+    objective: 'Explain how an agent works and the building blocks of Agent Script',
+    group: 'test-modes',
+    stem: [
+      'An admin wants to check an agent picks the right subagents and actions without changing any data. Which preview mode fits?',
+      'What is the difference between Simulate and Live Test modes in Agentforce Builder?'
+    ],
+    options: [
+      { correct: true, text: 'Simulate mode checks configuration and logic without changing data. Live Test mode runs real actions and updates Salesforce data.', why: 'Risk-free first, realistic second.' },
+      { correct: false, text: 'Live Test mode never changes data.', why: 'It runs actions as if the agent were active.' },
+      { correct: false, text: 'Simulate mode can only be used in production.', why: 'It is a builder preview mode.' },
+      { correct: false, text: 'They are the same.', why: 'One changes data and one doesn\'t.' }
+    ],
+    explanation: 'Use Simulate mode to confirm configuration, then Live Test mode to check actions, data and integrations under near-production conditions. The preview gives a step-by-step trace of what the agent did.',
+    source: SRC.testModes
+  },
+
+  {
+    id: 'AG-064',
+    section: 'agents',
+    objective: 'Connect agents to channels such as digital experience, email, voice and Slack',
+    group: 'email-agent',
+    stem: [
+      'A customer emails a photo of a damaged item to a service agent on email. What does the agent use to respond?',
+      'Which parts of an inbound email does Agentforce Service Agent on Email process?'
+    ],
+    options: [
+      { correct: true, text: 'Only the text in the subject and body. Images and attachments aren\'t processed.', why: 'Stated limitation.' },
+      { correct: false, text: 'The subject, body and all attachments', why: 'Attachments aren\'t processed.' },
+      { correct: false, text: 'Only the attachments', why: 'It uses the subject and body.' },
+      { correct: false, text: 'Only the subject line', why: 'The body is processed too.' }
+    ],
+    explanation: 'Email responses are asynchronous and timing varies. The agent replies in the customer\'s language if it is in the allowed languages, otherwise in the default language, or English if none is set.',
+    source: SRC.emailAgent
+  },
+
+  {
+    id: 'AG-065',
+    section: 'agents',
+    objective: 'Connect agents to channels such as digital experience, email, voice and Slack',
+    group: 'email-agent',
+    stem: 'Which two statements about Agentforce Service Agent on Email are true?',
+    options: [
+      { correct: true, text: 'It doesn\'t reply to emails whose headers show an automated response, such as out-of-office.', why: 'Prevents auto-reply loops.' },
+      { correct: true, text: 'It doesn\'t process new inbound emails on closed cases.', why: 'Stated limitation.' },
+      { correct: false, text: 'It closes the case automatically when the conversation ends.', why: 'It doesn\'t. Use a scheduled flow for that.' },
+      { correct: false, text: 'It can be told in its instructions not to reply to some emails.', why: 'Suppressing a reply isn\'t supported.' },
+      { correct: false, text: 'It uses the Welcome system message in its first reply.', why: 'Welcome and Error messages aren\'t used on email.' }
+    ],
+    explanation: 'The agent always sends a reply unless a human escalation is requested or a runtime error happens. To step in yourself, reassign the case from the agent to yourself.',
+    source: SRC.emailAgent
+  },
+
+  {
+    id: 'AG-066',
+    section: 'agents',
+    objective: 'Connect agents to channels such as digital experience, email, voice and Slack',
+    group: 'email-agent',
+    stem: [
+      'What happens when Agentforce Service Agent on Email hits a runtime error on a case?',
+      'A service agent on email fails while handling a case. Where does the case go?'
+    ],
+    options: [
+      { correct: true, text: 'A case comment is added with the error details and the case is reassigned to the org\'s default case owner.', why: 'So a person can pick it up.' },
+      { correct: false, text: 'The case is deleted.', why: 'Cases aren\'t deleted.' },
+      { correct: false, text: 'The customer gets the Error system message by email.', why: 'System messages aren\'t used on email.' },
+      { correct: false, text: 'Nothing. The case waits for the agent to retry.', why: 'It is reassigned.' }
+    ],
+    explanation: 'For the agent to use Case Assignment Rules, its user needs View access on Case. To update cases, it needs View and Update. Grant no more than that.',
+    source: SRC.emailAgent
+  },
+
+  {
+    id: 'AG-067',
+    section: 'agents',
+    objective: 'Connect agents to channels such as digital experience, email, voice and Slack',
+    group: 'email-agent',
+    stem: 'What is the default daily limit on inbound emails handled by Agentforce Service Agent on Email?',
+    options: [
+      { correct: true, text: '5,000 transactions a day', why: 'The default, which Support can raise after consistent use.' },
+      { correct: false, text: '500 a day', why: 'Too low.' },
+      { correct: false, text: '50,000 a day', why: 'Too high for the default.' },
+      { correct: false, text: 'Unlimited', why: 'There is a daily limit.' }
+    ],
+    explanation: 'Other email limits: Reply All is limited to 20 recipients across To and CC, the MessagingSession record isn\'t available on email, and Salesforce for Outlook Email-to-Case routing addresses aren\'t supported.',
+    source: SRC.emailAgent
   },
 
   // ---------------- Prompt Engineering (20%) ----------------
