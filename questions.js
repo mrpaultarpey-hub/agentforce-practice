@@ -125,7 +125,10 @@ const SRC = {
   contextEngineering: help('An Agentforce Guide to Context Engineering', 'ai.agent_context_engineering'),
   planRisks: help('Identify Risks and Guardrails for an Agentforce Project', 'ai.agent_plan_risks_guardrails'),
   libraryUpdate: help('Update Data Libraries', 'ai.data_library_update'),
-  testData: help('Select Your Test Data', 'ai.agent_studio_testing_center_add_data')
+  testData: help('Select Your Test Data', 'ai.agent_studio_testing_center_add_data'),
+  mcpConsiderations: help('Considerations for MCP for Agentforce', 'ai.agent_mcp_considerations'),
+  gateway: help('Agentforce Gateway', 'ai.agentforce_gateway_policies'),
+  useCase: help('Define an Agentforce Use Case', 'ai.agent_plan_use_case_define')
 };
 
 window.QUESTIONS = [
@@ -4298,6 +4301,25 @@ window.QUESTIONS = [
     source: SRC.planRisks
   },
 
+  {
+    id: 'GO-033',
+    section: 'governance',
+    objective: 'Explain the process for managing and monitoring agents',
+    group: 'risk-planning',
+    stem: [
+      'When defining an Agentforce use case, how should the first release be scoped?',
+      'Which approach does Salesforce recommend when scoping a new agent?'
+    ],
+    options: [
+      { correct: true, text: 'As a minimum viable product: the smallest useful unit of work, expanded as AI maturity grows', why: 'Validates assumptions and manages risk.' },
+      { correct: false, text: 'Cover every process at once so value comes sooner', why: 'Raises risk.' },
+      { correct: false, text: 'Start from the technical design before the business goals', why: 'Use cases start with goals, not solutions.' },
+      { correct: false, text: 'Skip measurable goals until after launch', why: 'Set specific, measurable goals up front.' }
+    ],
+    explanation: 'Define the jobs to be done, scope an MVP, set measurable business value, check data readiness, then assess and prioritise use cases on a roadmap.',
+    source: SRC.useCase
+  },
+
   // ---------------- Multi-Agent Orchestration (5%) ----------------
 
   {
@@ -4558,7 +4580,7 @@ window.QUESTIONS = [
       { correct: false, text: 'Only user authentication', why: 'Servers expose tools, prompts and resources.' },
       { correct: false, text: 'A replacement for the Agentforce reasoning engine', why: 'The agent still does the reasoning.' }
     ],
-    explanation: 'MCP tools are like agent actions: functions an LLM can call in an external system. Agentforce has a built-in MCP client, so you register servers and your agents use their tools.',
+    explanation: 'MCP tools are like agent actions: functions an LLM can call in an external system. Agentforce has a built-in MCP client, so you register servers and your agents use their tools.\n\nAgentforce currently uses server tools only. MCP prompts, resources and apps aren\'t supported yet.',
     source: SRC.mcp
   },
 
@@ -4684,5 +4706,75 @@ window.QUESTIONS = [
     ],
     explanation: 'If the connected subagent has no escalation routing, the request goes up to the orchestrator. If every route fails, for example all human queues are offline, the agent gives an AI fallback message.',
     source: SRC.multiScript
+  },
+
+  {
+    id: 'MU-023',
+    section: 'multi',
+    objective: 'Explain the purpose of MCP and A2A',
+    group: 'mcp-limits',
+    stem: [
+      'A team wants an MCP tool to issue a refund for the individual customer chatting with the agent. Why won\'t MCP for Agentforce support this?',
+      'Which authentication does MCP for Agentforce support?'
+    ],
+    options: [
+      { correct: true, text: 'Only no authentication or OAuth 2.0 client credentials. User-level authentication and personalised per-user actions aren\'t supported.', why: 'Stated limitation.' },
+      { correct: false, text: 'Every OAuth flow, including authorization code with PKCE', why: 'Other flows aren\'t supported.' },
+      { correct: false, text: 'Username and password only', why: 'Not supported.' },
+      { correct: false, text: 'It uses the customer\'s Experience Cloud login automatically', why: 'User-level auth isn\'t supported.' }
+    ],
+    explanation: 'MCP for Agentforce suits org-level work, such as getting all customers\' invoices, rather than acting as an individual user. It supports Streamable HTTP servers only, and uses server tools only (not MCP prompts, resources or apps).',
+    source: SRC.mcpConsiderations
+  },
+
+  {
+    id: 'MU-024',
+    section: 'multi',
+    objective: 'Explain the purpose of MCP and A2A',
+    group: 'mcp-limits',
+    stem: 'An agent with MCP tool actions is deployed to a new org. Why don\'t the MCP actions work straight away?',
+    options: [
+      { correct: true, text: 'MCP server registrations aren\'t packaged. Register the servers and allowlist the tools in the new org first, then replace the tool actions from the asset library.', why: 'Registration is per org, for security.' },
+      { correct: false, text: 'MCP actions can never be deployed', why: 'They can, with these steps.' },
+      { correct: false, text: 'The target org needs a different LLM', why: 'Not the cause.' },
+      { correct: false, text: 'MCP only works in Developer Edition', why: 'Not a restriction.' }
+    ],
+    explanation: 'Changes to a server or its registration can break tool actions too. Remove the actions from the agent and asset library before changing or deleting a registration, then re-register and add the new actions.',
+    source: SRC.mcpConsiderations
+  },
+
+  {
+    id: 'MU-025',
+    section: 'multi',
+    objective: 'Explain the purpose of MCP and A2A',
+    group: 'mcp-limits',
+    stem: 'An MCP server takes 75 seconds to answer a tool call. What happens?',
+    options: [
+      { correct: true, text: 'The call times out, because the MCP client limit is 60 seconds (and the reasoning engine allows 120 seconds overall)', why: 'Stated timeouts.' },
+      { correct: false, text: 'The agent waits as long as needed', why: 'There are timeouts.' },
+      { correct: false, text: 'It succeeds, as the limit is 300 seconds', why: 'The client limit is 60 seconds.' },
+      { correct: false, text: 'The agent switches to another server', why: 'No automatic switching.' }
+    ],
+    explanation: 'Agentforce Builder works best with simple JSON responses: top-level objects, their properties and top-level arrays of objects. Outputs that can\'t map to a Lightning type can still be used but can\'t be stored in a variable. MCP tool actions are billed like other agent actions.',
+    source: SRC.mcpConsiderations
+  },
+
+  {
+    id: 'MU-026',
+    section: 'multi',
+    objective: 'Explain the purpose of MCP and A2A',
+    group: 'gateway',
+    stem: [
+      'What do Agentforce Gateway policies protect?',
+      'An admin applies an Agentforce Gateway policy, but it isn\'t enforced while testing a draft agent. Why?'
+    ],
+    options: [
+      { correct: true, text: 'Connections to MCP servers and to APIs in API Catalog. Policies apply only when the agent is committed or activated, not in draft.', why: 'Both statements are from Help.' },
+      { correct: false, text: 'Only Prompt Builder templates, in every state', why: 'Gateway protects MCP and API connections.' },
+      { correct: false, text: 'Policies apply to drafts only', why: 'The other way round.' },
+      { correct: false, text: 'Gateway replaces the Trust Layer', why: 'It adds controls on connections.' }
+    ],
+    explanation: 'Gateway policies control access, set usage limits and support compliance. Create them from templates and apply them manually or by matching criteria, such as specific agents or MCP tools.',
+    source: SRC.gateway
   }
 ];
