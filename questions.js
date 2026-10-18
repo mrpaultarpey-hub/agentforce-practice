@@ -80,7 +80,13 @@ const SRC = {
   toxicity: help('Toxicity Detection', 'ai.generative_ai_trust_toxicity_detection'),
   relatedListHelp: help('Grounding with Related List Merge Fields', 'ai.prompt_builder_ground_related_list'),
   recordSnapshots: help('Grounding Prompts with Record Snapshots', 'ai.prompt_builder_ground_record_snapshots'),
-  retrieversInTemplates: help('About Retrievers in Prompt Templates', 'ai.prompt_builder_ground_rag_about')
+  retrieversInTemplates: help('About Retrievers in Prompt Templates', 'ai.prompt_builder_ground_rag_about'),
+  libraryConcept: help('What Are Data Libraries?', 'ai.data_library_concept'),
+  librarySource: help('Choose a Data Source for Your Library', 'ai.data_library_choose_data_source'),
+  libraryWeb: help('Use Web Search', 'ai.data_library_web_search'),
+  libraryCustomRetriever: help('Use a Custom Retriever', 'ai.data_library_custom_retriever'),
+  libraryPrepare: help('Prepare Your Source Content', 'ai.data_library_prepare'),
+  ragAbout: help('About Retrieval Augmented Generation', 'ai.generative_ai_rag_about')
 };
 
 window.QUESTIONS = [
@@ -1807,8 +1813,8 @@ window.QUESTIONS = [
       { correct: false, text: 'Apex debug logs', why: 'Not a Data Library source.' },
       { correct: false, text: 'Permission sets', why: 'Not content to ground on.' }
     ],
-    explanation: 'Agentforce Data Library grounds AI in your own content: knowledge articles, uploaded files, websites, conversation transcripts and more. Unstructured data like this makes up most enterprise data.',
-    source: SRC.dataLibrary
+    explanation: 'A new Data Library can use knowledge articles, uploaded files or a custom retriever. Web search libraries can\'t be created any more. Existing ones are read-only.\n\nEach library has one source, fixed once chosen.',
+    source: SRC.librarySource
   },
 
   {
@@ -2003,6 +2009,287 @@ window.QUESTIONS = [
     ],
     explanation: 'Open the agent in the builder, go to the Knowledge tab and select the library (or create a new one). Save and activate.\n\nTo test, check the search index and library are ready, restart the preview conversation, ask questions and check the answers against the source files.',
     source: SRC.fileLibrary
+  },
+
+  {
+    id: 'DA-019',
+    section: 'data',
+    objective: 'Considerations of Agentforce Data Library',
+    group: 'library-rules',
+    stem: [
+      'An admin wants one Data Library to hold both knowledge articles and uploaded PDFs. What should they know?',
+      'Which statement about Agentforce Data Library sources is true?'
+    ],
+    options: [
+      { correct: true, text: 'A library supports one data source only. Create separate libraries, or use an ensemble retriever through a custom retriever library.', why: 'One source per library, fixed once chosen.' },
+      { correct: false, text: 'A library can mix any number of sources.', why: 'Multiple sources at once aren\'t supported.' },
+      { correct: false, text: 'Add the second source later by editing the library.', why: 'The source can\'t be changed after it is chosen.' },
+      { correct: false, text: 'PDFs must be converted to knowledge articles first.', why: 'Uploaded files are a source of their own.' }
+    ],
+    explanation: 'You can create many libraries and assign them to many features, but each feature uses only one library at a time. To ground one agent on several sources, create an ensemble retriever and use it through a custom retriever library.',
+    source: SRC.librarySource
+  },
+
+  {
+    id: 'DA-020',
+    section: 'data',
+    objective: 'Considerations of Agentforce Data Library',
+    group: 'library-rules',
+    stem: [
+      'An agent needs to search public websites for answers. What should the admin use?',
+      'Can a new Agentforce Data Library use web search as its source?'
+    ],
+    options: [
+      { correct: true, text: 'No. Use the Search the Web standard action for agents, or a web retriever in prompt templates.', why: 'New web search libraries aren\'t supported.' },
+      { correct: false, text: 'Yes. Create a web search library like any other.', why: 'Existing web search libraries are read-only and new ones can\'t be created.' },
+      { correct: false, text: 'Upload saved copies of the web pages to a knowledge library.', why: 'Not the supported approach for web search.' },
+      { correct: false, text: 'Agents can\'t search the web at all.', why: 'The Search the Web action does this.' }
+    ],
+    explanation: 'Agentforce Data Library no longer supports new web search libraries. Both the Search the Web action and the web retriever search the web without one.',
+    source: SRC.libraryWeb
+  },
+
+  {
+    id: 'DA-021',
+    section: 'data',
+    objective: 'Considerations of Agentforce Data Library',
+    group: 'custom-retriever',
+    stem: [
+      'When would an admin create a Data Library with the Custom Retriever data type?',
+      'What does a custom retriever data library let you do?'
+    ],
+    options: [
+      { correct: true, text: 'To connect other Data 360 sources such as an ensemble retriever, or to use a home org\'s libraries from a companion org', why: 'Both are uses of custom retriever libraries.' },
+      { correct: false, text: 'To write retrievers in Apex', why: 'Retrievers are created in Data 360 and AI Models.' },
+      { correct: false, text: 'To skip Data 360 entirely', why: 'Data 360 is required.' },
+      { correct: false, text: 'To connect to retrievers in any org without setup', why: 'Only active retrievers in the home org are listed.' }
+    ],
+    explanation: 'First create a search index and an active retriever in Data 360. Then create the library, choose Custom Retriever and select the retriever. To use a home org library in a companion org, configure it in the home org first.',
+    source: SRC.libraryCustomRetriever
+  },
+
+  {
+    id: 'DA-022',
+    section: 'data',
+    objective: 'Considerations of Agentforce Data Library',
+    group: 'custom-retriever',
+    stem: 'In the list of retrievers for a custom retriever library, which prefix shows a retriever for a knowledge-based search index?',
+    options: [
+      { correct: true, text: '`KA_`', why: 'Knowledge-based indexes.' },
+      { correct: false, text: '`File_`', why: 'Uploaded file indexes.' },
+      { correct: false, text: '`Web_`', why: 'Web sources (read-only libraries).' },
+      { correct: false, text: '`ADL_`', why: 'Not one of the listed retriever prefixes.' }
+    ],
+    explanation: 'Retrievers starting `File_` connect to uploaded file indexes, `KA_` to knowledge indexes and `Web_` to web sources. Only active retrievers are listed.',
+    source: SRC.libraryCustomRetriever
+  },
+
+  {
+    id: 'DA-023',
+    section: 'data',
+    objective: 'Considerations of Agentforce Data Library',
+    stem: [
+      'A company with three brands wants Answer Questions with Knowledge to filter the library by brand at run time. What should the Agentforce Specialist know?',
+      'Which pre-filters are supported when a Data Library is used with the Answer Questions with Knowledge prompt template?'
+    ],
+    options: [
+      { correct: true, text: 'Only static pre-filters are supported. Use a separate library per brand, or a custom Apex invocable action that passes the filter.', why: 'Dynamic pre-filters aren\'t supported here.' },
+      { correct: false, text: 'Dynamic pre-filters work by default.', why: 'Not supported with this template.' },
+      { correct: false, text: 'Filters aren\'t possible, so merge the brands\' content.', why: 'There are workarounds.' },
+      { correct: false, text: 'Add the brand to the agent\'s welcome message.', why: 'Doesn\'t filter retrieval.' }
+    ],
+    explanation: 'Help suggests either one Data Library per category or brand, or a custom Apex invocable action that passes filter values at run time.',
+    source: SRC.libraryCustomRetriever
+  },
+
+  {
+    id: 'DA-024',
+    section: 'data',
+    objective: 'Considerations of Agentforce Data Library',
+    group: 'library-rules',
+    stem: 'Which two are prerequisites or costs of using Agentforce Data Library?',
+    options: [
+      { correct: true, text: 'Data 360 must be set up.', why: 'Libraries are built on Data 360.' },
+      { correct: true, text: 'Libraries consume Data 360 credits.', why: 'Stated in Help.' },
+      { correct: false, text: 'A separate Tableau licence for each library', why: 'Not required.' },
+      { correct: false, text: 'A MuleSoft connection', why: 'Not required.' },
+      { correct: false, text: 'A Marketing Cloud account', why: 'Not required.' }
+    ],
+    explanation: 'Data libraries run on Data 360 for ingestion, indexing and retrieval, and use Data 360 credits.',
+    source: SRC.librarySource
+  },
+
+  {
+    id: 'DA-025',
+    section: 'data',
+    objective: 'Considerations of Agentforce Data Library',
+    stem: [
+      'After a file-based Data Library is saved, which part is created last?',
+      'In what order does Data Library setup run?'
+    ],
+    options: [
+      { correct: true, text: 'Data stream, data lake and data model objects, mapping, search index, chunking, then the retriever last', why: 'The retriever comes once the index is ready.' },
+      { correct: false, text: 'Retriever first, then the search index', why: 'The retriever needs the index.' },
+      { correct: false, text: 'Chunking first, before any data stream exists', why: 'Data must be ingested first.' },
+      { correct: false, text: 'Everything is created at the same moment', why: 'Each step depends on the one before.' }
+    ],
+    explanation: 'Each step must succeed before the next. A status card on the library setup page shows progress and links to the Data 360 objects. Web search libraries create only a retriever, with no search index.',
+    source: SRC.libraryConcept
+  },
+
+  {
+    id: 'DA-026',
+    section: 'data',
+    objective: 'Foundational Data 360 concepts: chunking, indexing and retrievers',
+    group: 'rag-pieces',
+    stem: 'How does the search index decide which chunks to return for a query?',
+    options: [
+      { correct: true, text: 'Each chunk gets a similarity score against the query, and the highest-scoring chunks are returned', why: 'Similarity drives relevance.' },
+      { correct: false, text: 'It returns chunks in the order the files were uploaded', why: 'Order isn\'t relevance.' },
+      { correct: false, text: 'It returns every chunk and lets the LLM choose', why: 'That would overflow the token limit.' },
+      { correct: false, text: 'An admin picks the chunks for each question', why: 'Retrieval is automatic.' }
+    ],
+    explanation: 'Chunks with high similarity scores point to relevant sources, which are added to the prompt. This keeps the prompt within the token limit while adding context-specific information.',
+    source: SRC.libraryConcept
+  },
+
+  {
+    id: 'DA-027',
+    section: 'data',
+    objective: 'Considerations of Agentforce Data Library',
+    group: 'content-prep',
+    stem: [
+      'Knowledge articles cover several loosely related subjects each, and agent answers often mix them up. What does Salesforce advise?',
+      'Why should each knowledge article focus on one clearly defined user intent?'
+    ],
+    options: [
+      { correct: true, text: 'Split them so each article answers one intent. Mixed articles dilute embeddings and make the model combine mismatched ideas.', why: 'AI retrieves in fragments.' },
+      { correct: false, text: 'Merge them into one long article so everything is in one place', why: 'Makes the problem worse.' },
+      { correct: false, text: 'Add more instructions to the agent', why: 'Fix the content, not the instructions.' },
+      { correct: false, text: 'Turn off chunking', why: 'Chunking is needed for retrieval.' }
+    ],
+    explanation: 'Salesforce\'s content guidance has four pillars: specific, organised, detailed and accurate. It is based on Knowledge-Centered Service (KCS) practices. Write for the audience, keep one intent per article and use consistent terms.',
+    source: SRC.libraryPrepare
+  },
+
+  {
+    id: 'DA-028',
+    section: 'data',
+    objective: 'Considerations of Agentforce Data Library',
+    group: 'content-prep',
+    stem: 'Which two writing practices help retrieved chunks make sense on their own?',
+    options: [
+      { correct: true, text: 'Lead with the answer at the top of each section', why: 'The key answer is visible in the chunk.' },
+      { correct: true, text: 'Keep steps self-contained instead of writing "see above"', why: 'A chunk might not include the earlier text.' },
+      { correct: false, text: 'Put all content in one long text field', why: 'Splitting into fields helps indexing.' },
+      { correct: false, text: 'Use screenshots without captions', why: 'AI needs text descriptions.' },
+      { correct: false, text: 'Use different terms for the same thing to add variety', why: 'Consistent terms link concepts.' }
+    ],
+    explanation: 'Use headings to show structure. Split long content into fields such as Question, Description, Resolution and Exceptions. Add alt text and captions to visuals.',
+    source: SRC.libraryPrepare
+  },
+
+  {
+    id: 'DA-029',
+    section: 'data',
+    objective: 'Considerations of Agentforce Data Library',
+    group: 'content-prep',
+    stem: [
+      'Customer-facing and internal technical content sit in the same knowledge base. How should the agent be kept from returning internal content to customers?',
+      'What does Salesforce suggest for separating knowledge content by audience?'
+    ],
+    options: [
+      { correct: true, text: 'Separate it before retrieval with dedicated fields or articles per audience, and filter at run time with access-tier metadata', why: 'Both pre-retrieval and run-time separation.' },
+      { correct: false, text: 'Ask the LLM to ignore internal content', why: 'Instructions aren\'t enforcement.' },
+      { correct: false, text: 'Delete the internal content', why: 'Staff still need it.' },
+      { correct: false, text: 'Rely on toxicity detection', why: 'Not designed for this.' }
+    ],
+    explanation: 'Metadata such as product tags, target audience, version and access tier improves filtering, ranking and compliance. Also check sharing settings and channels. Articles blocked by sharing won\'t appear in answers.',
+    source: SRC.libraryPrepare
+  },
+
+  {
+    id: 'DA-030',
+    section: 'data',
+    objective: 'Considerations of Agentforce Data Library',
+    stem: 'Which tools does Salesforce suggest for testing and monitoring knowledge retrieval quality?',
+    options: [
+      { correct: true, text: 'Retriever Playground and Testing Center before going live, then Knowledge/RAG Quality Data and Metrics afterwards', why: 'Test before, monitor after.' },
+      { correct: false, text: 'Debug logs only', why: 'Not designed for retrieval quality.' },
+      { correct: false, text: 'Field history tracking on Knowledge', why: 'Tracks edits, not retrieval.' },
+      { correct: false, text: 'Nothing. Retrieval can\'t be tested.', why: 'There are dedicated tools.' }
+    ],
+    explanation: 'Testing Center can generate test cases from an agent\'s connected knowledge sources. After deployment, Knowledge/RAG Quality Data and Metrics, Agent Optimization and Agent Analytics show where content is outdated or missing.',
+    source: SRC.libraryPrepare
+  },
+
+  {
+    id: 'DA-031',
+    section: 'data',
+    objective: 'Foundational Data 360 concepts: chunking, indexing and retrievers',
+    group: 'rag-flow',
+    stem: [
+      'A prompt template with a retriever runs. What happens to the query before the search?',
+      'Put the RAG run-time steps in order. Which is correct?'
+    ],
+    options: [
+      { correct: true, text: 'The template calls the retriever, the query is vectorised, relevant context is retrieved, the prompt is filled in, then the LLM responds', why: 'The online sequence in Help.' },
+      { correct: false, text: 'The LLM answers first, then the retriever adds sources', why: 'Retrieval comes first.' },
+      { correct: false, text: 'The whole index is sent to the LLM, which searches it', why: 'Only relevant context is added.' },
+      { correct: false, text: 'The query is chunked and stored in the index', why: 'The query is vectorised, not indexed.' }
+    ],
+    explanation: 'Vectorising the query lets the search find semantic matches in the index, which is already vectorised. RAG has an offline part (connect data, chunk and vectorise into a search index) and an online part (retrieve, augment, generate).',
+    source: SRC.ragAbout
+  },
+
+  {
+    id: 'DA-032',
+    section: 'data',
+    objective: 'Foundational Data 360 concepts: chunking, indexing and retrievers',
+    group: 'rag-flow',
+    stem: [
+      'Why use RAG instead of fine-tuning a model on company documents?',
+      'What is a key benefit of retrieval augmented generation?'
+    ],
+    options: [
+      { correct: true, text: 'It brings current, proprietary information into the prompt without retraining or fine-tuning the model', why: 'The core benefit of RAG.' },
+      { correct: false, text: 'It permanently teaches the LLM your data', why: 'RAG adds context per prompt. The model isn\'t changed.' },
+      { correct: false, text: 'It removes the need for prompts', why: 'RAG fills in prompts.' },
+      { correct: false, text: 'It makes the LLM ignore its training', why: 'It adds information. It doesn\'t erase anything.' }
+    ],
+    explanation: 'Most LLMs were trained on static public content. RAG supplies accurate, up-to-date facts from your knowledge store, so responses fit your context and use case.',
+    source: SRC.ragAbout
+  },
+
+  {
+    id: 'DA-033',
+    section: 'data',
+    objective: 'Foundational Data 360 concepts: chunking, indexing and retrievers',
+    group: 'rag-pieces',
+    stem: 'What is vectorisation in a Data 360 search index?',
+    options: [
+      { correct: true, text: 'Converting chunks of text into numeric representations that capture semantic similarity', why: 'Lets search match on meaning.' },
+      { correct: false, text: 'Encrypting chunks for storage', why: 'Not what vectorisation means.' },
+      { correct: false, text: 'Translating chunks into English', why: 'Not what vectorisation means.' },
+      { correct: false, text: 'Counting the words in each chunk', why: 'Not what vectorisation means.' }
+    ],
+    explanation: 'A search index configuration chunks the content into passages such as sentences or paragraphs, then vectorises them. Queries are vectorised the same way, so the search can find semantic matches.',
+    source: SRC.ragAbout
+  },
+
+  {
+    id: 'DA-034',
+    section: 'data',
+    objective: 'Considerations of Agentforce Data Library',
+    stem: 'An admin creates a Data Library with default settings. Which RAG components does it set up?',
+    options: [
+      { correct: true, text: 'The vector data store, search index, retriever, prompt template and standard action, all with default settings', why: 'The quick start for RAG.' },
+      { correct: false, text: 'Only the prompt template', why: 'It sets up the whole chain.' },
+      { correct: false, text: 'Only the vector data store. Everything else is built by hand.', why: 'Everything is created automatically.' },
+      { correct: false, text: 'A new LLM trained on the files', why: 'RAG doesn\'t train models.' }
+    ],
+    explanation: 'Creating a Data Library is the fastest RAG setup. You can then customise any component, for example creating custom retrievers in AI Models (formerly Einstein Studio).',
+    source: SRC.ragAbout
   },
 
   // ---------------- Testing, Deployment and Maintenance (10%) ----------------
