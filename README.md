@@ -23,3 +23,12 @@ py -m http.server 8765
 ```
 
 Then open http://127.0.0.1:8765.
+
+## Checks before committing questions
+
+```
+node tools/validate.js questions.js
+node tools/length-bias.js questions.js
+```
+
+`validate.js` checks ids, sections, answer counts and sources. `length-bias.js` checks that the right answer isn't usually the longest option, so length never gives the answer away. `apply-patch.js` applies option and stem rewrites by question id.
