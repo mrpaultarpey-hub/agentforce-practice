@@ -51,7 +51,13 @@ const SRC = {
   relatedLists: { title: 'Salesforce Ben: Linking Prompt Templates to Salesforce Data', url: 'https://www.salesforceben.com/understanding-ai-grounding-linking-prompt-templates-to-salesforce-data/' },
   gptSettings: { title: 'Metadata API Developer Guide: EinsteinGptSettings', url: 'https://developer.salesforce.com/docs/atlas.en-us.api_meta.meta/api_meta/meta_einsteingptsettings.htm' },
   searchIndexTypes: { title: 'Trailhead: Get to Know Search Index Types in Data Cloud', url: 'https://trailhead.salesforce.com/content/learn/modules/search-index-types-data-cloud-quick-look/get-to-know-search-index-types-in-data-cloud' },
-  retrieverTypes: { title: 'Trailblazer Community: quoting Trailhead, Create a Search Index, Retriever and Prompt Template', url: 'https://trailhead.salesforce.com/trailblazer-community/feed/0D5KX00000jARc10AG' }
+  retrieverTypes: { title: 'Trailblazer Community: quoting Trailhead, Create a Search Index, Retriever and Prompt Template', url: 'https://trailhead.salesforce.com/trailblazer-community/feed/0D5KX00000jARc10AG' },
+  testResults: { title: 'Trailhead: Agentforce Agent Testing, View Test Results', url: 'https://trailhead.salesforce.com/content/learn/modules/agentforce-agent-testing/view-test-results' },
+  testStrategy: { title: 'Trailhead: Refine Your Agents Using a Five-Step Testing Strategy', url: 'https://trailhead.salesforce.com/content/learn/modules/agentforce-testing-tools-and-strategies/refine-your-agents-using-a-five-step-testing-strategy' },
+  promptTemplateMeta: { title: 'Metadata API Developer Guide: GenAiPromptTemplate', url: 'https://developer.salesforce.com/docs/atlas.en-us.api_meta.meta/api_meta/meta_genaiprompttemplate.htm' },
+  soma: { title: 'Salesforce Admins: When to Build a Super Agent or a Single Agent', url: 'https://admin.salesforce.com/blog/2026/what-is-soma-and-when-to-build-a-super-agent-or-a-single-agent' },
+  superAgent: { title: 'Salesforce Admins: How to Set Up a Super Agent with Connected Subagents', url: 'https://admin.salesforce.com/blog/2026/how-to-set-up-a-super-agent-with-connected-subagents' },
+  multiAgentPage: { title: 'Salesforce: Multi-Agent Orchestration', url: 'https://www.salesforce.com/agentforce/multi-agent-orchestration/' }
 };
 
 window.QUESTIONS = [
@@ -1495,6 +1501,181 @@ window.QUESTIONS = [
     source: SRC.deploy
   },
 
+  {
+    id: 'TE-004',
+    section: 'testing',
+    objective: 'Test an agent using Testing Center',
+    group: 'test-csv',
+    stem: [
+      'An admin fills in the Testing Center CSV template. Which statement is true?',
+      'Which rule applies to test cases uploaded to Testing Center as a CSV?'
+    ],
+    options: [
+      { correct: true, text: 'Utterance is required, at least one other column must be filled, and empty values count as failures.', why: 'Rules stated for the testing template.' },
+      { correct: false, text: 'Only the Expected Response column is required.', why: 'Utterance is the required column.' },
+      { correct: false, text: 'Empty values are skipped and count as passes.', why: 'Empty values are treated as failures.' },
+      { correct: false, text: 'Each CSV can test several agents at once.', why: 'Each test run targets one agent.' }
+    ],
+    explanation: 'The template (testing_template.csv) has one test case per line: Utterance, Expected Subagent (API name), Expected Actions and Expected Response. Expected Actions is a bracketed list of action API names in single quotes, for example `[\'IdentifyRecordByName\',\'QueryRecords\']`.',
+    source: SRC.testing
+  },
+
+  {
+    id: 'TE-005',
+    section: 'testing',
+    objective: 'Test an agent using Testing Center',
+    stem: [
+      'Why should Testing Center be run in a sandbox rather than production?',
+      'Which two things should an admin know before running a large Testing Center suite?'
+    ],
+    options: [
+      { correct: true, text: 'Tests run the agent\'s real actions, which can change CRM data.', why: 'Testing agents can modify records.' },
+      { correct: true, text: 'Running tests consumes requests and credits.', why: 'Every test run uses the agent for real.' },
+      { correct: false, text: 'Testing Center isn\'t available in production at all.', why: 'The reason is data and cost, not availability.' },
+      { correct: false, text: 'Production agents can\'t be selected in a test suite.', why: 'Not the reason.' },
+      { correct: false, text: 'Tests in production delete the agent\'s conversation history.', why: 'Not something tests do.' }
+    ],
+    explanation: 'Testing Center runs the agent with each utterance, so actions really execute. Salesforce\'s advice is to use it only in a sandbox. Each run also consumes requests and credits.',
+    source: SRC.testing
+  },
+
+  {
+    id: 'TE-006',
+    section: 'testing',
+    objective: 'Explain how Testing Center evaluations work',
+    group: 'test-results',
+    stem: [
+      'A Testing Center run shows Response Evaluation: Pass and Action Evaluation: Fail for one test case. What does this mean?',
+      'How are Testing Center results evaluated for each test case?'
+    ],
+    options: [
+      { correct: true, text: 'Subagent, action and response are evaluated separately, so a test can pass one and fail another.', why: 'Each evaluation is its own pass or fail.' },
+      { correct: false, text: 'The test is broken. A test must pass or fail everything together.', why: 'Evaluations are independent.' },
+      { correct: false, text: 'The response check is skipped when an action fails.', why: 'Every selected evaluation runs.' },
+      { correct: false, text: 'Only the response is evaluated. Subagent and action are for information.', why: 'All three are evaluated.' }
+    ],
+    explanation: 'The results show Subagent Evaluation Pass %, Action Evaluation Pass % and Response Evaluation Pass % for the run. Each row shows expected and actual subagent and actions, the agent\'s response, and a pass or fail for each evaluation.',
+    source: SRC.testResults
+  },
+
+  {
+    id: 'TE-007',
+    section: 'testing',
+    objective: 'Explain how Testing Center evaluations work',
+    group: 'test-results',
+    stem: 'A test case fails on actions. What is the best first step to troubleshoot it?',
+    options: [
+      { correct: true, text: 'Open the agent in the builder and run the same utterance in Conversation Preview to see the subagent and actions chosen.', why: 'Shows exactly what the agent did.' },
+      { correct: false, text: 'Delete the test case.', why: 'Hides the problem.' },
+      { correct: false, text: 'Rewrite the agent\'s instructions straight away.', why: 'The expectation might be wrong, not the agent.' },
+      { correct: false, text: 'Deactivate the actions that didn\'t run.', why: 'Makes the agent worse.' }
+    ],
+    explanation: 'Conversation Preview shows the session, user prompt, subagent selected and actions launched. In the Trailhead example, the agent was right and the test expected too many actions.\n\nFixes include correcting the expected actions, changing the utterance or adding a separate negative test.',
+    source: SRC.testResults
+  },
+
+  {
+    id: 'TE-008',
+    section: 'testing',
+    objective: 'Test an agent using Testing Center',
+    stem: 'Which three changes should prompt a team to rerun its agent tests?',
+    options: [
+      { correct: true, text: 'Changes to the data the agent uses', why: 'New data can change answers.' },
+      { correct: true, text: 'Changes to permissions', why: 'Access affects what actions can do.' },
+      { correct: true, text: 'Changes to subagents, actions or prompts', why: 'Direct changes to behaviour.' },
+      { correct: false, text: 'A change to a user\'s profile photo', why: 'Unrelated to agent behaviour.' },
+      { correct: false, text: 'A new Salesforce login page logo', why: 'Unrelated to agent behaviour.' },
+      { correct: false, text: 'A change to a report folder name', why: 'Unrelated to agent behaviour.' }
+    ],
+    explanation: 'Retest as agents and the business change: data, permissions, subagents, actions, prompts, related product features and business processes.',
+    source: SRC.testStrategy
+  },
+
+  {
+    id: 'TE-009',
+    section: 'testing',
+    objective: 'Test an agent using Testing Center',
+    stem: 'An admin is building a test set for a new agent. Which approach matches Salesforce\'s testing guidance?',
+    options: [
+      { correct: true, text: 'Start with 10 to 20 AI-generated scenarios, review them, include out-of-scope and guardrail tests, and grow the set as the agent improves', why: 'Volume, diversity and quality.' },
+      { correct: false, text: 'Generate 5,000 scenarios at once and accept them without review', why: 'Review a small batch first.' },
+      { correct: false, text: 'Only test questions the agent is designed to answer', why: 'Negative tests matter too.' },
+      { correct: false, text: 'Skip human review because automated checks catch everything', why: 'Humans catch tone and context problems.' }
+    ],
+    explanation: 'The five steps are: identify scenarios and create test data, set evaluation parameters, run and evaluate, validate the results with human review, then iterate.\n\nGood test sets have volume, diversity (including out-of-scope inputs and guardrail challenges) and quality.',
+    source: SRC.testStrategy
+  },
+
+  {
+    id: 'TE-010',
+    section: 'testing',
+    objective: 'Considerations for deploying an agent from sandbox to production',
+    group: 'deploy-order',
+    stem: [
+      'An agent uses Enhanced Chat and an Omni-Channel flow. When deploying to production, when should those be deployed?',
+      'Which items must be in the target org before the Agentforce metadata is deployed?'
+    ],
+    options: [
+      { correct: true, text: 'Before the Agentforce metadata', why: 'The agent depends on them.' },
+      { correct: false, text: 'After the agent is activated in production', why: 'They must exist first.' },
+      { correct: false, text: 'Never. Channels are rebuilt by hand in each org.', why: 'They can be deployed.' },
+      { correct: false, text: 'At the same time as a production refresh', why: 'You don\'t refresh production.' }
+    ],
+    explanation: 'Enhanced Chat, Embedded Service Deployments and Omni-Channel flows must be deployed before the Agentforce metadata. The Salesforce CLI retrieves the agent\'s metadata from the sandbox and deploys it to the target org.',
+    source: SRC.deploy
+  },
+
+  {
+    id: 'TE-011',
+    section: 'testing',
+    objective: 'Considerations for deploying an agent from sandbox to production',
+    group: 'deploy-order',
+    stem: 'An agent has been deployed to production. Which two checks belong in the post-deployment steps?',
+    options: [
+      { correct: true, text: 'Confirm the agent is active and the deployed flows have the right version active.', why: 'Deployed items aren\'t always active.' },
+      { correct: true, text: 'Publish the Embedded Service web deployment, if the agent uses one.', why: 'Needed before customers see the chat.' },
+      { correct: false, text: 'Delete the sandbox agent so the two don\'t clash.', why: 'Orgs are separate. Keep the sandbox for future work.' },
+      { correct: false, text: 'Copy the sandbox agent user\'s password.', why: 'Create the agent user in production instead.' },
+      { correct: false, text: 'Turn off the Trust Layer while testing.', why: 'Not a deployment step.' }
+    ],
+    explanation: 'After deployment: check the agent is active, flows have the right active versions, and the web deployment is published. Then check subagents, instructions, variables and filters, confirm permissions, and confirm the agent responds.',
+    source: SRC.deploy
+  },
+
+  {
+    id: 'TE-012',
+    section: 'testing',
+    objective: 'Considerations for deploying a template from sandbox to production',
+    stem: [
+      'Which metadata type is used to move a prompt template between orgs?',
+      'A developer adds a prompt template to a deployment package. Which metadata type is it?'
+    ],
+    options: [
+      { correct: true, text: '`GenAiPromptTemplate`', why: 'The metadata type for prompt templates.' },
+      { correct: false, text: '`EmailTemplate`', why: 'For email templates, not prompt templates.' },
+      { correct: false, text: '`StaticResource`', why: 'For static files.' },
+      { correct: false, text: '`CustomMetadata`', why: 'For custom metadata records.' }
+    ],
+    explanation: 'Prompt templates deploy as `GenAiPromptTemplate`. Working with this type needs Prompt Builder turned on and the Prompt Template Manager permission.\n\nInclude any flows or Apex classes the template uses for grounding, and check the right version is active in the target org.',
+    source: SRC.promptTemplateMeta
+  },
+
+  {
+    id: 'TE-013',
+    section: 'testing',
+    objective: 'Test an agent using Testing Center',
+    stem: 'Which two permissions does a user need for the new Testing Center in Agentforce Studio (Beta)?',
+    options: [
+      { correct: true, text: 'Manage Agentforce Grids', why: 'Required for the new Testing Center.' },
+      { correct: true, text: 'Manage Agentforce Testing', why: 'Required for the new Testing Center.' },
+      { correct: false, text: 'Modify All Data', why: 'Not one of the listed permissions.' },
+      { correct: false, text: 'Prompt Template User', why: 'For running prompt templates.' },
+      { correct: false, text: 'View Setup and Configuration only', why: 'Not enough.' }
+    ],
+    explanation: 'The new Testing Center needs Manage Agentforce Grids and Manage Agentforce Testing, added to a permission set. It doesn\'t need the System Administrator profile.\n\nThe older Testing Center in Setup needs the System Administrator profile with either Manage AI Agents or Customize Application.',
+    source: SRC.testing
+  },
+
   // ---------------- Governance and Observability (10%) ----------------
 
   {
@@ -1542,6 +1723,95 @@ window.QUESTIONS = [
     source: SRC.observability
   },
 
+  {
+    id: 'GO-004',
+    section: 'governance',
+    objective: 'Explain the process for managing and monitoring agents',
+    group: 'observability-cost',
+    stem: [
+      'Which Agentforce Observability work still consumes credits?',
+      'A team is budgeting for Agentforce Observability. Which item is still metered?'
+    ],
+    options: [
+      { correct: true, text: 'Building new dashboards or ingesting external data sources', why: 'Net-new customisation is still metered.' },
+      { correct: false, text: 'Session tracing', why: 'Unmetered for all Agentforce customers.' },
+      { correct: false, text: 'The out-of-the-box dashboards', why: 'Unmetered, including changes to them.' },
+      { correct: false, text: 'Drilling into session traces', why: 'Unmetered.' }
+    ],
+    explanation: 'Observability is unmetered across all Agentforce SKUs: session tracing, telemetry, metrics, the standard dashboards, drill-downs, alerts and traces. Usage still shows in Digital Wallet but doesn\'t count against Flex Credits.\n\nStill metered: new dashboards, ingesting external sources such as Snowflake, and new semantic data model objects.',
+    source: SRC.observability
+  },
+
+  {
+    id: 'GO-005',
+    section: 'governance',
+    objective: 'Explain agent analytics and agent optimisation',
+    stem: [
+      'A team wants to score every session for customer sentiment and mentions of competitors. What can they use?',
+      'How are deflection and abandonment worked out in Agentforce Observability?'
+    ],
+    options: [
+      { correct: true, text: 'LLM-based session evaluation with editable prompts, including custom LLM-as-judge scores', why: 'Deflection, abandonment and custom scores use an LLM over the whole session.' },
+      { correct: false, text: 'A formula field on the Messaging Session object', why: 'Not how session quality is scored.' },
+      { correct: false, text: 'The Setup Audit Trail', why: 'Tracks configuration changes.' },
+      { correct: false, text: 'Testing Center response evaluations', why: 'Those score test cases, not real sessions.' }
+    ],
+    explanation: 'An LLM evaluates deflection and abandonment across the full session, using an editable prompt for each metric. Teams can add their own LLM-as-judge scores, such as sentiment, tone, competitor mentions or pricing signals.',
+    source: SRC.observability
+  },
+
+  {
+    id: 'GO-006',
+    section: 'governance',
+    objective: 'Explain agent analytics and agent optimisation',
+    stem: 'Which two can Agentforce Observability show?',
+    options: [
+      { correct: true, text: 'A waterfall trace that follows delegations to other agents in a multi-agent workflow', why: 'Built for multi-agent debugging.' },
+      { correct: true, text: 'Metrics sliced by subagent, action and intent', why: 'Analytics can be broken down this way.' },
+      { correct: false, text: 'The LLM provider\'s copy of every prompt', why: 'Zero data retention: providers keep nothing.' },
+      { correct: false, text: 'Each agent user\'s password history', why: 'Not part of observability.' },
+      { correct: false, text: 'The Apex code coverage of each action', why: 'Not part of observability.' }
+    ],
+    explanation: 'Observability brings trust, RAG, health and quality metrics into one view. It shows errors at the point in the reasoning path where they happened, inline citations, and a waterfall trace across delegations to other agents.',
+    source: SRC.observability
+  },
+
+  {
+    id: 'GO-007',
+    section: 'governance',
+    objective: 'Explain the process for managing and monitoring agents',
+    stem: [
+      'Which Agent Script `config` setting turns on conversation logging for debugging and monitoring?',
+      'An admin needs detailed event logs from an agent\'s conversations for debugging. Which `config` setting turns them on?'
+    ],
+    options: [
+      { correct: true, text: '`enable_enhanced_event_logs: True`', why: 'Turns on conversation logging. The default is False.' },
+      { correct: false, text: '`thought_chunks: True`', why: 'Streams the agent\'s thinking to the client.' },
+      { correct: false, text: '`citation: True`', why: 'Adds source references to answers.' },
+      { correct: false, text: '`groundedness: False`', why: 'Turns off the groundedness check.' }
+    ],
+    explanation: '`enable_enhanced_event_logs` in the `config` block turns on conversation logging for debugging and monitoring. It defaults to False.',
+    source: SRC.ascriptBlocks
+  },
+
+  {
+    id: 'GO-008',
+    section: 'governance',
+    objective: 'Explain the process for managing and monitoring agents',
+    group: 'tracing-data',
+    stem: 'Which three levels does the Session Tracing Data Model use to structure agent activity?',
+    options: [
+      { correct: true, text: 'Sessions', why: 'A whole conversation.' },
+      { correct: true, text: 'Interactions', why: 'The turns within a session.' },
+      { correct: true, text: 'Steps', why: 'What happened within a turn, such as LLM calls and actions.' },
+      { correct: false, text: 'Opportunities', why: 'A CRM object, not a tracing level.' },
+      { correct: false, text: 'Campaigns', why: 'A CRM object, not a tracing level.' },
+      { correct: false, text: 'Queues', why: 'Routing, not tracing.' }
+    ],
+    explanation: 'The Session Tracing Data Model logs each event down to a single turn: user input, planner decisions, prompt and action flows, gateway inputs and outputs, errors and the final output. Sessions, interactions and steps are structured tables, so analytics and alerts build straight from them.',
+    source: SRC.observability
+  },
+
   // ---------------- Multi-Agent Orchestration (5%) ----------------
 
   {
@@ -1576,5 +1846,162 @@ window.QUESTIONS = [
     ],
     explanation: 'An orchestrator reads each specialist agent\'s description and routes work to the best one. It helps when one agent has grown too large or spans teams.\n\nRouting quality depends on clear descriptions for each specialist. For small agents, multi-agent adds cost and moving parts for no gain.',
     source: SRC.multiAgent
+  },
+
+  {
+    id: 'MU-003',
+    section: 'multi',
+    objective: 'Decide whether a multi-agent architecture is appropriate',
+    group: 'single-or-multi',
+    stem: [
+      'An HR FAQ agent covers benefits, payroll and time off. All three use the same HR system and the same verification. What design fits?',
+      'When does Salesforce suggest staying with a single agent with subagents?'
+    ],
+    options: [
+      { correct: true, text: 'A single agent with subagents, because the work is in one domain with shared data access', why: 'Straightforward, one domain, shared data.' },
+      { correct: false, text: 'A Super Agent with three connected subagents', why: 'Adds moving parts with no benefit here.' },
+      { correct: false, text: 'Three separate agents with no orchestrator', why: 'Users would need three front doors.' },
+      { correct: false, text: 'A prompt template for each question', why: 'Templates don\'t hold conversations.' }
+    ],
+    explanation: 'Stay with one agent when the workflow is straightforward, in one domain and uses shared data. Signs that a single agent has outgrown that: context overload, subagents overlapping, guardrails being skipped and wrong routing, or needing data from another org.',
+    source: SRC.soma
+  },
+
+  {
+    id: 'MU-004',
+    section: 'multi',
+    objective: 'Decide whether a multi-agent architecture is appropriate',
+    stem: 'What is the recommended maximum number of connected subagents per orchestrator agent?',
+    options: [
+      { correct: true, text: '7', why: 'Salesforce recommends no more than 7.' },
+      { correct: false, text: '3', why: 'Lower than the recommendation.' },
+      { correct: false, text: '15', why: 'That is the guidance for actions per subagent.' },
+      { correct: false, text: 'There is no recommended limit', why: 'There is a recommendation of 7.' }
+    ],
+    explanation: 'Multi-agent orchestration (beta) recommends no more than 7 connected subagents per orchestrator. Don\'t confuse this with about 10 to 15 subagents per agent and no more than 15 actions per subagent.',
+    source: SRC.soma
+  },
+
+  {
+    id: 'MU-005',
+    section: 'multi',
+    objective: 'Decide whether a multi-agent architecture is appropriate',
+    stem: [
+      'Which combination of orchestrator and connected subagent types is NOT supported?',
+      'An architect plans a service agent orchestrator that delegates to employee agents. What is the problem?'
+    ],
+    options: [
+      { correct: true, text: 'A service agent orchestrator with employee agent connected subagents', why: 'Not one of the supported combinations.' },
+      { correct: false, text: 'A service agent orchestrator with service agent connected subagents', why: 'Supported.' },
+      { correct: false, text: 'An employee agent orchestrator with employee agent connected subagents', why: 'Supported.' },
+      { correct: false, text: 'An employee agent orchestrator with service agent connected subagents', why: 'Supported.' }
+    ],
+    explanation: 'Supported combinations: service orchestrator with service connected subagents, employee orchestrator with employee connected subagents, and employee orchestrator with service connected subagents.\n\nA service orchestrator can\'t delegate to employee agents.',
+    source: SRC.soma
+  },
+
+  {
+    id: 'MU-006',
+    section: 'multi',
+    objective: 'Decide whether a multi-agent architecture is appropriate',
+    group: 'super-agent-role',
+    stem: [
+      'A connected subagent has started calling another connected subagent. What does Salesforce advise?',
+      'Which statement about connected subagents is true?'
+    ],
+    options: [
+      { correct: true, text: 'Connected subagents respond. They don\'t route or orchestrate, so revisit the architecture.', why: 'Routing belongs to the Super Agent.' },
+      { correct: false, text: 'Add instructions telling it not to call other agents.', why: 'Salesforce says fix the architecture, not patch instructions.' },
+      { correct: false, text: 'That is the recommended pattern for complex requests.', why: 'Only the orchestrator routes.' },
+      { correct: false, text: 'Convert the second connected subagent into a prompt template.', why: 'Doesn\'t address the design problem.' }
+    ],
+    explanation: 'The Super Agent is the single entry point and does the routing. Connected subagents do their job and return a result. One calling another is a sign the design needs another look.',
+    source: SRC.soma
+  },
+
+  {
+    id: 'MU-007',
+    section: 'multi',
+    objective: 'Decide whether a multi-agent architecture is appropriate',
+    group: 'super-agent-role',
+    stem: 'In a Super Agent design, where should GDPR opt-out handling, identity verification and the decision to escalate to a human live?',
+    options: [
+      { correct: true, text: 'In the Super Agent, so they apply the same way to every request', why: 'Shared rules belong at the front door.' },
+      { correct: false, text: 'In each connected subagent, so each owns its own copy', why: 'Copies drift apart.' },
+      { correct: false, text: 'In the LLM provider\'s settings', why: 'Not where business rules live.' },
+      { correct: false, text: 'Only in Testing Center', why: 'Testing checks behaviour. It doesn\'t implement it.' }
+    ],
+    explanation: 'Keep the Super Agent\'s instructions focused on routing, and give it subagents for shared concerns: guardrails and compliance, verifying identity once and passing context on, asking clarifying questions, and deciding on human handoff.',
+    source: SRC.superAgent
+  },
+
+  {
+    id: 'MU-008',
+    section: 'multi',
+    objective: 'Decide whether a multi-agent architecture is appropriate',
+    stem: [
+      'A Super Agent keeps sending requests to the wrong connected subagent. What should be checked first?',
+      'What is the most common cause of routing problems between a Super Agent and its connected subagents?'
+    ],
+    options: [
+      { correct: true, text: 'The connected subagents\' descriptions, which are vague or overlapping', why: 'Routing is based on the descriptions.' },
+      { correct: false, text: 'The LLM provider', why: 'Not the usual cause.' },
+      { correct: false, text: 'The number of actions in each connected subagent', why: 'Routing happens before their actions.' },
+      { correct: false, text: 'The welcome message', why: 'Doesn\'t affect routing.' }
+    ],
+    explanation: 'The Super Agent compares each request with the connected subagents\' descriptions. Vague or overlapping descriptions are the most common cause of routing issues.\n\nFor rules that must always apply, add deterministic logic. For example, check `order_status` before routing a refund request, so an in-progress order goes to Logistics rather than Billing.',
+    source: SRC.superAgent
+  },
+
+  {
+    id: 'MU-009',
+    section: 'multi',
+    objective: 'Decide whether a multi-agent architecture is appropriate',
+    stem: 'How are variables passed between an orchestrator agent and a connected subagent in this release?',
+    options: [
+      { correct: true, text: 'One way only, from the orchestrator to the connected subagent', why: 'Values don\'t flow back as variables.' },
+      { correct: false, text: 'Both ways, automatically', why: 'Only one direction is supported.' },
+      { correct: false, text: 'Only from the connected subagent back to the orchestrator', why: 'The other way round.' },
+      { correct: false, text: 'They can\'t be passed. The connected subagent asks the customer again.', why: 'Inputs can be passed.' }
+    ],
+    explanation: 'A `connected_subagent` block can define `inputs` that bind the connected agent\'s variables to the caller\'s, for example `customer_id: string = @variables.Customer_Id`. Variables pass from the orchestrator to the connected subagent, not back.',
+    source: SRC.ascriptBlocks
+  },
+
+  {
+    id: 'MU-010',
+    section: 'multi',
+    objective: 'Decide whether a multi-agent architecture is appropriate',
+    stem: [
+      'An architect is deciding whether a task deserves its own connected subagent. Which test does Salesforce suggest?',
+      'How can you tell whether a planned connected subagent is scoped well?'
+    ],
+    options: [
+      { correct: true, text: 'Describe its purpose in one sentence without "and". If you can\'t, split it.', why: 'The one-sentence test.' },
+      { correct: false, text: 'Give it at least 15 actions so it\'s worth the cost.', why: 'Size isn\'t the test.' },
+      { correct: false, text: 'Make every single step its own connected subagent.', why: 'A single step with no reasoning is an action, not an agent.' },
+      { correct: false, text: 'Combine every domain into it to reduce handoffs.', why: 'That recreates the single-agent problem.' }
+    ],
+    explanation: 'Split where work hands off to another team or system, where data is disconnected, and where failures should be isolated. A connected subagent needs its own input and output and enough reasoning, data access and logic to stand alone. A single step is an action.',
+    source: SRC.soma
+  },
+
+  {
+    id: 'MU-011',
+    section: 'multi',
+    objective: 'Explain the purpose of MCP and A2A',
+    group: 'protocols',
+    stem: [
+      'An Agentforce agent needs to delegate a task to an agent built on another company\'s platform. Which protocol is designed for this?',
+      'What is Agent2Agent (A2A) used for?'
+    ],
+    options: [
+      { correct: true, text: 'A2A, which lets agents from different systems connect and delegate tasks to each other', why: 'Agent-to-agent collaboration.' },
+      { correct: false, text: 'MCP, which connects an agent to tools and data', why: 'MCP is agent-to-tool, not agent-to-agent.' },
+      { correct: false, text: 'SAML single sign-on', why: 'Authenticates users, not agents working together.' },
+      { correct: false, text: 'The Bulk API', why: 'Moves large volumes of records.' }
+    ],
+    explanation: 'A2A lets a primary agent securely connect and delegate tasks to third-party agents, giving agents a structured way to work together. MCP standardises how an agent reaches tools and data. Agentforce supports both.',
+    source: SRC.multiAgentPage
   }
 ];
