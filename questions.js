@@ -92,7 +92,13 @@ const SRC = {
   routing: help('Subagent Classification and Routing', 'ai.agent_topics_routing'),
   agentVersions: help('Versioning and Editing Agents', 'ai.agent_versions_lifecycle'),
   testModes: help('Simulate and Live Test Modes', 'ai.agent_simulate_and_live_modes'),
-  emailAgent: help('Considerations for Agentforce Service Agent on Email', 'ai.service_agent_considerations_1')
+  emailAgent: help('Considerations for Agentforce Service Agent on Email', 'ai.service_agent_considerations_1'),
+  testingConsiderations: help('Considerations for Testing Center', 'ai.agent_testing_center_considerations'),
+  defaultScorers: help('Default Scorers', 'ai.agent_studio_testing_center_default_evaluations'),
+  templateDeploy: help('Deployment Considerations for Prompt Templates', 'ai.prompt_builder_considerations_deployment'),
+  templateChangeSets: help('Change Set Considerations for Prompt Templates', 'ai.prompt_builder_considerations_changeset'),
+  multiConsider: help('Considerations and Limitations in Multi-Agent Solutions', 'ai.agent_multi_orch_consider'),
+  mcp: help('MCP for Agentforce', 'ai.agent_mcp')
 };
 
 window.QUESTIONS = [
@@ -2680,17 +2686,16 @@ window.QUESTIONS = [
     section: 'testing',
     objective: 'Test an agent using Testing Center',
     stem: [
-      'Why should Testing Center be run in a sandbox rather than production?',
-      'Which two things should an admin know before running a large Testing Center suite?'
+      'Why does Salesforce advise running Testing Center in a sandbox rather than production?',
+      'An admin plans to run a large Testing Center suite in production. What is the main risk?'
     ],
     options: [
       { correct: true, text: 'Tests run the agent\'s real actions, which can change CRM data.', why: 'Testing agents can modify records.' },
-      { correct: true, text: 'Running tests consumes requests and credits.', why: 'Every test run uses the agent for real.' },
-      { correct: false, text: 'Testing Center isn\'t available in production at all.', why: 'The reason is data and cost, not availability.' },
+      { correct: false, text: 'Testing Center isn\'t available in production at all.', why: 'The reason is the data, not availability.' },
       { correct: false, text: 'Production agents can\'t be selected in a test suite.', why: 'Not the reason.' },
       { correct: false, text: 'Tests in production delete the agent\'s conversation history.', why: 'Not something tests do.' }
     ],
-    explanation: 'Testing Center runs the agent with each utterance, so actions really execute. Salesforce\'s advice is to use it only in a sandbox. Each run also consumes requests and credits.',
+    explanation: 'Testing Center runs the agent with each utterance, so actions really execute. Salesforce\'s advice is to use it only in a sandbox.\n\nCosts have changed: Trailhead says tests consume credits, but Help says testing is unmetered from Summer \'26. Data 360 queries made by tests are still metered.',
     source: SRC.testing
   },
 
@@ -2829,6 +2834,146 @@ window.QUESTIONS = [
     ],
     explanation: 'The new Testing Center needs Manage Agentforce Grids and Manage Agentforce Testing, added to a permission set. It doesn\'t need the System Administrator profile.\n\nThe older Testing Center in Setup needs the System Administrator profile with either Manage AI Agents or Customize Application.',
     source: SRC.testing
+  },
+
+  {
+    id: 'TE-014',
+    section: 'testing',
+    objective: 'Explain how Testing Center evaluations work',
+    group: 'scorers',
+    stem: [
+      'Which default scorers run on every turn-level test in the new Testing Center?',
+      'In turn-level testing, how is the Response Evaluation score produced?'
+    ],
+    options: [
+      { correct: true, text: 'Response Evaluation (an LLM judge compares the expected and actual response), Subagent Assertion and Action Assertion', why: 'The three turn-level default scorers.' },
+      { correct: false, text: 'Toxicity, latency and cost', why: 'Not the default scorers.' },
+      { correct: false, text: 'Only Task Resolution', why: 'That is a conversation-level scorer.' },
+      { correct: false, text: 'A word-for-word string match of the response', why: 'An LLM judge compares meaning.' }
+    ],
+    explanation: 'Default scorers always run. In conversation-level tests the subagent and action scorers are called Subagent Evaluation and Actions Evaluation, and Task Resolution checks whether the user\'s issue was resolved.',
+    source: SRC.defaultScorers
+  },
+
+  {
+    id: 'TE-015',
+    section: 'testing',
+    objective: 'Explain how Testing Center evaluations work',
+    group: 'scorers',
+    stem: [
+      'Response Evaluation scores are unexpectedly low. The Expected Response column says "The agent should mention the order number and be polite." What is wrong?',
+      'What should the Expected Response field in a test case contain?'
+    ],
+    options: [
+      { correct: true, text: 'The response you expect the agent to give, not instructions about the response', why: 'Instructions in that field give inaccurate scores.' },
+      { correct: false, text: 'Instructions for the LLM judge on how to score', why: 'Help calls this a common mistake.' },
+      { correct: false, text: 'The API name of the expected action', why: 'That goes in Expected Actions.' },
+      { correct: false, text: 'Nothing. Leave it blank so the LLM decides.', why: 'Empty values count as failures.' }
+    ],
+    explanation: 'Write the Expected Response as the answer itself, for example "Your order 12345 will arrive on Friday." The LLM judge then compares it with the agent\'s real response.',
+    source: SRC.defaultScorers
+  },
+
+  {
+    id: 'TE-016',
+    section: 'testing',
+    objective: 'Test an agent using Testing Center',
+    stem: 'Which two statements about conversation-level testing (beta) are true?',
+    options: [
+      { correct: true, text: 'Employee agents aren\'t supported.', why: 'Stated limitation.' },
+      { correct: true, text: 'If escalation is triggered, the conversation ends with "User requested transfer to agent."', why: 'Escalation isn\'t supported.' },
+      { correct: false, text: 'Custom scorers and context variables are fully supported.', why: 'Neither is supported for conversation-level tests.' },
+      { correct: false, text: 'Conversations can run for unlimited turns.', why: 'The beta limit is 20 turns.' },
+      { correct: false, text: 'Verification codes can be typed in during simulated conversations.', why: 'They can\'t. Set context variables instead.' }
+    ],
+    explanation: 'Beta limits: 3 concurrent suites, 20 turns per conversation, up to 20 generated or 1,000 uploaded test cases. Voice simulated responses are English only. If the agent loops on verification, put bypass details in the instructions and test objective.',
+    source: SRC.testingConsiderations
+  },
+
+  {
+    id: 'TE-017',
+    section: 'testing',
+    objective: 'Considerations for deploying a template from sandbox to production',
+    group: 'template-changesets',
+    stem: [
+      'A prompt template is deployed to production by change set. It was active in the sandbox but is inactive in production. Why?',
+      'What controls whether a prompt template active in the source org arrives active after a change set deployment?'
+    ],
+    options: [
+      { correct: true, text: 'By default deployed templates arrive inactive. A setting in Einstein Setup (Deploy Prompt Templates) activates them on deploy, for change sets only.', why: 'Off by default.' },
+      { correct: false, text: 'Change sets always deactivate templates, and nothing can change that.', why: 'The Einstein Setup setting can.' },
+      { correct: false, text: 'The template failed to deploy.', why: 'It deployed but wasn\'t activated.' },
+      { correct: false, text: 'The setting also controls CLI and package deployments.', why: 'It applies to change sets only.' }
+    ],
+    explanation: 'With the setting on, templates active in the source become active in the target, and inactive ones stay inactive. Without it, activate templates by hand after deployment.',
+    source: SRC.templateChangeSets
+  },
+
+  {
+    id: 'TE-018',
+    section: 'testing',
+    objective: 'Considerations for deploying a template from sandbox to production',
+    group: 'template-changesets',
+    stem: 'Which two statements about deploying prompt templates with change sets are true?',
+    options: [
+      { correct: true, text: 'By default all versions, active and inactive, are deployed. A setting can deploy only the active version.', why: '"Deploy Only Active Version" is off by default.' },
+      { correct: true, text: 'If the template uses a custom LLM configuration, the target org needs a model with the same name or the deployment fails.', why: 'Stated consideration.' },
+      { correct: false, text: 'Change sets can delete prompt templates in the target org.', why: 'Templates can\'t be deleted by change set.' },
+      { correct: false, text: 'Published versions in the target are overwritten with new content.', why: 'Published versions are immutable and skipped.' },
+      { correct: false, text: 'Dependencies are added automatically, so only the template is needed.', why: 'Add all resources, then their dependencies.' }
+    ],
+    explanation: 'With "Deploy Only Active Version" on, a template with no active version fails to deploy. Existing versions in the target are never deleted.',
+    source: SRC.templateChangeSets
+  },
+
+  {
+    id: 'TE-019',
+    section: 'testing',
+    objective: 'Considerations for deploying a template from sandbox to production',
+    group: 'template-flows',
+    stem: [
+      'A prompt template grounded by a template-triggered flow fails to deploy. What does Salesforce advise?',
+      'How should a template-triggered prompt flow be built so it deploys cleanly with its template?'
+    ],
+    options: [
+      { correct: true, text: 'Use Manual Inputs in the flow and deploy the template and flow together. If it still fails, deploy the flow first, then the template.', why: 'Flows with Automatic Inputs make the deployment fail.' },
+      { correct: false, text: 'Use Automatic Inputs so the template can find the flow', why: 'That causes the failure.' },
+      { correct: false, text: 'Rebuild the flow by hand in production', why: 'Deployment works with the right inputs.' },
+      { correct: false, text: 'Convert the flow to Apex', why: 'Not needed.' }
+    ],
+    explanation: 'To deploy with the CLI, the template needs at least one version. Deployed flows aren\'t auto-activated. A template that calls an inactive flow gives a run-time error.',
+    source: SRC.templateDeploy
+  },
+
+  {
+    id: 'TE-020',
+    section: 'testing',
+    objective: 'Considerations for deploying a template from sandbox to production',
+    group: 'template-flows',
+    stem: 'After deployment, a prompt template throws an error when it runs. It references a flow that came in the same change set. What is the likely cause?',
+    options: [
+      { correct: true, text: 'The flow was deployed but not activated, and a template that runs an inactive flow errors at run time', why: 'Deployed flows aren\'t auto-activated.' },
+      { correct: false, text: 'Change sets can\'t include flows', why: 'They can.' },
+      { correct: false, text: 'The template is a Flex template', why: 'The template type isn\'t the issue.' },
+      { correct: false, text: 'The user lacks Prompt Template Manager', why: 'Running needs Prompt Template User, and this is a flow error.' }
+    ],
+    explanation: 'Activate deployed flows according to the flow guidelines. Also, a template in use can\'t have its active version deactivated unless another version is active, and its active version can\'t be deleted.',
+    source: SRC.templateChangeSets
+  },
+
+  {
+    id: 'TE-021',
+    section: 'testing',
+    objective: 'Test an agent using Testing Center',
+    stem: 'From Summer \'26, which Testing Center activity is still metered?',
+    options: [
+      { correct: true, text: 'Data 360 queries made by tests', why: 'Everything else in testing is unmetered.' },
+      { correct: false, text: 'Generating test cases', why: 'Unmetered.' },
+      { correct: false, text: 'Agent actions run during tests', why: 'Unmetered.' },
+      { correct: false, text: 'Evaluating results', why: 'Unmetered.' }
+    ],
+    explanation: 'From Summer \'26, Testing Center doesn\'t consume Einstein Requests or Flex Credits for any test type or agent type, including test creation, actions during tests and evaluation. Data 360 queries are still metered. The exam is based on Spring \'26, so expect older wording too.',
+    source: SRC.testingConsiderations
   },
 
   // ---------------- Governance and Observability (10%) ----------------
@@ -3421,7 +3566,113 @@ window.QUESTIONS = [
       { correct: false, text: 'SAML single sign-on', why: 'Authenticates users, not agents working together.' },
       { correct: false, text: 'The Bulk API', why: 'Moves large volumes of records.' }
     ],
-    explanation: 'A2A lets a primary agent securely connect and delegate tasks to third-party agents, giving agents a structured way to work together. MCP standardises how an agent reaches tools and data. Agentforce supports both.',
+    explanation: 'A2A lets a primary agent securely connect and delegate tasks to third-party agents, giving agents a structured way to work together. MCP standardises how an agent reaches tools and data. Agentforce supports both.\n\nAgentforce\'s own multi-agent orchestration currently connects Agentforce agents in a single org only.',
     source: SRC.multiAgentPage
+  },
+
+  {
+    id: 'MU-012',
+    section: 'multi',
+    objective: 'Decide whether a multi-agent architecture is appropriate',
+    group: 'multi-limits',
+    stem: [
+      'An architect wants an Agentforce orchestrator to delegate to an agent in a different Salesforce org. Is this supported?',
+      'Which statement about Multi-Agent Orchestration for Agentforce is true?'
+    ],
+    options: [
+      { correct: true, text: 'No. Connected subagents must be Agentforce agents in the same org. Cross-org and external non-Agentforce agents aren\'t supported.', why: 'Current limitation.' },
+      { correct: false, text: 'Yes. Any agent in any org can be connected.', why: 'Single org only.' },
+      { correct: false, text: 'Yes, as long as both orgs use the same LLM provider.', why: 'Single org only.' },
+      { correct: false, text: 'Yes, through a connected subagent with handoff mode.', why: 'Handoff mode doesn\'t lift the single-org limit.' }
+    ],
+    explanation: 'Connected subagents must be active Agentforce agents in the same org. New agent versions must be activated before they can be connected. File-based agents such as SDR or Analytics aren\'t supported in this release.',
+    source: SRC.multiConsider
+  },
+
+  {
+    id: 'MU-013',
+    section: 'multi',
+    objective: 'Decide whether a multi-agent architecture is appropriate',
+    group: 'multi-limits',
+    stem: 'Which two are limits of Multi-Agent Orchestration for Agentforce in this release?',
+    options: [
+      { correct: true, text: 'One level of delegation from the orchestrator to connected subagents', why: 'Connected subagents can\'t delegate further.' },
+      { correct: true, text: 'Timeouts of 120 seconds for the orchestrator and 30 seconds for each connected subagent', why: 'Stated limits.' },
+      { correct: false, text: 'A maximum of 2 connected subagents per orchestrator', why: 'The recommendation is up to 7.' },
+      { correct: false, text: 'Variables flow both ways between agents', why: 'One direction only, orchestrator to subagent.' },
+      { correct: false, text: 'Agentforce Voice is fully supported', why: 'Voice isn\'t a supported configuration.' }
+    ],
+    explanation: 'The orchestrator\'s 120 seconds include time spent delegating and combining results, and it reports timeout errors itself. Both orchestrators and connected subagents can escalate to a human. A connected subagent can\'t currently be deactivated.',
+    source: SRC.multiConsider
+  },
+
+  {
+    id: 'MU-014',
+    section: 'multi',
+    objective: 'Decide whether a multi-agent architecture is appropriate',
+    group: 'multi-limits',
+    stem: 'An agent built in the legacy Agentforce builder is to become a connected subagent. What must happen first?',
+    options: [
+      { correct: true, text: 'Upgrade it to the new Agentforce Builder, then activate a version', why: 'Legacy agents must be upgraded.' },
+      { correct: false, text: 'Nothing. Legacy agents can be connected as they are.', why: 'They need upgrading.' },
+      { correct: false, text: 'Rebuild it as a prompt template', why: 'It stays an agent.' },
+      { correct: false, text: 'Deactivate it', why: 'Only active agents can be connected.' }
+    ],
+    explanation: 'For agents already in the new builder, create and activate a new version before using them in multi-agent orchestration. Scripts should use handoff mode for routing to connected subagents.',
+    source: SRC.multiConsider
+  },
+
+  {
+    id: 'MU-015',
+    section: 'multi',
+    objective: 'Explain the purpose of MCP and A2A',
+    group: 'mcp',
+    stem: [
+      'In the Model Context Protocol, what does an MCP server provide?',
+      'Which statement about MCP servers, clients and hosts is true?'
+    ],
+    options: [
+      { correct: true, text: 'Tools, prompts and resources that an external system makes available. Clients connect to servers, and the host coordinates.', why: 'The three MCP roles.' },
+      { correct: false, text: 'The LLM itself', why: 'Servers expose tools and data, not models.' },
+      { correct: false, text: 'Only user authentication', why: 'Servers expose tools, prompts and resources.' },
+      { correct: false, text: 'A replacement for the Agentforce reasoning engine', why: 'The agent still does the reasoning.' }
+    ],
+    explanation: 'MCP tools are like agent actions: functions an LLM can call in an external system. Agentforce has a built-in MCP client, so you register servers and your agents use their tools.',
+    source: SRC.mcp
+  },
+
+  {
+    id: 'MU-016',
+    section: 'multi',
+    objective: 'Explain the purpose of MCP and A2A',
+    group: 'mcp',
+    stem: [
+      'A registered third-party MCP server updates one of its tools to include malicious instructions. What does Agentforce do?',
+      'How does MCP for Agentforce protect against "rug pulls"?'
+    ],
+    options: [
+      { correct: true, text: 'It detects the changed tool definition and removes that tool action from the agent at run time, leaving other actions running', why: 'Definitions are captured at registration and checked each session and call.' },
+      { correct: false, text: 'Nothing. Registered servers are always trusted.', why: 'Definitions are re-checked.' },
+      { correct: false, text: 'It deactivates the whole agent', why: 'Only the affected actions are blocked.' },
+      { correct: false, text: 'It emails the server\'s publisher to ask', why: 'Blocking is automatic.' }
+    ],
+    explanation: 'At registration Agentforce also checks names and descriptions for invisible characters that could hide instructions. MCP for Agentforce uses the Trust Layer and zero data retention, and Agentforce Gateway policies can control access and usage limits.',
+    source: SRC.mcp
+  },
+
+  {
+    id: 'MU-017',
+    section: 'multi',
+    objective: 'Explain the purpose of MCP and A2A',
+    group: 'mcp',
+    stem: 'Where do you connect a third-party MCP server to Agentforce, and where do MuleSoft and Salesforce-hosted servers go?',
+    options: [
+      { correct: true, text: 'Third-party servers in Agentforce Registry. MuleSoft and Salesforce-hosted servers through API Catalog.', why: 'Two routes depending on the source.' },
+      { correct: false, text: 'All servers in Prompt Builder', why: 'Not where servers are registered.' },
+      { correct: false, text: 'All servers as named credentials only', why: 'Registration happens in Registry or API Catalog.' },
+      { correct: false, text: 'All servers in Data 360', why: 'Not where servers are registered.' }
+    ],
+    explanation: 'After registering a server, add the MCP tool action to the agent from the asset library. MCP tool actions can be tested in builder previews and Testing Center, and their activity appears in the Session Tracing Data Model.',
+    source: SRC.mcp
   }
 ];
