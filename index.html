@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Agentforce Practice</title>
+  <meta name="description" content="Practice questions for the Salesforce Certified Agentforce Specialist exam.">
+  <meta name="theme-color" content="#0b5cab">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="top">
+    <h1>Agentforce Practice</h1>
+    <div class="today" id="today"></div>
+    <button class="icon-btn" id="btn-sections" aria-label="Sections and scores">&#9776;</button>
+  </header>
+
+  <main id="quiz" class="view">
+    <div class="meta">
+      <span class="chip" id="q-section"></span>
+      <span class="choose" id="q-choose"></span>
+    </div>
+    <p class="stem" id="q-stem"></p>
+    <ol class="options" id="q-options"></ol>
+
+    <section class="result" id="result" hidden>
+      <div class="verdict" id="verdict"></div>
+      <div class="explanation" id="explanation"></div>
+      <a class="source" id="source" target="_blank" rel="noopener"></a>
+    </section>
+
+    <div class="actions">
+      <button class="primary" id="btn-submit" disabled>Submit</button>
+      <button class="primary" id="btn-next" hidden>Next question</button>
+    </div>
+  </main>
+
+  <main id="sections" class="view" hidden>
+    <h2>Sections</h2>
+    <p class="hint">Tick the sections to practise. Questions come in proportion to the exam weightings.</p>
+    <ul class="section-list" id="section-list"></ul>
+    <div class="actions">
+      <button class="primary" id="btn-back">Back to questions</button>
+    </div>
+    <p class="small">
+      <span id="bank-size"></span>
+      <button class="link-btn" id="btn-reset">Reset my progress</button>
+    </p>
+  </main>
+
+  <script src="questions.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
