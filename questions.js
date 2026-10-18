@@ -106,7 +106,11 @@ const SRC = {
   auditFeedback: help('About Generative AI Audit and Feedback Data', 'ai.generative_ai_feedback_about'),
   instructionsResolve: help('How Subagent Instructions are Resolved to Build a Prompt', 'ai.agent_topics_instructions_resolve'),
   actionInstructions: help('Best Practices for Agent Action Instructions', 'ai.copilot_actions_instructions'),
-  legacyFilters: help('Create a Filter to Control Access to Subagents and Actions in the Legacy Builder', 'ai.agent_asset_filters')
+  legacyFilters: help('Create a Filter to Control Access to Subagents and Actions in the Legacy Builder', 'ai.agent_asset_filters'),
+  patterns: { title: 'Agentforce Developer Guide: Agent Script Common Patterns', url: 'https://developer.salesforce.com/docs/ai/agentforce/guide/ascript-patterns.html' },
+  requiredFlow: { title: 'Agentforce Developer Guide: Enforce Required Workflows for a Subagent', url: 'https://developer.salesforce.com/docs/ai/agentforce/guide/ascript-patterns-required-flow.html' },
+  systemOverrides: { title: 'Agentforce Developer Guide: Avoid Conflicting Instructions with Instruction Overrides', url: 'https://developer.salesforce.com/docs/ai/agentforce/guide/ascript-patterns-system-overrides.html' },
+  actionChaining: { title: 'Agentforce Developer Guide: Action Chaining and Sequencing', url: 'https://developer.salesforce.com/docs/ai/agentforce/guide/ascript-patterns-action-chaining.html' }
 };
 
 window.QUESTIONS = [
@@ -1428,6 +1432,114 @@ window.QUESTIONS = [
     ],
     explanation: 'A filter has a name, conditions (variable, operator, value) and a rule for whether any or all conditions must be met. Restart the preview conversation to test. For customer channels, Salesforce recommends filters that require authentication for subagents and actions that do tasks for a user.',
     source: SRC.legacyFilters
+  },
+
+  {
+    id: 'AG-075',
+    section: 'agents',
+    objective: 'Manage deterministic behaviour using filters, variables and template expressions',
+    group: 'required-flow',
+    stem: [
+      'Unverified customers must go through identity verification before anything else. Why is a conditional transition more reliable than `available when` alone?',
+      'What is the difference between `available when` filtering and a conditional transition?'
+    ],
+    options: [
+      { correct: true, text: 'Filtering only removes options, so the LLM can still pick something that needs no verification. A conditional transition runs before any reasoning and guarantees the route.', why: 'Filters restrict. Transitions enforce.' },
+      { correct: false, text: 'They behave the same.', why: 'One leaves the choice to the LLM.' },
+      { correct: false, text: '`available when` forces a transition when the condition is false.', why: 'It only hides tools.' },
+      { correct: false, text: 'A conditional transition asks the LLM whether to move.', why: 'It runs as logic, with no LLM.' }
+    ],
+    explanation: 'Put `if @variables.verified == False:` then `transition to @subagent.Identity` at the top of the Agent Router\'s instructions. Unverified users go straight to Identity, with no subagent classification and no prompt sent to the LLM.',
+    source: SRC.requiredFlow
+  },
+
+  {
+    id: 'AG-076',
+    section: 'agents',
+    objective: 'Manage deterministic behaviour using filters, variables and template expressions',
+    group: 'required-flow',
+    stem: 'Where should a required conditional transition go in a subagent\'s instructions, and why?',
+    options: [
+      { correct: true, text: 'At the top, because anything run before the transition is discarded and only adds latency and cost', why: 'Earlier instructions aren\'t used once the agent transitions.' },
+      { correct: false, text: 'At the bottom, so all actions run first', why: 'Wastes time and money.' },
+      { correct: false, text: 'In the `config` block', why: 'Transitions belong in reasoning logic.' },
+      { correct: false, text: 'Anywhere. Order doesn\'t matter.', why: 'Instructions resolve top to bottom.' }
+    ],
+    explanation: 'Name transition tools with a `go_to_` prefix, such as `go_to_orders`, so the LLM knows they move to another subagent. Avoid names like `tool1`.',
+    source: SRC.requiredFlow
+  },
+
+  {
+    id: 'AG-077',
+    section: 'agents',
+    objective: 'Explain how an agent works and the building blocks of Agent Script',
+    group: 'system-override',
+    stem: [
+      'An event planning agent\'s global instructions say "never suggest alcohol at children\'s parties". One subagent plans a first birthday with adult guests and should suggest champagne. What is the best fix?',
+      'What does adding a `system` block inside a subagent do?'
+    ],
+    options: [
+      { correct: true, text: 'Add a `system` block to that subagent. Its instructions override the agent-level system instructions for that subagent only.', why: 'A system override removes the conflict.' },
+      { correct: false, text: 'Add a conflicting `|` instruction and let the LLM decide', why: 'Conflicts can make the agent hang or behave unpredictably.' },
+      { correct: false, text: 'Delete the global instruction for every subagent', why: 'The rule is still needed elsewhere.' },
+      { correct: false, text: 'Create a second agent', why: 'An override is simpler.' }
+    ],
+    explanation: 'Subagent-level system instructions take priority. Without them, the agent-level instructions apply. Overrides also let one agent take different personas or tones, such as formal for compliance and casual for FAQs.',
+    source: SRC.systemOverrides
+  },
+
+  {
+    id: 'AG-078',
+    section: 'agents',
+    objective: 'Manage deterministic behaviour using filters, variables and template expressions',
+    group: 'chaining',
+    stem: [
+      'Two actions run one after another in a subagent\'s logic instructions. What must the admin do for the second action to use the first one\'s output?',
+      'When actions run in reasoning instructions, how are their inputs and outputs handled?'
+    ],
+    options: [
+      { correct: true, text: 'Set variables by hand: `set` the first output into a variable and pass it with `with` into the second', why: 'Actions in instructions run before reasoning, so nothing is inferred.' },
+      { correct: false, text: 'Nothing. The LLM passes outputs between them.', why: 'No LLM is involved at this stage.' },
+      { correct: false, text: 'Use a `|` instruction asking the LLM to pass the value', why: 'Logic needs explicit variables.' },
+      { correct: false, text: 'Mark the second action `require_user_confirmation`', why: 'Unrelated.' }
+    ],
+    explanation: 'Actions run in instructions are deterministic and run before the prompt goes to the LLM. Store outputs with `set @variables.x = @outputs.y` and pass them on with `with`.',
+    source: SRC.actionChaining
+  },
+
+  {
+    id: 'AG-079',
+    section: 'agents',
+    objective: 'Manage deterministic behaviour using filters, variables and template expressions',
+    group: 'chaining',
+    stem: [
+      'Whenever the LLM calls `get_order`, the agent must also run `check_return_eligibility` straight afterwards. How is this done?',
+      'What does a `run @actions.other_action` line under a tool in `reasoning.actions` do?'
+    ],
+    options: [
+      { correct: true, text: 'Add `run @actions.check_return_eligibility` under the `get_order` tool, so it runs automatically after the LLM calls it', why: 'A chained reasoning action.' },
+      { correct: false, text: 'Ask the LLM in the instructions to remember to call both', why: 'Not guaranteed.' },
+      { correct: false, text: 'Put both actions in one prompt template', why: 'Doesn\'t chain actions.' },
+      { correct: false, text: 'Use `@utils.escalate` between them', why: 'Escalates to a human.' }
+    ],
+    explanation: 'Chaining makes multi-step workflows reliable without the LLM having to remember each step. A tool can also end with `transition to @subagent.x` to move on once it has run.',
+    source: SRC.actionChaining
+  },
+
+  {
+    id: 'AG-080',
+    section: 'agents',
+    objective: 'Explain how an agent works and the building blocks of Agent Script',
+    stem: 'Which two match Salesforce\'s general guidance for building agents with Agent Script?',
+    options: [
+      { correct: true, text: 'Start with the fewest instructions needed, then add more as testing shows, checking for regressions each time', why: 'Simple first, then refine.' },
+      { correct: true, text: 'Use the same term everywhere, for example "customer" in both "Get Customer Info" and "Verify Customer"', why: 'Mixed terms cause inconsistent behaviour.' },
+      { correct: false, text: 'Write as many instructions as possible up front', why: 'Start small.' },
+      { correct: false, text: 'Use technical terms rather than the words customers use', why: 'Plain customer language matches requests better.' },
+      { correct: false, text: 'Avoid referencing actions and variables in instructions', why: 'Referencing them makes the agent more likely to use them.' }
+    ],
+    explanation: 'Also: give subagents, actions and variables specific, distinct names and descriptions, add determinism for business workflows, and reference resources directly (for example `{!@actions.lookup_order}`).',
+    source: SRC.patterns
   },
 
   // ---------------- Prompt Engineering (20%) ----------------
