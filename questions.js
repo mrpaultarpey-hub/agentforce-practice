@@ -98,7 +98,12 @@ const SRC = {
   templateDeploy: help('Deployment Considerations for Prompt Templates', 'ai.prompt_builder_considerations_deployment'),
   templateChangeSets: help('Change Set Considerations for Prompt Templates', 'ai.prompt_builder_considerations_changeset'),
   multiConsider: help('Considerations and Limitations in Multi-Agent Solutions', 'ai.agent_multi_orch_consider'),
-  mcp: help('MCP for Agentforce', 'ai.agent_mcp')
+  mcp: help('MCP for Agentforce', 'ai.agent_mcp'),
+  sessionTracingHelp: help('About Agentforce Session Tracing', 'ai.generative_ai_session_trace_about'),
+  instructionAdherence: help('Instruction Adherence', 'ai.agent_guardrails_instruction_adherence'),
+  taskResolution: help('Task Resolution', 'ai.agent_guardrails_task_resolution'),
+  activateAgent: help('Activate or Deactivate Your Agent', 'ai.copilot_setup_activate_deactivate'),
+  auditFeedback: help('About Generative AI Audit and Feedback Data', 'ai.generative_ai_feedback_about')
 };
 
 window.QUESTIONS = [
@@ -330,7 +335,7 @@ window.QUESTIONS = [
       { correct: true, text: 'A custom agent action that calls a flow or invocable Apex using a named credential.', why: 'Custom actions wrap flows, Apex or prompt templates.' },
       { correct: false, text: 'A new standard action in Setup', why: 'Standard actions come from Salesforce. You can\'t create new ones.' },
       { correct: false, text: 'A prompt template that asks the LLM for the delivery status', why: 'The LLM has no access to the external system and would guess.' },
-      { correct: false, text: 'An Agentforce Data Library loaded with yesterday\'s order export', why: 'Gives stale data, not a live lookup.' }
+      { correct: false, text: 'An Agentforce Data Library loaded with yesterday\'s order export', why: 'Gives stale data, not a current lookup.' }
     ],
     explanation: 'Standard actions cover common jobs such as querying records or summarising. When nothing standard fits, create a custom action backed by a flow, invocable Apex or a prompt template.\n\nCallouts should use a named credential so the endpoint and authentication sit in Setup, not in code.',
     source: SRC.actionSecurity
@@ -1699,7 +1704,7 @@ window.QUESTIONS = [
     options: [
       { correct: true, text: 'Work Summary', why: 'Built for the end-of-conversation wrap-up.' },
       { correct: false, text: 'Record Summary', why: 'Summarises a record for agents and invocable actions.' },
-      { correct: false, text: 'Grounded Service Replies', why: 'Suggests replies during live chat and messaging.' },
+      { correct: false, text: 'Grounded Service Replies', why: 'Suggests replies during Live Chat and Messaging Sessions.' },
       { correct: false, text: 'Field Generation', why: 'Fills a field when a user clicks a button.' }
     ],
     explanation: 'Work Summary templates draft wrap-up notes for voice calls and messaging sessions. Service Replies templates (contextual and grounded) suggest replies during the conversation.',
@@ -2534,7 +2539,7 @@ window.QUESTIONS = [
     objective: 'Considerations of Agentforce Data Library',
     stem: 'Which tools does Salesforce suggest for testing and monitoring knowledge retrieval quality?',
     options: [
-      { correct: true, text: 'Retriever Playground and Testing Center before going live, then Knowledge/RAG Quality Data and Metrics afterwards', why: 'Test before, monitor after.' },
+      { correct: true, text: 'Retriever Playground and Testing Center before release, then Knowledge/RAG Quality Data and Metrics afterwards', why: 'Test before, monitor after.' },
       { correct: false, text: 'Debug logs only', why: 'Not designed for retrieval quality.' },
       { correct: false, text: 'Field history tracking on Knowledge', why: 'Tracks edits, not retrieval.' },
       { correct: false, text: 'Nothing. Retrieval can\'t be tested.', why: 'There are dedicated tools.' }
@@ -3287,7 +3292,7 @@ window.QUESTIONS = [
       { correct: true, text: 'A tag needs at least 10 similar intents, and clustering runs weekly, so new or rare intents stay untagged for a while.', why: 'Clustering needs volume and runs weekly.' },
       { correct: false, text: 'Tags are added by hand by an admin.', why: 'An LLM pipeline creates them.' },
       { correct: false, text: 'Only escalated sessions get tags.', why: 'Any processed session can.' },
-      { correct: false, text: 'Tags are created live as the customer types.', why: 'Processing happens after sessions close.' }
+      { correct: false, text: 'Tags are created instantly as the customer types.', why: 'Processing happens after sessions close.' }
     ],
     explanation: 'The intent pipeline extracts intents from closed sessions, usually 4 to 5 hours after they close. The clustering pipeline runs weekly and tags groups of at least 10 similar intents. Sessions still processing appear under Unprocessed, but you can use the Trace tab straight away.',
     source: SRC.monitorSessions
@@ -3375,6 +3380,133 @@ window.QUESTIONS = [
     ],
     explanation: 'Measurement categories are effectiveness, usage, quality, health, trust, user satisfaction (employee agents only) and voice. Available metrics depend on the agent type you pick in the dashboard.',
     source: SRC.monitorStart
+  },
+
+  {
+    id: 'GO-024',
+    section: 'governance',
+    objective: 'Explain the process for managing and monitoring agents',
+    group: 'tracing-data',
+    stem: [
+      'A batch of test cases failed and an admin wants to see exactly what the agent did turn by turn. Which feature records this?',
+      'What does Agentforce Session Tracing capture?'
+    ],
+    options: [
+      { correct: true, text: 'Agentforce Session Tracing: turn-by-turn interactions, reasoning steps, actions, prompt and gateway inputs and outputs, errors and final responses, under one session ID', why: 'The full record of a session.' },
+      { correct: false, text: 'Setup Audit Trail', why: 'Tracks configuration changes.' },
+      { correct: false, text: 'Login History', why: 'Tracks logins.' },
+      { correct: false, text: 'Field History Tracking', why: 'Tracks field value changes.' }
+    ],
+    explanation: 'Session tracing works for all agent types. Use it to debug configuration at build time, find out why test cases failed, or see why an agent goes off topic. The data is in Data 360 data model objects, so you can query and report on it.',
+    source: SRC.sessionTracingHelp
+  },
+
+  {
+    id: 'GO-025',
+    section: 'governance',
+    objective: 'Explain agent analytics and agent optimisation',
+    group: 'guardrail-scores',
+    stem: [
+      'Which agent guardrail scores how well a response follows the subagent\'s instructions as High, Low or Uncertain?',
+      'An admin suspects a service agent ignores some of its subagent instructions. Which metric helps?'
+    ],
+    options: [
+      { correct: true, text: 'Instruction adherence', why: 'Scores how well responses follow subagent instructions.' },
+      { correct: false, text: 'Task resolution', why: 'Scores whether the user\'s task was resolved.' },
+      { correct: false, text: 'Toxicity', why: 'Scores harmful content.' },
+      { correct: false, text: 'Abandonment rate', why: 'Counts sessions users gave up on.' }
+    ],
+    explanation: 'Instruction adherence logs a score and an explanation in the Audit and Feedback data model in Data 360, which must be turned on. Scores also show in enhanced agent event logs and on the Agent Analytics Trust tab. It is English only and for service agents only.',
+    source: SRC.instructionAdherence
+  },
+
+  {
+    id: 'GO-026',
+    section: 'governance',
+    objective: 'Explain agent analytics and agent optimisation',
+    group: 'guardrail-scores',
+    stem: [
+      'Which scores does the Task Resolution guardrail give a conversation?',
+      'A conversation is scored "Partially Resolved". What else does Task Resolution record?'
+    ],
+    options: [
+      { correct: true, text: 'Fully Resolved, Partially Resolved or Unresolved, with reasoning recorded for anything not fully resolved', why: 'Non-binary scores with explanations.' },
+      { correct: false, text: 'A number from 1 to 100', why: 'It uses three categories.' },
+      { correct: false, text: 'Pass or Fail only, with no explanation', why: 'It has three levels and reasoning.' },
+      { correct: false, text: 'High, Low or Uncertain', why: 'Those are instruction adherence scores.' }
+    ],
+    explanation: 'Task Resolution judges whether the agent understood and completed the user\'s task over a multi-turn conversation. It works for agents built in the new Agentforce Builder. Results are in the generative AI audit trail in Data 360 (the Einstein Generative AI Content Quality object).',
+    source: SRC.taskResolution
+  },
+
+  {
+    id: 'GO-027',
+    section: 'governance',
+    objective: 'Explain the process for managing and monitoring agents',
+    group: 'activation',
+    stem: [
+      'An admin activates version 3 of an agent while version 2 is active. What happens?',
+      'Which statement about activating agents is true?'
+    ],
+    options: [
+      { correct: true, text: 'Version 2 is automatically deactivated. Only one version of an agent can be active at a time.', why: 'Activation switches versions.' },
+      { correct: false, text: 'Both versions run, alternating between users.', why: 'One active version only.' },
+      { correct: false, text: 'The activation fails until version 2 is deactivated by hand.', why: 'It deactivates automatically.' },
+      { correct: false, text: 'Version 3 waits until the next day.', why: 'It is available straight away.' }
+    ],
+    explanation: 'An org can have up to 100 active agents at once. Activating needs the Manage AI Agents permission plus the permissions for the agent type, and the version must be committed first.',
+    source: SRC.activateAgent
+  },
+
+  {
+    id: 'GO-028',
+    section: 'governance',
+    objective: 'Explain the process for managing and monitoring agents',
+    group: 'activation',
+    stem: 'A service agent connected to Enhanced Chat is deactivated during the day. What do customers experience?',
+    options: [
+      { correct: true, text: 'Ongoing conversations are interrupted without warning, the agent replies with the system error message, and new chats open but the agent doesn\'t join', why: 'Deactivation is immediate.' },
+      { correct: false, text: 'Customers get a polite notice that the agent is offline', why: 'Users aren\'t notified.' },
+      { correct: false, text: 'Conversations finish first, then the agent stops', why: 'They are interrupted.' },
+      { correct: false, text: 'The chat window disappears from the site', why: 'The window still appears.' }
+    ],
+    explanation: 'For the Agentforce panel, an open panel stays until the user closes it and can\'t be reopened until the agent is active again. Plan deactivations, and use versions to test changes without taking the active version out of service.',
+    source: SRC.activateAgent
+  },
+
+  {
+    id: 'GO-029',
+    section: 'governance',
+    objective: 'Explain the process for managing and monitoring agents',
+    group: 'audit-feedback',
+    stem: [
+      'Which data comes from the LLM Gateway as generative AI audit data, rather than from the Feedback API?',
+      'What is the difference between generative AI audit data and feedback data?'
+    ],
+    options: [
+      { correct: true, text: 'Audit data: the hydrated prompt, masked prompt, LLM response, unmasked response, safety and toxicity scores. Feedback data: thumbs up or down, and accept, regenerate, modify or decline.', why: 'Two sources, two kinds of data.' },
+      { correct: false, text: 'Audit data is user ratings. Feedback data is prompts.', why: 'The other way round.' },
+      { correct: false, text: 'Both come from Setup Audit Trail.', why: 'They come from the LLM Gateway and the Feedback API.' },
+      { correct: false, text: 'Neither is stored.', why: 'Both are stored in Data 360.' }
+    ],
+    explanation: 'Audit data includes user data. Feedback data doesn\'t. Both are stored in the default data space in Data 360 once Einstein Generative AI and Feedback Data Collection and Storage is turned on.',
+    source: SRC.auditFeedback
+  },
+
+  {
+    id: 'GO-030',
+    section: 'governance',
+    objective: 'Explain the process for managing and monitoring agents',
+    group: 'audit-feedback',
+    stem: 'How often does Data 360 refresh the generative AI audit and feedback data streams, and how is the data deleted?',
+    options: [
+      { correct: true, text: 'Once an hour. Delete it by removing the data lake objects from the data space.', why: 'Stated in Help.' },
+      { correct: false, text: 'Instantly, with each prompt. It can\'t be deleted.', why: 'Hourly, and it can be deleted.' },
+      { correct: false, text: 'Once a week. Salesforce Support deletes it.', why: 'Hourly, and you delete it yourself.' },
+      { correct: false, text: 'Once a day. It deletes itself after 24 hours.', why: 'Hourly, and it is kept until you remove it.' }
+    ],
+    explanation: 'The data streams into data lake objects in Data 360. You can report on it with Data 360 reporting. Turn the feature on before you need the data.',
+    source: SRC.auditFeedback
   },
 
   // ---------------- Multi-Agent Orchestration (5%) ----------------
@@ -3489,11 +3621,11 @@ window.QUESTIONS = [
     section: 'multi',
     objective: 'Decide whether a multi-agent architecture is appropriate',
     group: 'super-agent-role',
-    stem: 'In a Super Agent design, where should GDPR opt-out handling, identity verification and the decision to escalate to a human live?',
+    stem: 'In a Super Agent design, where should GDPR opt-out handling, identity verification and the decision to escalate to a human belong?',
     options: [
       { correct: true, text: 'In the Super Agent, so they apply the same way to every request', why: 'Shared rules belong at the front door.' },
       { correct: false, text: 'In each connected subagent, so each owns its own copy', why: 'Copies drift apart.' },
-      { correct: false, text: 'In the LLM provider\'s settings', why: 'Not where business rules live.' },
+      { correct: false, text: 'In the LLM provider\'s settings', why: 'Not where business rules belong.' },
       { correct: false, text: 'Only in Testing Center', why: 'Testing checks behaviour. It doesn\'t implement it.' }
     ],
     explanation: 'Keep the Super Agent\'s instructions focused on routing, and give it subagents for shared concerns: guardrails and compliance, verifying identity once and passing context on, asking clarifying questions, and deciding on human handoff.',
