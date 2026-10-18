@@ -144,7 +144,10 @@ const SRC = {
   structuredOutputs: help('Use Structured Outputs to Format Model Responses', 'ai.prompt_builder_use_structured_outputs_responses'),
   agentFromFlow: help('Call an Agent from a Flow or Apex Class', 'ai.agent_custom_invocable_action_flow_apex'),
   groundDmo: help('Ground with Data 360 DMO Merge Fields', 'ai.prompt_builder_ground_dmo'),
-  dataGraphs: help('Grounding with Data Graphs', 'ai.prompt_builder_ground_data_graphs')
+  dataGraphs: help('Grounding with Data Graphs', 'ai.prompt_builder_ground_data_graphs'),
+  salesforceModels: help('Salesforce-Owned Models', 'ai.generative_ai_llm_salesforce_owned'),
+  modelDeprecation: help('Prepare for Model Deprecation and Rerouting', 'ai.generative_ai_model_deprecation_rerouting'),
+  dataConsent: help('Manage Salesforce Access to Customer Data', 'ai.generative_ai_consent_optout')
 };
 
 window.QUESTIONS = [
@@ -1951,6 +1954,22 @@ window.QUESTIONS = [
     source: SRC.agentFromFlow
   },
 
+  {
+    id: 'AG-102',
+    section: 'agents',
+    objective: 'Select and configure standard topics, custom topics, standard actions and custom actions',
+    group: 'query-records',
+    stem: 'A rep asks the Query Records action to "show my open deals". How does it handle "deals"?',
+    options: [
+      { correct: true, text: 'It recognises "deal" as a synonym for Opportunity. Synonyms work for common standard objects and fields but can\'t be customised.', why: 'Built-in synonyms.' },
+      { correct: false, text: 'It fails, because no object is called Deal', why: 'Synonyms cover this.' },
+      { correct: false, text: 'It uses synonyms an admin set up in Setup', why: 'Synonym customisation isn\'t supported.' },
+      { correct: false, text: 'It searches every object for the word "deal"', why: 'It maps the word to Opportunity.' }
+    ],
+    explanation: 'Synonyms for custom objects and fields aren\'t always interpreted accurately. Only a limited set of default fields is supported for Account, Contact, Case, Opportunity and Lead. Other fields need to be on the default searchable layout and record page layout.',
+    source: SRC.queryRecords
+  },
+
   // ---------------- Prompt Engineering (20%) ----------------
 
   {
@@ -2922,6 +2941,79 @@ window.QUESTIONS = [
     ],
     explanation: 'JSON responses are best viewed in the raw view. HTML format uses the lightning-formatted-rich-text component, which supports a subset of tags and is meant for use within Salesforce. Default format renders Markdown the same way an agent does.',
     source: SRC.structuredOutputs
+  },
+
+  {
+    id: 'PR-057',
+    section: 'prompt',
+    objective: 'Explain how to manage and prevent specific models from being accessed',
+    group: 'sf-models',
+    stem: [
+      'Which Salesforce-owned model is used for subagent (topic) classification in Agentforce?',
+      'Where are Salesforce-owned models such as HyperClassifier and TextEval hosted?'
+    ],
+    options: [
+      { correct: true, text: 'HyperClassifier, hosted on AWS inside the Salesforce trust boundary', why: 'Built by Salesforce AI Research.' },
+      { correct: false, text: 'CodeGen, hosted by a third party', why: 'CodeGen generates code, for example in Agentforce Vibes.' },
+      { correct: false, text: 'TextEval, hosted on the customer\'s own servers', why: 'TextEval is used for citations and Testing Center.' },
+      { correct: false, text: 'Any model the admin uploads through BYO-LLM', why: 'Not a Salesforce-owned model.' }
+    ],
+    explanation: 'Salesforce-owned models: CodeGen (code generation), HyperClassifier (classification) and TextEval (citations and Testing Center). HyperClassifier and TextEval are built on OpenAI\'s open-source GPT OSS models.',
+    source: SRC.salesforceModels
+  },
+
+  {
+    id: 'PR-058',
+    section: 'prompt',
+    objective: 'Explain how to manage and prevent specific models from being accessed',
+    group: 'deprecation',
+    stem: [
+      'What is the difference between model deprecation and model rerouting?',
+      'A provider retires a model used by a prompt template. What does Salesforce do?'
+    ],
+    options: [
+      { correct: true, text: 'A deprecated model still works but is no longer recommended. Rerouting sends requests to an available alternative, often the latest model in the same family.', why: 'Both are temporary states.' },
+      { correct: false, text: 'Deprecated models stop working immediately', why: 'They still work during deprecation.' },
+      { correct: false, text: 'Rerouting deletes the prompt template', why: 'Rerouting keeps service running.' },
+      { correct: false, text: 'They mean the same thing', why: 'They are different.' }
+    ],
+    explanation: 'Notices appear in the Einstein Platform release notes and on the Large Language Model Support page. For example, requests for a retired model can be routed to the latest version of that model family.',
+    source: SRC.modelDeprecation
+  },
+
+  {
+    id: 'PR-059',
+    section: 'prompt',
+    objective: 'Explain how to manage and prevent specific models from being accessed',
+    group: 'deprecation',
+    stem: 'A model used by your templates and agent has been rerouted. What does Salesforce recommend?',
+    options: [
+      { correct: true, text: 'Create a new configured model in AI Models with the same hyperparameters, retest templates and agents, then test end to end against your saved results', why: 'The documented approach.' },
+      { correct: false, text: 'Select the deprecated model again in Model Playground', why: 'Deprecated and rerouted models can\'t be selected.' },
+      { correct: false, text: 'Do nothing. Rerouting is permanent.', why: 'Rerouting is temporary. Move to a new model.' },
+      { correct: false, text: 'Turn off the Trust Layer', why: 'Unrelated.' }
+    ],
+    explanation: 'Define success up front and keep test results from the first implementation, so you can compare responses after a model change.',
+    source: SRC.modelDeprecation
+  },
+
+  {
+    id: 'PR-060',
+    section: 'prompt',
+    objective: 'Identify the security and privacy features of the Trust Layer',
+    group: 'data-consent',
+    stem: [
+      'An org opts out of letting Salesforce access its Customer Data. Does this change zero data retention with third-party LLMs?',
+      'Which statement about the "Opt Out of Customer Data Access" setting is true?'
+    ],
+    options: [
+      { correct: true, text: 'No. It controls Salesforce\'s use of Customer Data for training global predictive models and improving services. Zero data retention with LLM providers is unaffected.', why: 'Separate controls.' },
+      { correct: false, text: 'Opting out turns off zero data retention', why: 'ZDR isn\'t affected.' },
+      { correct: false, text: 'Opting out disables all Agentforce features', why: 'Features keep working.' },
+      { correct: false, text: 'Opting out deletes all data at once', why: 'Collected data is kept up to 30 days, then deleted.' }
+    ],
+    explanation: 'Opting out stops new sharing, removes access to pilots and early features, and can make search less tailored. Government Cloud orgs have been opted out by default since February 2026.',
+    source: SRC.dataConsent
   },
 
   // ---------------- Data 360 Fundamentals (20%) ----------------
@@ -4230,6 +4322,59 @@ window.QUESTIONS = [
     ],
     explanation: 'Health Monitoring is available in sandboxes too. Turning data collection on or off needs View Setup and Customize Application.',
     source: SRC.healthSetup
+  },
+
+  {
+    id: 'GO-038',
+    section: 'governance',
+    objective: 'Explain agent analytics and agent optimisation',
+    group: 'usage-metrics',
+    stem: [
+      'In Agent Analytics, what is the difference between a session and an interaction?',
+      'On the Usage tab, what does Unique Interactions count?'
+    ],
+    options: [
+      { correct: true, text: 'A session is the whole exchange between a user and an agent. An interaction is one user request plus the agent\'s response.', why: 'Sessions contain interactions.' },
+      { correct: false, text: 'They mean the same thing', why: 'One contains the other.' },
+      { correct: false, text: 'An interaction is the whole conversation', why: 'That is a session.' },
+      { correct: false, text: 'A session is one message', why: 'That is closer to an interaction.' }
+    ],
+    explanation: 'The Usage tab shows unique sessions, unique interactions, unique users and average interactions per session.',
+    source: SRC.monitorMetrics
+  },
+
+  {
+    id: 'GO-039',
+    section: 'governance',
+    objective: 'Explain agent analytics and agent optimisation',
+    group: 'usage-metrics',
+    stem: 'Which three metrics appear on the Health tab of Agent Analytics?',
+    options: [
+      { correct: true, text: 'Error rate', why: 'Share of interactions with an error.' },
+      { correct: true, text: 'Session duration', why: 'In seconds.' },
+      { correct: true, text: 'Agent interaction duration', why: 'Time to respond to a request.' },
+      { correct: false, text: 'Deflection rate', why: 'An effectiveness metric.' },
+      { correct: false, text: 'Answer faithfulness', why: 'A quality score.' },
+      { correct: false, text: 'Average toxicity', why: 'A trust metric.' }
+    ],
+    explanation: 'Tabs in Agent Analytics: Overview, Effectiveness, Usage, Quality, Health, Trust, Voice and Performance Insights. Employee agents also show user satisfaction.',
+    source: SRC.monitorMetrics
+  },
+
+  {
+    id: 'GO-040',
+    section: 'governance',
+    objective: 'Explain the process for managing and monitoring agents',
+    group: 'activation',
+    stem: 'How many agents can be active at the same time in one org?',
+    options: [
+      { correct: true, text: 'Up to 100', why: 'The stated limit.' },
+      { correct: false, text: 'Only 1', why: 'One version per agent, but many agents.' },
+      { correct: false, text: 'Up to 10', why: 'The limit is 100.' },
+      { correct: false, text: 'Unlimited', why: 'The limit is 100.' }
+    ],
+    explanation: 'Each agent can have only one active version. Activating a new version deactivates the old one automatically.',
+    source: SRC.activateAgent
   },
 
   {
