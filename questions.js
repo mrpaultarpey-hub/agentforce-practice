@@ -44,7 +44,14 @@ const SRC = {
   ascriptBlocks: { title: 'Agentforce Developer Guide: Agent Script Blocks', url: 'https://developer.salesforce.com/docs/ai/agentforce/guide/ascript-blocks.html' },
   agentApiStart: { title: 'Agentforce Developer Guide: Get Started with the Agent API', url: 'https://developer.salesforce.com/docs/ai/agentforce/guide/agent-api-get-started.html' },
   agentApiConsiderations: { title: 'Agentforce Developer Guide: Agent API Considerations', url: 'https://developer.salesforce.com/docs/ai/agentforce/guide/agent-api-considerations.html' },
-  legacyGuide: { title: 'Salesforce: Agentforce Guide to Reasoning, Subagents, Instructions and Actions', url: 'https://www.salesforce.com/agentforce/legacy-guide/' }
+  legacyGuide: { title: 'Salesforce: Agentforce Guide to Reasoning, Subagents, Instructions and Actions', url: 'https://www.salesforce.com/agentforce/legacy-guide/' },
+  groundTemplates: { title: 'Trailhead: Create and Ground Prompt Templates', url: 'https://trailhead.salesforce.com/content/learn/modules/prompt-builder-basics/create-and-ground-prompt-templates' },
+  fieldGeneration: { title: 'Trailhead: Build a Field Generation Prompt Template', url: 'https://trailhead.salesforce.com/content/learn/modules/prompt-builder-basics/build-a-field-generation-prompt-template' },
+  trustJourney: { title: 'Trailhead: The Einstein Trust Layer, Follow the Prompt Journey', url: 'https://trailhead.salesforce.com/content/learn/modules/the-einstein-trust-layer/follow-the-prompt-journey' },
+  relatedLists: { title: 'Salesforce Ben: Linking Prompt Templates to Salesforce Data', url: 'https://www.salesforceben.com/understanding-ai-grounding-linking-prompt-templates-to-salesforce-data/' },
+  gptSettings: { title: 'Metadata API Developer Guide: EinsteinGptSettings', url: 'https://developer.salesforce.com/docs/atlas.en-us.api_meta.meta/api_meta/meta_einsteingptsettings.htm' },
+  searchIndexTypes: { title: 'Trailhead: Get to Know Search Index Types in Data Cloud', url: 'https://trailhead.salesforce.com/content/learn/modules/search-index-types-data-cloud-quick-look/get-to-know-search-index-types-in-data-cloud' },
+  retrieverTypes: { title: 'Trailblazer Community: quoting Trailhead, Create a Search Index, Retriever and Prompt Template', url: 'https://trailhead.salesforce.com/trailblazer-community/feed/0D5KX00000jARc10AG' }
 };
 
 window.QUESTIONS = [
@@ -925,6 +932,265 @@ window.QUESTIONS = [
     source: SRC.promptBuilder
   },
 
+  {
+    id: 'PR-009',
+    section: 'prompt',
+    objective: 'Identify the appropriate grounding technique',
+    group: 'apex-grounding',
+    stem: [
+      'A developer writes an Apex class to supply data to a prompt template. Which two requirements must the method meet?',
+      'Which two things must be true of an Apex method used as a prompt template resource?'
+    ],
+    options: [
+      { correct: true, text: 'It is annotated with `@InvocableMethod` and a `CapabilityType` matching the template type.', why: 'This is how Prompt Builder finds the method for that template.' },
+      { correct: true, text: 'It accepts a `List<Request>` whose inputs match the template\'s inputs.', why: 'The inputs must line up with the template.' },
+      { correct: false, text: 'It is declared `@future` so it runs asynchronously.', why: 'The template needs the result straight away.' },
+      { correct: false, text: 'It is annotated with `@AuraEnabled`.', why: 'That is for Lightning components.' },
+      { correct: false, text: 'It returns raw HTML for the LLM.', why: 'It returns text or data for the prompt.' }
+    ],
+    explanation: 'Apex suits grounding that needs SOQL, external API data, well-formatted JSON or programmatic filtering. Once the class exists, it appears in the template\'s Resources picker and is referenced as `{!$Apex:ClassName.Prompt}`.',
+    source: SRC.groundTemplates
+  },
+
+  {
+    id: 'PR-010',
+    section: 'prompt',
+    objective: 'Identify the appropriate grounding technique',
+    group: 'apex-grounding',
+    stem: 'How is the output of an Apex class `ContactEvents` referenced in a prompt template?',
+    options: [
+      { correct: true, text: '`{!$Apex:ContactEvents.Prompt}`', why: 'Apex resources use the `$Apex` prefix.' },
+      { correct: false, text: '`{!@actions.ContactEvents}`', why: 'That is Agent Script syntax for actions.' },
+      { correct: false, text: '`{!ContactEvents.Prompt}`', why: 'Missing the `$Apex:` prefix.' },
+      { correct: false, text: '`$Apex.ContactEvents()`', why: 'Not merge field syntax.' }
+    ],
+    explanation: 'Prompt templates use merge fields such as `{!$Input:Recipient.Name}` for record data and `{!$Apex:ClassName.Prompt}` for Apex. Adding resources through the Resources picker inserts the right syntax for you.',
+    source: SRC.groundTemplates
+  },
+
+  {
+    id: 'PR-011',
+    section: 'prompt',
+    objective: 'Identify the appropriate grounding technique',
+    stem: [
+      'An admin wants to ground a template with a flow that loops through case comments and passes their text to the prompt. Which flow type is needed?',
+      'Which flow type, using the Add Prompt Instructions element, supplies grounding data to a prompt template?'
+    ],
+    options: [
+      { correct: true, text: 'A Template-Triggered Prompt Flow', why: 'Built to supply data to a prompt template.' },
+      { correct: false, text: 'A Record-Triggered Flow', why: 'Runs on record changes, not as a template resource.' },
+      { correct: false, text: 'A Screen Flow', why: 'For user-facing screens.' },
+      { correct: false, text: 'A Platform Event-Triggered Flow', why: 'Runs on events.' }
+    ],
+    explanation: 'A Template-Triggered Prompt Flow gets data, for example looping through case comments, and adds text with the Add Prompt Instructions element. It then appears under Flows in the template\'s resource picker.',
+    source: SRC.fieldGeneration
+  },
+
+  {
+    id: 'PR-012',
+    section: 'prompt',
+    objective: 'Identify the appropriate grounding technique',
+    stem: 'A template is grounded with a related list merge field. Which statement is true?',
+    options: [
+      { correct: true, text: 'The fields come from the related list on the parent\'s page layout, limited to what the user can see.', why: 'Related list grounding follows the layout and user access.' },
+      { correct: false, text: 'You can add any filter, such as "priority is High".', why: 'Use a flow or Apex for custom filters.' },
+      { correct: false, text: 'It always includes every field on the related object.', why: 'Only the fields on the layout\'s related list.' },
+      { correct: false, text: 'It ignores the user\'s field-level security.', why: 'Grounding respects the user\'s access.' }
+    ],
+    explanation: 'Related list data is passed to the prompt as JSON. Very long related lists make the prompt harder for the model and cost more tokens. Use a flow or Apex when you need filtering or formatting.',
+    source: SRC.relatedLists
+  },
+
+  {
+    id: 'PR-013',
+    section: 'prompt',
+    objective: 'Considerations for prompt template types such as field generation and flex',
+    group: 'field-gen',
+    stem: [
+      'An admin created and saved a Field Generation template, but it isn\'t offered in Lightning App Builder. What is the most likely cause?',
+      'What must happen before a Field Generation template can be assigned to a field in Lightning App Builder?'
+    ],
+    options: [
+      { correct: true, text: 'The template must be activated, and the page must use Dynamic Forms (a Field Section, or a Record Detail migrated to Dynamic Forms).', why: 'Both are needed for the field\'s AI option.' },
+      { correct: false, text: 'The template must be converted to a Flex template.', why: 'Field Generation is the right type.' },
+      { correct: false, text: 'The field must be read-only.', why: 'Field Generation needs a writable field.' },
+      { correct: false, text: 'The user needs Prompt Template Manager.', why: 'Users running templates need Prompt Template User.' }
+    ],
+    explanation: 'Save and Activate the template so it shows in Lightning App Builder. Then put the field in a Field Section, or migrate the Record Detail component to Dynamic Forms, and assign the template to the field.',
+    source: SRC.fieldGeneration
+  },
+
+  {
+    id: 'PR-014',
+    section: 'prompt',
+    objective: 'Considerations for prompt template types such as field generation and flex',
+    group: 'field-gen',
+    stem: 'Which field types can a Field Generation template fill?',
+    options: [
+      { correct: true, text: 'Writable text, text area, long text area and rich text area fields', why: 'Text-based, writable fields.' },
+      { correct: false, text: 'Any field, including formula fields', why: 'Read-only fields such as formulas aren\'t supported.' },
+      { correct: false, text: 'Number and currency fields only', why: 'Field Generation fills text fields.' },
+      { correct: false, text: 'Picklist fields only', why: 'Field Generation fills text fields.' }
+    ],
+    explanation: 'Field Generation supports writable text, text area, text area (long) and text area (rich) fields. Read-only fields aren\'t supported.',
+    source: SRC.fieldGeneration
+  },
+
+  {
+    id: 'PR-015',
+    section: 'prompt',
+    objective: 'Considerations for prompt template types such as field generation and flex',
+    group: 'template-type',
+    stem: 'How many inputs can a Flex prompt template define?',
+    options: [
+      { correct: true, text: 'Up to five', why: 'Flex templates take up to five inputs.' },
+      { correct: false, text: 'Exactly one record', why: 'That describes record-based template types.' },
+      { correct: false, text: 'Up to twenty', why: 'The limit is five.' },
+      { correct: false, text: 'None: Flex templates use only free text', why: 'Inputs can be records or text.' }
+    ],
+    explanation: 'Flex templates have no predefined inputs. You define up to five, such as Account, Asset and Contact, and reference them with merge fields.',
+    source: SRC.fieldGeneration
+  },
+
+  {
+    id: 'PR-016',
+    section: 'prompt',
+    objective: 'Identify the security and privacy features of the Trust Layer',
+    group: 'masking',
+    stem: [
+      'Which statement about Trust Layer data masking is true?',
+      'A compliance team assumes data masking protects every Agentforce feature. What should the Agentforce Specialist tell them?'
+    ],
+    options: [
+      { correct: true, text: 'Data masking for LLMs is currently disabled for agents. It applies to embedded features such as Service Replies and Work Summaries once an admin turns it on.', why: 'Stated in the Trust Layer Trailhead module.' },
+      { correct: false, text: 'Masking is always on for every feature and can\'t be turned off.', why: 'An admin turns it on, and it doesn\'t cover agents.' },
+      { correct: false, text: 'Masking permanently deletes sensitive values from records.', why: 'It replaces values in the prompt with placeholders. Records aren\'t changed.' },
+      { correct: false, text: 'Masking only works on fields marked encrypted with Shield.', why: 'It uses pattern matching and machine learning.' }
+    ],
+    explanation: 'Masking swaps sensitive values for placeholders before the prompt reaches the LLM. The LLM keeps the context without seeing the data, and values are put back (demasked) in the response.\n\nThe Trailhead module says masking is currently disabled for agents, so check this before relying on it for an agent.',
+    source: SRC.trustJourney
+  },
+
+  {
+    id: 'PR-017',
+    section: 'prompt',
+    objective: 'Identify the security and privacy features of the Trust Layer',
+    group: 'trust-journey',
+    stem: [
+      'What does prompt defense in the Einstein Trust Layer do?',
+      'Which Trust Layer feature adds guardrail instructions to help protect against prompt injection?'
+    ],
+    options: [
+      { correct: true, text: 'Adds system guardrail instructions telling the LLM how to behave, such as not answering without a basis in data', why: 'Reduces harmful output and prompt injection.' },
+      { correct: false, text: 'Blocks users from writing prompt templates', why: 'Permissions do that.' },
+      { correct: false, text: 'Encrypts the prompt in transit', why: 'Not what prompt defense means.' },
+      { correct: false, text: 'Scores responses for toxicity', why: 'That is toxicity detection, after the response.' }
+    ],
+    explanation: 'Prompt defense adds guardrails to the prompt to reduce unintended or harmful output and help protect against prompt injection. It covers Prompt Builder, the Prompt Template Connect API and the Prompt Template invocable action.',
+    source: SRC.trustJourney
+  },
+
+  {
+    id: 'PR-018',
+    section: 'prompt',
+    objective: 'Identify the security and privacy features of the Trust Layer',
+    group: 'trust-journey',
+    stem: 'A user without access to the Salary field runs a prompt template that merges in that field. What happens?',
+    options: [
+      { correct: true, text: 'Secure data retrieval respects the user\'s permissions, so the field isn\'t included.', why: 'Grounding uses the running user\'s object and field access.' },
+      { correct: false, text: 'The field is included but masked.', why: 'Data the user can\'t see isn\'t retrieved at all.' },
+      { correct: false, text: 'The template runs in system mode and includes it.', why: 'Grounding respects existing permissions.' },
+      { correct: false, text: 'The template fails and can\'t be activated.', why: 'It runs, without the inaccessible data.' }
+    ],
+    explanation: 'Secure data retrieval pulls org data while respecting existing permissions on objects and fields. Data that needs escalated permissions is left out.',
+    source: SRC.trustJourney
+  },
+
+  {
+    id: 'PR-019',
+    section: 'prompt',
+    objective: 'Identify the security and privacy features of the Trust Layer',
+    group: 'trust-journey',
+    stem: 'Put these Trust Layer steps for an outgoing prompt in the right order. Which order is correct?',
+    options: [
+      { correct: true, text: 'Secure data retrieval, dynamic grounding, data masking, prompt defense, then the LLM gateway', why: 'The order in the prompt journey.' },
+      { correct: false, text: 'Data masking, secure data retrieval, prompt defense, dynamic grounding, then the LLM gateway', why: 'Data must be retrieved before it can be masked.' },
+      { correct: false, text: 'LLM gateway, dynamic grounding, data masking, then toxicity scoring', why: 'The gateway comes last on the way out.' },
+      { correct: false, text: 'Toxicity scoring, data masking, dynamic grounding, then prompt defense', why: 'Toxicity scoring checks the response on the way back.' }
+    ],
+    explanation: 'Outgoing: the template is filled with permission-aware data (secure data retrieval and dynamic grounding), sensitive values are masked, prompt defense adds guardrails, and the prompt passes through the secure gateway to the LLM, which retains nothing.\n\nOn the way back the response is scored for toxicity, demasked and logged in the audit trail.',
+    source: SRC.trustJourney
+  },
+
+  {
+    id: 'PR-020',
+    section: 'prompt',
+    objective: 'Explain how to manage and prevent specific models from being accessed',
+    stem: 'A company\'s policy forbids sending prompts to models hosted by one particular AI provider. How can an admin block them?',
+    options: [
+      { correct: true, text: 'Turn off that model provider in the Einstein generative AI settings, which blocks access to its models', why: 'The settings have a switch per provider, such as OpenAI, Azure OpenAI, AWS Bedrock and Vertex AI.' },
+      { correct: false, text: 'Add an instruction to every template saying not to use that provider', why: 'Templates don\'t choose providers through instructions.' },
+      { correct: false, text: 'Remove Prompt Template User from all users', why: 'Blocks every template, not one provider.' },
+      { correct: false, text: 'Turn on data masking', why: 'Masks data. It doesn\'t block a provider.' }
+    ],
+    explanation: 'The Einstein generative AI settings (the EinsteinGptSettings metadata type) include switches that turn off a provider and block access to its models, for example AWS Bedrock, Azure OpenAI, OpenAI and Vertex AI. There is also a switch to stop Azure OpenAI requests falling back to other regions.',
+    source: SRC.gptSettings
+  },
+
+  {
+    id: 'PR-021',
+    section: 'prompt',
+    objective: 'Given business requirements, identify when to use Prompt Builder',
+    group: 'when-prompt-builder',
+    stem: [
+      'Which requirement is best met with Prompt Builder rather than an agent?',
+      'A sales team wants a button that drafts a consistent account summary into a field. Which tool fits best?'
+    ],
+    options: [
+      { correct: true, text: 'Generate the same kind of grounded text in one place, such as a field, an email draft or a flow step', why: 'Prompt Builder makes reusable, grounded single-shot generation.' },
+      { correct: false, text: 'Hold a multi-turn conversation that books appointments', why: 'Conversations with actions need an agent.' },
+      { correct: false, text: 'Route customers across chat and voice and escalate to humans', why: 'That is agent and Omni-Channel work.' },
+      { correct: false, text: 'Decide which of 20 actions to run based on what a customer says', why: 'Choosing actions is agent reasoning.' }
+    ],
+    explanation: 'Prompt Builder creates reusable templates that generate grounded text for a specific job, such as a sales email, field value or record summary. Agents hold conversations, reason about which actions to run and can use prompt templates as actions.',
+    source: SRC.promptBuilder
+  },
+
+  {
+    id: 'PR-022',
+    section: 'prompt',
+    objective: 'Best practices for writing effective prompts',
+    group: 'prompt-practice',
+    stem: [
+      'A sales email template produces long, rambling emails. What is the best change?',
+      'Generated emails vary wildly in length. Which change to the template helps most?'
+    ],
+    options: [
+      { correct: true, text: 'State a clear limit and structure, such as "no more than 70 words, with an invitation to talk".', why: 'Specific instructions give consistent output.' },
+      { correct: false, text: 'Add more merge fields so the LLM has more to say.', why: 'More data tends to make output longer.' },
+      { correct: false, text: 'Ask the LLM to "be creative".', why: 'Makes output less predictable.' },
+      { correct: false, text: 'Switch to a Field Generation template.', why: 'The template type isn\'t the problem.' }
+    ],
+    explanation: 'A specific prompt is a grounded prompt. Name the sender, the recipient and the purpose, and set the length and structure you want. Then preview with real records before activating.',
+    source: SRC.groundTemplates
+  },
+
+  {
+    id: 'PR-023',
+    section: 'prompt',
+    objective: 'Identify the security and privacy features of the Trust Layer',
+    group: 'masking',
+    stem: 'How does Trust Layer data masking find sensitive values such as names and credit card numbers?',
+    options: [
+      { correct: true, text: 'Pattern matching combined with machine learning', why: 'This is how pattern-based masking works.' },
+      { correct: false, text: 'Only fields listed in a custom metadata type', why: 'It also detects values by pattern.' },
+      { correct: false, text: 'The LLM decides which values to hide', why: 'Masking happens before the LLM sees the prompt.' },
+      { correct: false, text: 'Only fields marked "Sensitive" in Data 360', why: 'Not how pattern-based masking works.' }
+    ],
+    explanation: 'Masking replaces detected values with tokenised placeholders, so the LLM keeps the context without seeing the real data. The values are restored in the response.',
+    source: SRC.trustJourney
+  },
+
   // ---------------- Data 360 Fundamentals (20%) ----------------
 
   {
@@ -1019,7 +1285,164 @@ window.QUESTIONS = [
       { correct: false, text: 'A related list merge field', why: 'That is a prompt grounding option, not a search index.' }
     ],
     explanation: 'Vector search matches meaning, so "my parcel is late" can find "delayed delivery". Keyword search matches exact terms. Hybrid search uses both, which suits content with product codes or Ids.',
-    source: SRC.retriever
+    source: SRC.searchIndexTypes
+  },
+
+  {
+    id: 'DA-007',
+    section: 'data',
+    objective: 'Considerations of Agentforce Data Library',
+    group: 'data-library',
+    stem: 'Which two can be used as sources for an Agentforce Data Library?',
+    options: [
+      { correct: true, text: 'Knowledge articles', why: 'A common Data Library source.' },
+      { correct: true, text: 'Uploaded files such as PDFs', why: 'Files can be uploaded to the library.' },
+      { correct: false, text: 'Dashboards', why: 'Not a Data Library source.' },
+      { correct: false, text: 'Apex debug logs', why: 'Not a Data Library source.' },
+      { correct: false, text: 'Permission sets', why: 'Not content to ground on.' }
+    ],
+    explanation: 'Agentforce Data Library grounds AI in your own content: knowledge articles, uploaded files, websites, conversation transcripts and more. Unstructured data like this makes up most enterprise data.',
+    source: SRC.dataLibrary
+  },
+
+  {
+    id: 'DA-008',
+    section: 'data',
+    objective: 'Considerations of Agentforce Data Library',
+    group: 'data-library',
+    stem: [
+      'What does Agentforce Data Library set up for you when you add a source?',
+      'An admin creates an Agentforce Data Library. Which Data 360 pieces does it create without the admin building them by hand?'
+    ],
+    options: [
+      { correct: true, text: 'A data stream, the data model objects and mapping, the chunking, a search index and a retriever', why: 'The library automates the whole chain.' },
+      { correct: false, text: 'Only a search index. The retriever is built by hand.', why: 'The retriever is created once the index is ready.' },
+      { correct: false, text: 'A new agent with a knowledge subagent', why: 'The library grounds agents. It doesn\'t create one.' },
+      { correct: false, text: 'A copy of the files at the LLM provider', why: 'Content stays in Data 360. Only retrieved chunks go into prompts.' }
+    ],
+    explanation: 'Setup pushes the data into Data 360, maps it to data model objects, chunks it, builds the search index and then creates a retriever. Chunking time depends on how many sources there are, their size and the fields selected.',
+    source: SRC.dataLibrary
+  },
+
+  {
+    id: 'DA-009',
+    section: 'data',
+    objective: 'Considerations of Agentforce Data Library',
+    group: 'data-library',
+    stem: 'Two Agentforce Data Libraries use the same knowledge content. Which statement is true?',
+    options: [
+      { correct: true, text: 'Each library has its own retriever, and both retrievers can point at the same search index.', why: 'Retrievers are per library. Indexes can be shared.' },
+      { correct: false, text: 'The second library overwrites the first library\'s retriever.', why: 'Each library keeps its own retriever.' },
+      { correct: false, text: 'Two libraries can\'t use the same content.', why: 'They can.' },
+      { correct: false, text: 'The libraries share one retriever, so filters on it apply to both.', why: 'Each library has its own retriever.' }
+    ],
+    explanation: 'Retrievers act as pointers between data and AI features. They decide which Data 360 data a prompt or agent can reach. Each library has its own retriever, which can share a search index with another.',
+    source: SRC.dataLibrary
+  },
+
+  {
+    id: 'DA-010',
+    section: 'data',
+    objective: 'Foundational Data 360 concepts: chunking, indexing and retrievers',
+    group: 'retriever-types',
+    stem: [
+      'A prompt template must be grounded in knowledge articles and in product manuals, held in two different search indexes. Which retriever type fits?',
+      'When should an ensemble retriever be used instead of an individual retriever?'
+    ],
+    options: [
+      { correct: true, text: 'An ensemble retriever, because it grounds on several data sources', why: 'An individual retriever reads one search index only.' },
+      { correct: false, text: 'An individual retriever pointed at both indexes', why: 'An individual retriever can fetch from only one search index.' },
+      { correct: false, text: 'One search index covering both DMOs', why: 'A search index indexes only one DMO.' },
+      { correct: false, text: 'A related list merge field', why: 'Not a retriever. It grounds on related records.' }
+    ],
+    explanation: 'A search index covers one data model object. An individual retriever reads from one search index. To ground on several sources, use an ensemble retriever. Retrievers are created in AI Models (Einstein Studio).',
+    source: SRC.retrieverTypes
+  },
+
+  {
+    id: 'DA-011',
+    section: 'data',
+    objective: 'Foundational Data 360 concepts: chunking, indexing and retrievers',
+    group: 'index-types',
+    stem: [
+      'What does an enriched search index add to a vector or hybrid index?',
+      'A team wants better retrieval accuracy without curating content by hand and accepts extra cost. Which option fits?'
+    ],
+    options: [
+      { correct: true, text: 'LLM-generated metadata and question chunks alongside the original text, using Flex Credits', why: 'Enriched indexes add metadata and question chunks.' },
+      { correct: false, text: 'A keyword index, turning a vector index into a hybrid one', why: 'That is hybrid search, not enrichment.' },
+      { correct: false, text: 'Automatic translation of every chunk', why: 'Not what enrichment does.' },
+      { correct: false, text: 'Zero data retention for the indexed content', why: 'Zero data retention is a Trust Layer agreement with LLM providers.' }
+    ],
+    explanation: 'An enriched index generates three chunk types: plain (the original text), metadata (keywords, entities, overviews, summaries) and question (questions the content answers). Generating these with an LLM consumes Flex Credits.\n\nUse it when the accuracy gain is worth the cost.',
+    source: SRC.searchIndexTypes
+  },
+
+  {
+    id: 'DA-012',
+    section: 'data',
+    objective: 'Foundational Data 360 concepts: chunking, indexing and retrievers',
+    group: 'index-types',
+    stem: 'How does a hybrid search index produce its results?',
+    options: [
+      { correct: true, text: 'It runs vector and keyword search, then a fusion ranker merges and ranks the results.', why: 'Two searches, one ranked list.' },
+      { correct: false, text: 'It runs keyword search first and only uses vector search if nothing is found.', why: 'Both run together.' },
+      { correct: false, text: 'It asks the LLM to rank every document in the index.', why: 'The fusion ranker does the ranking.' },
+      { correct: false, text: 'It searches structured fields only.', why: 'It works on chunked text content.' }
+    ],
+    explanation: 'Hybrid search merges vector results (meaning) and keyword results (exact terms) with a fusion ranker. Results carry hybrid, keyword and vector scores. It suits queries that mix general questions with specific terms.',
+    source: SRC.searchIndexTypes
+  },
+
+  {
+    id: 'DA-013',
+    section: 'data',
+    objective: 'Foundational Data 360 concepts: chunking, indexing and retrievers',
+    group: 'rag-pieces',
+    stem: [
+      'Why is content chunked before it is indexed for grounding?',
+      'What is the main reason Data 360 splits long documents into chunks?'
+    ],
+    options: [
+      { correct: true, text: 'So retrieval returns the specific passages that answer a question, within the LLM\'s token limit', why: 'Whole documents are too long and too broad.' },
+      { correct: false, text: 'So documents take less storage in Data 360', why: 'Chunking is about retrieval, not storage.' },
+      { correct: false, text: 'So the Trust Layer can mask each chunk', why: 'Masking isn\'t why content is chunked.' },
+      { correct: false, text: 'So each chunk can be shared with a different user', why: 'Unrelated to sharing.' }
+    ],
+    explanation: 'LLMs have a maximum token limit, and searching long, complex documents is slow. Chunks such as paragraphs or sections still make sense on their own, so the retriever can return just the relevant passages.',
+    source: SRC.dataLibrary
+  },
+
+  {
+    id: 'DA-014',
+    section: 'data',
+    objective: 'Foundational Data 360 concepts: chunking, indexing and retrievers',
+    group: 'rag-pieces',
+    stem: 'A customer asks a question that a Data Library can answer. What happens first?',
+    options: [
+      { correct: true, text: 'The question is added to a prompt template that references the retriever.', why: 'The retriever then searches the index.' },
+      { correct: false, text: 'The LLM answers, then the retriever checks the answer.', why: 'Retrieval comes before generation.' },
+      { correct: false, text: 'The whole library is sent to the LLM.', why: 'Only relevant chunks go into the prompt.' },
+      { correct: false, text: 'The content is re-chunked for this question.', why: 'Chunking happens when the index is built.' }
+    ],
+    explanation: 'Order at run time: the query goes into a prompt template that references the retriever. The retriever searches the index and adds relevant chunks. The LLM generates a response from the enriched prompt. The response is checked against the instructions and returned.\n\nThat is retrieval-augmented generation (RAG).',
+    source: SRC.dataLibrary
+  },
+
+  {
+    id: 'DA-015',
+    section: 'data',
+    objective: 'Foundational Data 360 concepts: chunking, indexing and retrievers',
+    group: 'index-types',
+    stem: 'Users mostly ask long, natural-language questions looking for general information, with few product codes. Which index type does Salesforce suggest?',
+    options: [
+      { correct: true, text: 'Vector search', why: 'Best for long-form, general-information queries.' },
+      { correct: false, text: 'Keyword search only', why: 'Misses differently worded matches.' },
+      { correct: false, text: 'An enriched index, always', why: 'Only when the accuracy gain justifies the cost.' },
+      { correct: false, text: 'No index: send the documents to the LLM', why: 'Too large, and not grounded retrieval.' }
+    ],
+    explanation: 'Vector search suits general-information queries of more than about five words. Hybrid search adds keyword matching for domain terms and exact codes. Enriched search adds LLM-generated chunks at extra cost.',
+    source: SRC.searchIndexTypes
   },
 
   // ---------------- Testing, Deployment and Maintenance (10%) ----------------
