@@ -110,7 +110,10 @@ const SRC = {
   patterns: { title: 'Agentforce Developer Guide: Agent Script Common Patterns', url: 'https://developer.salesforce.com/docs/ai/agentforce/guide/ascript-patterns.html' },
   requiredFlow: { title: 'Agentforce Developer Guide: Enforce Required Workflows for a Subagent', url: 'https://developer.salesforce.com/docs/ai/agentforce/guide/ascript-patterns-required-flow.html' },
   systemOverrides: { title: 'Agentforce Developer Guide: Avoid Conflicting Instructions with Instruction Overrides', url: 'https://developer.salesforce.com/docs/ai/agentforce/guide/ascript-patterns-system-overrides.html' },
-  actionChaining: { title: 'Agentforce Developer Guide: Action Chaining and Sequencing', url: 'https://developer.salesforce.com/docs/ai/agentforce/guide/ascript-patterns-action-chaining.html' }
+  actionChaining: { title: 'Agentforce Developer Guide: Action Chaining and Sequencing', url: 'https://developer.salesforce.com/docs/ai/agentforce/guide/ascript-patterns-action-chaining.html' },
+  queryRecords: help('Agentforce Platform | Query Records', 'ai.copilot_actions_ref_query_records'),
+  answerKnowledge: help('Agentforce Platform | Answer Questions with Knowledge', 'ai.copilot_actions_ref_answer_questions_with_knowledge'),
+  searchWeb: help('Agentforce Platform | Search the Web', 'ai.copilot_actions_ref_search_the_web')
 };
 
 window.QUESTIONS = [
@@ -1540,6 +1543,114 @@ window.QUESTIONS = [
     ],
     explanation: 'Also: give subagents, actions and variables specific, distinct names and descriptions, add determinism for business workflows, and reference resources directly (for example `{!@actions.lookup_order}`).',
     source: SRC.patterns
+  },
+
+  {
+    id: 'AG-081',
+    section: 'agents',
+    objective: 'Select and configure standard topics, custom topics, standard actions and custom actions',
+    group: 'query-records',
+    stem: [
+      'A sales rep asks an employee agent: "Show me my leads and my opportunities closing this month." The standard Query Records action returns an error. Why?',
+      'Which statement about the Query Records standard action is true?'
+    ],
+    options: [
+      { correct: true, text: 'Query Records can\'t combine data from multiple objects in one request', why: 'One object per query.' },
+      { correct: false, text: 'Query Records only works on custom objects', why: 'It works on searchable standard and custom objects.' },
+      { correct: false, text: 'Query Records needs a prompt template for each object', why: 'It doesn\'t run prompt templates.' },
+      { correct: false, text: 'The rep must use SOQL in the request', why: 'It takes natural language.' }
+    ],
+    explanation: 'Query Records supports English only, doesn\'t support external objects, and can filter across up to one parent-child relationship. It shows at most 50 results, even when more match.',
+    source: SRC.queryRecords
+  },
+
+  {
+    id: 'AG-082',
+    section: 'agents',
+    objective: 'Select and configure standard topics, custom topics, standard actions and custom actions',
+    group: 'query-records',
+    stem: [
+      'A user asks "Get my contact with phone 415-123-4567" and gets nothing, although the contact exists with "(415) 123 4567". Why?',
+      'Why might Query Records miss a record whose field value is stored in a different format?'
+    ],
+    options: [
+      { correct: true, text: 'There is no field normalisation, so matching depends on the exact format stored', why: 'Formats must match.' },
+      { correct: false, text: 'Phone fields can never be queried', why: 'They can, in the same format.' },
+      { correct: false, text: 'The Trust Layer masked the number', why: 'Masking doesn\'t affect the query.' },
+      { correct: false, text: 'Query Records only searches names', why: 'It filters on field values.' }
+    ],
+    explanation: 'Help also advises naming the exact field and value, for example "accounts that have an Industry of Technology" rather than "my technology accounts". Ambiguous words like "top" are interpreted by the LLM. Check the plan in Agentforce Builder to see how.',
+    source: SRC.queryRecords
+  },
+
+  {
+    id: 'AG-083',
+    section: 'agents',
+    objective: 'Select and configure standard topics, custom topics, standard actions and custom actions',
+    group: 'query-records',
+    stem: 'A user asks Query Records to filter on two fields, but can only access one of them. What happens?',
+    options: [
+      { correct: true, text: 'The query returns an error. Partial results aren\'t supported.', why: 'All criteria must be met.' },
+      { correct: false, text: 'It returns results filtered on the one accessible field', why: 'Partial results aren\'t supported.' },
+      { correct: false, text: 'It ignores field-level security', why: 'Access is respected.' },
+      { correct: false, text: 'It escalates to a human', why: 'It returns an error.' }
+    ],
+    explanation: 'Displayed fields combine up to three fields from the query with up to ten from the object\'s search layout, with duplicates counted once.',
+    source: SRC.queryRecords
+  },
+
+  {
+    id: 'AG-084',
+    section: 'agents',
+    objective: 'Select and configure standard topics, custom topics, standard actions and custom actions',
+    group: 'aqwk',
+    stem: [
+      'Which statement about the Answer Questions with Knowledge standard action is true?',
+      'An agent answers from knowledge articles. A user without access to an internal article asks about its subject. What does the action do?'
+    ],
+    options: [
+      { correct: true, text: 'It only uses knowledge articles the requesting user can access, respecting permissions and sharing', why: 'Stated consideration.' },
+      { correct: false, text: 'It uses every article, regardless of access', why: 'Access is respected.' },
+      { correct: false, text: 'It needs no Data 360 or Data Library setup', why: 'Both are required.' },
+      { correct: false, text: 'It can read URL and encrypted text fields', why: 'Those field types aren\'t supported.' }
+    ],
+    explanation: 'It uses Text, Text Area, Text Area (Long) and Text Area (Rich) knowledge fields. File sources can be text, HTML (4 MB) or PDF (100 MB). It calls the Answer Questions with Knowledge prompt template through an internal invocable action.',
+    source: SRC.answerKnowledge
+  },
+
+  {
+    id: 'AG-085',
+    section: 'agents',
+    objective: 'Select and configure standard topics, custom topics, standard actions and custom actions',
+    group: 'search-web',
+    stem: [
+      'An admin wants Search the Web results as bullet points instead of paragraphs. How?',
+      'Can the prompt template behind the Search the Web action be edited?'
+    ],
+    options: [
+      { correct: true, text: 'No. Create a new version of the General Web Search subagent with updated instructions, or add instructions in the subagent that uses the action.', why: 'The internal template can\'t be edited.' },
+      { correct: false, text: 'Yes. Edit it in Prompt Builder.', why: 'It is internal-only.' },
+      { correct: false, text: 'Change the search provider to You.com', why: 'Providers don\'t control formatting.' },
+      { correct: false, text: 'Set Excluded Domains', why: 'Controls sources, not format.' }
+    ],
+    explanation: 'Search the Web retrieves current external information, such as news and competitor details, with citations. Providers include OpenAI, BrightData and You.com. It isn\'t supported in Government Cloud.',
+    source: SRC.searchWeb
+  },
+
+  {
+    id: 'AG-086',
+    section: 'agents',
+    objective: 'Select and configure standard topics, custom topics, standard actions and custom actions',
+    group: 'search-web',
+    stem: 'An agent\'s Search the Web action should use only five trusted industry sites. What should the admin set?',
+    options: [
+      { correct: true, text: 'Allowed Domains with those five sites, and no Excluded Domains', why: 'Allowed Domains restricts searches. Using both can return few or no results.' },
+      { correct: false, text: 'Excluded Domains listing every other site', why: 'Use Allowed Domains to restrict.' },
+      { correct: false, text: 'Both Allowed and Excluded Domains for extra safety', why: 'Help warns against using both.' },
+      { correct: false, text: 'A Data Library with those sites', why: 'New web search libraries aren\'t supported.' }
+    ],
+    explanation: 'Up to 10 allowed or 10 excluded domains per action. Enter base domains as a comma-separated list. Domain settings apply whichever provider is selected.',
+    source: SRC.searchWeb
   },
 
   // ---------------- Prompt Engineering (20%) ----------------
