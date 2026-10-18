@@ -119,7 +119,8 @@ const SRC = {
   conditionalLogic: help('Use Conditional Logic in Prompt Templates', 'ai.prompt_builder_use_conditional_logic'),
   trustSetup: help('Set up Einstein Trust Layer', 'ai.generative_ai_trust_setup'),
   citations: help('Build Trust in AI Responses with Citations', 'ai.generative_ai_trust_citations'),
-  agentMasking: help('Data Masking Limitations in Agentforce', 'ai.agent_trust_data_masking')
+  agentMasking: help('Data Masking Limitations in Agentforce', 'ai.agent_trust_data_masking'),
+  indexSetup: { title: 'Salesforce Developers: Ground Agentforce on Your Website, Create Search Index and Retriever', url: 'https://developer.salesforce.com/docs/ai/ground-agentforce-on-website/guide/aes-create-search-index-and-retriever.html' }
 };
 
 window.QUESTIONS = [
@@ -3184,6 +3185,111 @@ window.QUESTIONS = [
     ],
     explanation: 'Creating a Data Library is the fastest RAG setup. You can then customise any component, for example creating custom retrievers in AI Models (formerly Einstein Studio).',
     source: SRC.ragAbout
+  },
+
+  {
+    id: 'DA-035',
+    section: 'data',
+    objective: 'Foundational Data 360 concepts: chunking, indexing and retrievers',
+    group: 'index-config',
+    stem: [
+      'An admin builds a search index with Advanced Setup for long, well-structured help pages. Which chunking strategy keeps each page\'s structure?',
+      'What does section-aware chunking do?'
+    ],
+    options: [
+      { correct: true, text: 'Section-aware chunking, which splits content along its sections so each chunk keeps the structure of the source', why: 'Preserves the page structure.' },
+      { correct: false, text: 'Splitting every 10 characters', why: 'Breaks meaning apart.' },
+      { correct: false, text: 'No chunking: index each page whole', why: 'Too large for precise retrieval.' },
+      { correct: false, text: 'Random chunking', why: 'Not a strategy.' }
+    ],
+    explanation: 'Advanced Setup lets you choose the search type, source object, parser, which file types to chunk, the chunking strategy, maximum tokens, overlap tokens, fields to prepend and the embedding model. Long pages or pages with heavy structure often need a different strategy from short help-centre pages.',
+    source: SRC.indexSetup
+  },
+
+  {
+    id: 'DA-036',
+    section: 'data',
+    objective: 'Foundational Data 360 concepts: chunking, indexing and retrievers',
+    group: 'index-config',
+    stem: [
+      'An admin sets chunks to a maximum of 1,200 tokens. What must they check about the embedding model?',
+      'Why does the choice of embedding model depend on chunk size?'
+    ],
+    options: [
+      { correct: true, text: 'The model must support that chunk size. Smaller chunks, such as 512 tokens, can use a model with a shorter supported sequence length.', why: 'The model has to accept the chunk.' },
+      { correct: false, text: 'Embedding models don\'t care about chunk size', why: 'Each supports a maximum sequence length.' },
+      { correct: false, text: 'The model must be the same as the agent\'s LLM', why: 'Embedding and generation models are separate.' },
+      { correct: false, text: 'The model must be hosted outside Salesforce', why: 'Salesforce provides embedding models.' }
+    ],
+    explanation: 'Data 360 splits data into chunks, turns them into vector embeddings and stores them in a vector data model object. In Salesforce\'s example, Salesforce Embedding V2 Small (SFR-v2-small) supports 1,200-token chunks.',
+    source: SRC.indexSetup
+  },
+
+  {
+    id: 'DA-037',
+    section: 'data',
+    objective: 'Foundational Data 360 concepts: chunking, indexing and retrievers',
+    group: 'index-config',
+    stem: 'Why might an admin prepend the Title field to each chunk in a search index?',
+    options: [
+      { correct: true, text: 'It gives each chunk more context, which can improve retrieval quality', why: 'A chunk alone can lack context.' },
+      { correct: false, text: 'It makes chunks smaller', why: 'It adds text.' },
+      { correct: false, text: 'It is required for every index', why: 'It is optional.' },
+      { correct: false, text: 'It hides the title from the LLM', why: 'It adds the title to the chunk.' }
+    ],
+    explanation: 'In Salesforce\'s website example: section-aware chunking, 1,200 maximum tokens, 0 overlap tokens (well-structured pages keep a cleaner set of chunks without overlap), and Title prepended to each chunk.',
+    source: SRC.indexSetup
+  },
+
+  {
+    id: 'DA-038',
+    section: 'data',
+    objective: 'Foundational Data 360 concepts: chunking, indexing and retrievers',
+    group: 'index-verify',
+    stem: 'A search index has finished building. How can the admin check that the chunks look right?',
+    options: [
+      { correct: true, text: 'In Data 360 Data Explorer, choose the data space, then Data Lake Object, and open the chunk object for the index', why: 'Chunks can be inspected directly.' },
+      { correct: false, text: 'Run a report on the Knowledge object', why: 'Chunks aren\'t Knowledge records.' },
+      { correct: false, text: 'Ask the agent to print every chunk', why: 'Not a verification method.' },
+      { correct: false, text: 'Chunks can\'t be viewed', why: 'Data Explorer shows them.' }
+    ],
+    explanation: 'Check that chunk records exist and match the source content before building a retriever and testing the agent.',
+    source: SRC.indexSetup
+  },
+
+  {
+    id: 'DA-039',
+    section: 'data',
+    objective: 'Foundational Data 360 concepts: chunking, indexing and retrievers',
+    group: 'retriever-setup',
+    stem: [
+      'An agent should show the source page for each answer from a website index. What should the retriever return, and what should be enabled?',
+      'Which retriever settings support citations for website content?'
+    ],
+    options: [
+      { correct: true, text: 'Return URL, Title and Chunks, and turn on Citation Settings', why: 'The URL and title make citations possible.' },
+      { correct: false, text: 'Return only Chunks, and turn off Citation Settings', why: 'Without URL and title, sources can\'t be shown.' },
+      { correct: false, text: 'Return every field, and leave citations to the LLM', why: 'Use the citation settings.' },
+      { correct: false, text: 'Citations can\'t come from retrievers', why: 'They can.' }
+    ],
+    explanation: 'To create a retriever: Agentforce Studio > Build > Data > Retrievers > New Retriever > Individual Retriever > Data Cloud. Choose the data space, source object and search index, set filters and fields to return, enable citations, save and activate.',
+    source: SRC.indexSetup
+  },
+
+  {
+    id: 'DA-040',
+    section: 'data',
+    objective: 'Foundational Data 360 concepts: chunking, indexing and retrievers',
+    group: 'retriever-setup',
+    stem: 'A new retriever has been saved but doesn\'t appear in Prompt Builder or in custom retriever libraries. What is the likely cause?',
+    options: [
+      { correct: true, text: 'It hasn\'t been activated. Only active retrievers can be used.', why: 'Activate after saving.' },
+      { correct: false, text: 'Retrievers only work in Developer Edition', why: 'Not a restriction.' },
+      { correct: false, text: 'It needs a Flex template first', why: 'Not required.' },
+      { correct: false, text: 'Retrievers can\'t be used in Prompt Builder', why: 'They can.' }
+    ],
+    explanation: 'Custom retriever libraries list only active retrievers. Prompt templates use an active retriever as a resource. Each save of a retriever creates a new version, and one version is active.',
+    source: SRC.libraryCustomRetriever
   },
 
   // ---------------- Testing, Deployment and Maintenance (10%) ----------------
