@@ -116,7 +116,10 @@ const SRC = {
   searchWeb: help('Agentforce Platform | Search the Web', 'ai.copilot_actions_ref_search_the_web'),
   templateRuntime: help('Prompt Template Run-time Execution', 'ai.prompt_builder_runtime'),
   templateLimits: help('Prompt Builder Limits', 'ai.prompt_builder_limits'),
-  conditionalLogic: help('Use Conditional Logic in Prompt Templates', 'ai.prompt_builder_use_conditional_logic')
+  conditionalLogic: help('Use Conditional Logic in Prompt Templates', 'ai.prompt_builder_use_conditional_logic'),
+  trustSetup: help('Set up Einstein Trust Layer', 'ai.generative_ai_trust_setup'),
+  citations: help('Build Trust in AI Responses with Citations', 'ai.generative_ai_trust_citations'),
+  agentMasking: help('Data Masking Limitations in Agentforce', 'ai.agent_trust_data_masking')
 };
 
 window.QUESTIONS = [
@@ -2503,6 +2506,95 @@ window.QUESTIONS = [
     ],
     explanation: 'To loop through records, use a flow or Apex as the grounding resource and pass the prepared text to the template.',
     source: SRC.conditionalLogic
+  },
+
+  {
+    id: 'PR-050',
+    section: 'prompt',
+    objective: 'Identify the security and privacy features of the Trust Layer',
+    group: 'trust-setup',
+    stem: [
+      'What must be in place before an admin can set up the Einstein Trust Layer?',
+      'Where is the Einstein Trust Layer configured, and what does its setup page contain?'
+    ],
+    options: [
+      { correct: true, text: 'Einstein Generative AI turned on and Data Cloud configured. Setup > Einstein Trust Layer has a Data Masking tab and a Content Safety and Security tab.', why: 'Data Cloud is required for the Trust Layer.' },
+      { correct: false, text: 'Only a Salesforce Shield licence', why: 'Not the stated prerequisite.' },
+      { correct: false, text: 'A custom LLM brought through BYO-LLM', why: 'Not required.' },
+      { correct: false, text: 'An active agent', why: 'Not required.' }
+    ],
+    explanation: 'Data masking is on by default, and individual entities or categories can be switched on or off. Changes can take a few minutes. Masking applies to embedded features such as Service Replies and Work Summaries, not agents.',
+    source: SRC.trustSetup
+  },
+
+  {
+    id: 'PR-051',
+    section: 'prompt',
+    objective: 'Identify the security and privacy features of the Trust Layer',
+    group: 'masking',
+    stem: [
+      'Why is Trust Layer data masking disabled for agents?',
+      'A user asks an agent to find accounts similar to Acme. Why would masking hurt this request?'
+    ],
+    options: [
+      { correct: true, text: 'Masking can remove the context the LLM needs, such as the reference account\'s details, making answers less accurate', why: 'Accuracy needs the context.' },
+      { correct: false, text: 'Agents never send data to an LLM', why: 'They do.' },
+      { correct: false, text: 'Masking is too expensive for agents', why: 'Cost isn\'t the stated reason.' },
+      { correct: false, text: 'Agents don\'t handle personal data', why: 'They often do.' }
+    ],
+    explanation: 'Other protections still apply. Zero data retention covers everything sent to an external LLM. Salesforce-managed models hosted inside the Salesforce trust boundary keep the data inside that boundary.',
+    source: SRC.agentMasking
+  },
+
+  {
+    id: 'PR-052',
+    section: 'prompt',
+    objective: 'Identify the security and privacy features of the Trust Layer',
+    group: 'masking',
+    stem: 'The same prompt template is used in Service Replies and as an agent action. When is data masking applied?',
+    options: [
+      { correct: true, text: 'In Service Replies, according to the Trust Layer settings. Not when called through the agent action.', why: 'Masking is disabled for agent actions.' },
+      { correct: false, text: 'In both, always', why: 'Not through agent actions.' },
+      { correct: false, text: 'In neither, because templates are never masked', why: 'Direct use follows Trust Layer settings.' },
+      { correct: false, text: 'Only through the agent action', why: 'The other way round.' }
+    ],
+    explanation: 'A template used directly in an app, such as Service Replies, follows the Trust Layer masking configuration. When an agent action calls the template, masking is disabled.',
+    source: SRC.agentMasking
+  },
+
+  {
+    id: 'PR-053',
+    section: 'prompt',
+    objective: 'Identify the security and privacy features of the Trust Layer',
+    group: 'citations',
+    stem: [
+      'What is the difference between platform-managed and instruction-based citations?',
+      'An admin wants citations with no extra prompt instructions and a consistent Sources section. Which approach fits?'
+    ],
+    options: [
+      { correct: true, text: 'Platform-managed citations come from a dedicated service with a Sources section and numbered links. Instruction-based citations depend on your own prompt instructions.', why: 'Built-in versus custom.' },
+      { correct: false, text: 'They are the same thing', why: 'They work differently.' },
+      { correct: false, text: 'Instruction-based citations use less prompt space', why: 'They need extra instructions, which use space.' },
+      { correct: false, text: 'Platform-managed citations need the LLM to be told how to format them', why: 'The platform handles formatting.' }
+    ],
+    explanation: 'Platform-managed citations work at the action level for Answer Questions with Knowledge (through a Data Library) and for custom actions built on prompt templates. They are available for agents created after 26 May 2025.',
+    source: SRC.citations
+  },
+
+  {
+    id: 'PR-054',
+    section: 'prompt',
+    objective: 'Identify the security and privacy features of the Trust Layer',
+    group: 'citations',
+    stem: 'A custom agent action is built on a prompt template. What must the template include for platform-managed citations?',
+    options: [
+      { correct: true, text: 'At least one Einstein Search retriever', why: 'Citations come from retrieved sources.' },
+      { correct: false, text: 'A related list merge field', why: 'Not what enables citations.' },
+      { correct: false, text: 'An Apex merge field', why: 'Not what enables citations.' },
+      { correct: false, text: 'Nothing. All templates get citations.', why: 'A retriever is required.' }
+    ],
+    explanation: 'Inline citations aren\'t yet available for custom actions built on prompt templates. Citations show in a Sources section instead. Supported sources include knowledge articles, PDF content and web pages, and citation details are stored in Data 360 audit data.',
+    source: SRC.citations
   },
 
   // ---------------- Data 360 Fundamentals (20%) ----------------
