@@ -122,7 +122,10 @@ const SRC = {
   agentMasking: help('Data Masking Limitations in Agentforce', 'ai.agent_trust_data_masking'),
   indexSetup: { title: 'Salesforce Developers: Ground Agentforce on Your Website, Create Search Index and Retriever', url: 'https://developer.salesforce.com/docs/ai/ground-agentforce-on-website/guide/aes-create-search-index-and-retriever.html' },
   multiScript: help('Agent Script in Multi-Agent Solutions', 'ai.agent_multi_orch_script'),
-  contextEngineering: help('An Agentforce Guide to Context Engineering', 'ai.agent_context_engineering')
+  contextEngineering: help('An Agentforce Guide to Context Engineering', 'ai.agent_context_engineering'),
+  planRisks: help('Identify Risks and Guardrails for an Agentforce Project', 'ai.agent_plan_risks_guardrails'),
+  libraryUpdate: help('Update Data Libraries', 'ai.data_library_update'),
+  testData: help('Select Your Test Data', 'ai.agent_studio_testing_center_add_data')
 };
 
 window.QUESTIONS = [
@@ -3330,6 +3333,25 @@ window.QUESTIONS = [
     source: SRC.libraryCustomRetriever
   },
 
+  {
+    id: 'DA-041',
+    section: 'data',
+    objective: 'Considerations of Agentforce Data Library',
+    group: 'library-update',
+    stem: [
+      'New knowledge articles are published after a knowledge-based Data Library was created. What happens?',
+      'How is an existing Agentforce Data Library kept up to date?'
+    ],
+    options: [
+      { correct: true, text: 'Knowledge-based libraries update when articles change. For file libraries, edit the library to add or delete files.', why: 'Knowledge syncs. Files are managed by hand.' },
+      { correct: false, text: 'The library must be deleted and rebuilt', why: 'Libraries can be edited and update themselves.' },
+      { correct: false, text: 'New articles are ignored for ever', why: 'Knowledge libraries pick up changes.' },
+      { correct: false, text: 'The source type can be switched to include them', why: 'The source type can\'t change.' }
+    ],
+    explanation: 'Edit a knowledge library to change the content fields, knowledge settings and citations. To change which library an agent uses, open the Knowledge tab in Agentforce Builder, pick the library and save the configuration.',
+    source: SRC.libraryUpdate
+  },
+
   // ---------------- Testing, Deployment and Maintenance (10%) ----------------
 
   {
@@ -3692,6 +3714,25 @@ window.QUESTIONS = [
     ],
     explanation: 'From Summer \'26, Testing Center doesn\'t consume Einstein Requests or Flex Credits for any test type or agent type, including test creation, actions during tests and evaluation. Data 360 queries are still metered. The exam is based on Spring \'26, so expect older wording too.',
     source: SRC.testingConsiderations
+  },
+
+  {
+    id: 'TE-022',
+    section: 'testing',
+    objective: 'Test an agent using Testing Center',
+    group: 'test-data',
+    stem: [
+      'A team wants to check that its agent quotes the returns policy correctly from a Data Library. Which test data option fits best?',
+      'When are knowledge-based test cases the right choice in Testing Center?'
+    ],
+    options: [
+      { correct: true, text: 'Generate knowledge-based tests: question-and-answer utterances taken from the agent\'s connected knowledge', why: 'Built to check content-driven answers.' },
+      { correct: false, text: 'Generate subagent and action tests', why: 'Those check intents and workflows.' },
+      { correct: false, text: 'Upload an empty CSV', why: 'Empty values fail.' },
+      { correct: false, text: 'Knowledge can\'t be tested', why: 'Knowledge-based tests exist for this.' }
+    ],
+    explanation: 'Subagent and action tests are formatted as conversations and check that the agent triggers the right behaviour, especially after updates or before launch. Knowledge tests check answers from articles or PDFs. A CSV template gives full control for specific business logic.',
+    source: SRC.testData
   },
 
   // ---------------- Governance and Observability (10%) ----------------
@@ -4220,6 +4261,41 @@ window.QUESTIONS = [
     ],
     explanation: 'The data streams into data lake objects in Data 360. You can report on it with Data 360 reporting. Turn the feature on before you need the data.',
     source: SRC.auditFeedback
+  },
+
+  {
+    id: 'GO-031',
+    section: 'governance',
+    objective: 'Explain the process for managing and monitoring agents',
+    group: 'risk-planning',
+    stem: [
+      'Which framework does Salesforce suggest for discussing the risks of an Agentforce project?',
+      'A project team wants a structured way to list AI risks before building an agent. Which categories does Salesforce suggest?'
+    ],
+    options: [
+      { correct: true, text: 'People, Business, Technology and Data', why: 'The four categories in Salesforce\'s framework.' },
+      { correct: false, text: 'Cost, Speed and Quality', why: 'Not the framework Salesforce describes.' },
+      { correct: false, text: 'Plan, Do, Check and Act', why: 'A general improvement cycle, not this framework.' },
+      { correct: false, text: 'Subagents, Actions and Variables', why: 'Building blocks, not risk categories.' }
+    ],
+    explanation: 'People covers roles, training and change management. Business covers value, KPIs and governance. Technology covers tooling, prompts, safeguards and models. Data covers quality and data strategy.',
+    source: SRC.planRisks
+  },
+
+  {
+    id: 'GO-032',
+    section: 'governance',
+    objective: 'Explain the process for managing and monitoring agents',
+    group: 'risk-planning',
+    stem: 'After cataloguing the risks of an Agentforce use case, what should a team do?',
+    options: [
+      { correct: true, text: 'Plan mitigations, turn some into agent guardrails, and document the risks and guardrails for compliance and audits', why: 'Salesforce\'s recommended next steps.' },
+      { correct: false, text: 'Accept every risk and build straight away', why: 'Plan mitigations first.' },
+      { correct: false, text: 'Hand the list to the LLM provider', why: 'The mitigations are the team\'s job.' },
+      { correct: false, text: 'Keep the list private and undocumented', why: 'Documentation helps compliance and audits.' }
+    ],
+    explanation: 'Risks of autonomous agents include security threats, data breaches, reputational harm, financial loss, bias, hallucinations, and gaps in transparency and accountability.',
+    source: SRC.planRisks
   },
 
   // ---------------- Multi-Agent Orchestration (5%) ----------------
