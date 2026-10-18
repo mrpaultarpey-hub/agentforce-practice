@@ -35,7 +35,16 @@ const SRC = {
   actionSecurity: { title: 'Salesforce Developers: Secure Your Agentforce Custom Actions', url: 'https://developer.salesforce.com/docs/platform/isvforce/guide/secure-agentforce-actions.html' },
   agentApi: { title: 'Salesforce Developers: Agent API', url: 'https://developer.salesforce.com/docs/einstein/genai/guide/agent-api.html' },
   promptBuilder: { title: 'Trailhead: Prompt Builder Basics', url: 'https://trailhead.salesforce.com/content/learn/modules/prompt-builder-basics' },
-  multiAgent: { title: 'Salesforce: Agentforce', url: 'https://www.salesforce.com/agentforce/' }
+  multiAgent: { title: 'Salesforce: Agentforce', url: 'https://www.salesforce.com/agentforce/' },
+  ascriptRef: { title: 'Agentforce Developer Guide: Agent Script Reference', url: 'https://developer.salesforce.com/docs/ai/agentforce/guide/ascript-reference.html' },
+  ascriptTools: { title: 'Agentforce Developer Guide: Agent Script Tools (Reasoning Actions)', url: 'https://developer.salesforce.com/docs/ai/agentforce/guide/ascript-ref-tools.html' },
+  ascriptUtils: { title: 'Agentforce Developer Guide: Agent Script Utils', url: 'https://developer.salesforce.com/docs/ai/agentforce/guide/ascript-ref-utils.html' },
+  ascriptVariables: { title: 'Agentforce Developer Guide: Agent Script Variables', url: 'https://developer.salesforce.com/docs/ai/agentforce/guide/ascript-ref-variables.html' },
+  ascriptActions: { title: 'Agentforce Developer Guide: Agent Script Actions', url: 'https://developer.salesforce.com/docs/ai/agentforce/guide/ascript-ref-actions.html' },
+  ascriptBlocks: { title: 'Agentforce Developer Guide: Agent Script Blocks', url: 'https://developer.salesforce.com/docs/ai/agentforce/guide/ascript-blocks.html' },
+  agentApiStart: { title: 'Agentforce Developer Guide: Get Started with the Agent API', url: 'https://developer.salesforce.com/docs/ai/agentforce/guide/agent-api-get-started.html' },
+  agentApiConsiderations: { title: 'Agentforce Developer Guide: Agent API Considerations', url: 'https://developer.salesforce.com/docs/ai/agentforce/guide/agent-api-considerations.html' },
+  legacyGuide: { title: 'Salesforce: Agentforce Guide to Reasoning, Subagents, Instructions and Actions', url: 'https://www.salesforce.com/agentforce/legacy-guide/' }
 };
 
 window.QUESTIONS = [
@@ -286,6 +295,497 @@ window.QUESTIONS = [
     ],
     explanation: '`system` holds global instructions and messages. `config` holds the agent\'s identity. `start_agent` is the entry point that runs on every user message (the agent router).\n\n`variables`, `language` and `subagent` blocks are added as needed.',
     source: SRC.agentScript
+  },
+
+  {
+    id: 'AG-015',
+    section: 'agents',
+    objective: 'Manage deterministic behaviour using filters, variables and template expressions',
+    group: 'template-expression',
+    stem: [
+      'In a subagent\'s prompt instructions, how do you insert the current value of the variable `order_status` so the LLM sees the value itself?',
+      'An admin wants the welcome message to include the customer\'s preferred name stored in `userPreferredName`. Which syntax inserts the value?'
+    ],
+    options: [
+      { correct: true, text: 'A template expression such as `{!@variables.order_status}`', why: '`{! }` resolves a variable or resource inside prompt text.' },
+      { correct: false, text: '`@variables.order_status` written straight into the `|` text', why: 'That form is for logic instructions. In prompt text, wrap it in `{! }`.' },
+      { correct: false, text: '`{{order_status}}`', why: 'Not Agent Script syntax.' },
+      { correct: false, text: '`$order_status`', why: 'Not Agent Script syntax.' },
+      { correct: false, text: '`run @variables.order_status`', why: '`run` executes actions, not variables.' }
+    ],
+    explanation: 'Template expressions use `{!expression}`. At run time Agent Script swaps in the actual value, so the LLM sees "Shipped" rather than a variable name. Use `{!@variables.name}` for variables and `{!@actions.name}` to point the LLM at a tool.\n\nIn logic instructions (after `->`) you reference variables directly as `@variables.name`.',
+    source: SRC.ascriptVariables
+  },
+
+  {
+    id: 'AG-016',
+    section: 'agents',
+    objective: 'Manage deterministic behaviour using filters, variables and template expressions',
+    group: 'slot-fill',
+    stem: [
+      'A tool is defined with `with order_id = ...`. What does the `...` do?',
+      'What is the slot-fill token in Agent Script used for?'
+    ],
+    options: [
+      { correct: true, text: 'It tells the LLM to work out the value from the conversation (slot filling).', why: '`...` is the slot-fill token.' },
+      { correct: false, text: 'It passes every variable in the agent to the action.', why: 'Only the named input is filled.' },
+      { correct: false, text: 'It leaves the input empty so the action uses its default.', why: 'The LLM is asked to supply the value.' },
+      { correct: false, text: 'It reuses the value from the previous turn.', why: 'That would be binding to a variable, such as `= @variables.order_id`.' }
+    ],
+    explanation: '`with order_id = @variables.order_id` binds the input deterministically. `with order_id = ...` asks the LLM to extract it from what the customer said.\n\nAgentforce only tries to slot-fill inputs that are required and unbound.',
+    source: SRC.ascriptRef
+  },
+
+  {
+    id: 'AG-017',
+    section: 'agents',
+    objective: 'Select and configure standard topics, custom topics, standard actions and custom actions',
+    group: 'tools-vs-actions',
+    stem: 'A subagent has an `actions` block and a `reasoning.actions` block. What is the difference?',
+    options: [
+      { correct: true, text: '`actions` defines actions you can run from logic. `reasoning.actions` lists the tools the LLM can choose to call.', why: 'Subagent actions are for logic. Reasoning actions are tools for the LLM.' },
+      { correct: false, text: '`actions` is for flows and `reasoning.actions` is for Apex.', why: 'Both can point at flows, Apex or prompt templates.' },
+      { correct: false, text: 'They are the same. The second is kept for backwards compatibility.', why: 'They do different jobs.' },
+      { correct: false, text: '`reasoning.actions` runs every time the subagent runs. `actions` only runs when the LLM decides.', why: 'The other way round. `run` in logic always runs. Tools run at the LLM\'s choice.' }
+    ],
+    explanation: 'Define an action once in the subagent\'s `actions` block (description, inputs, outputs, target). Call it from logic with `run`, or expose it to the LLM by pointing to it from `reasoning.actions`.\n\nReasoning actions are also called tools because they can include utils such as transitions and `@utils.setVariables`, not only actions. In Canvas view the split is handled for you.',
+    source: SRC.ascriptTools
+  },
+
+  {
+    id: 'AG-018',
+    section: 'agents',
+    objective: 'Manage deterministic behaviour using filters, variables and template expressions',
+    group: 'tools-vs-actions',
+    stem: [
+      'A business-hours check must run every time a subagent runs, whatever the LLM decides. How should it be called?',
+      'An action must run on every parse of a subagent and store its output in variables. Which approach guarantees this?'
+    ],
+    options: [
+      { correct: true, text: '`run @actions.check_business_hours` in the logic part of the reasoning instructions', why: 'Logic runs deterministically, so the action runs every time.' },
+      { correct: false, text: 'List it in `reasoning.actions` with a clear description', why: 'The LLM chooses whether to call a tool.' },
+      { correct: false, text: 'Mention it in a `|` prompt with `{!@actions.check_business_hours}`', why: 'Points the LLM at the tool, but the LLM still decides.' },
+      { correct: false, text: 'Set `require_user_confirmation: True`', why: 'Asks the customer to confirm. It doesn\'t force the action to run.' }
+    ],
+    explanation: '`run @actions.name` in logic instructions runs the action each time the subagent is parsed. Follow it with `set @variables.x = @outputs.x` to keep the result.\n\nTools in `reasoning.actions` only run if the LLM picks them.',
+    source: SRC.ascriptActions
+  },
+
+  {
+    id: 'AG-019',
+    section: 'agents',
+    objective: 'Explain how an agent works and the building blocks of Agent Script',
+    group: 'transition-vs-delegate',
+    stem: [
+      'A subagent needs to consult a specialist subagent and then carry on in the original subagent. How should the specialist be referenced in `reasoning.actions`?',
+      'Which reference runs another subagent like a tool and then returns control to the calling subagent?'
+    ],
+    options: [
+      { correct: true, text: 'Directly, as `@subagent.specialist`', why: 'A direct subagent reference returns to the caller when done.' },
+      { correct: false, text: '`@utils.transition to @subagent.specialist`', why: 'Transitions are one way. Control never returns.' },
+      { correct: false, text: '`@utils.escalate`', why: 'Escalates to a human rep.' },
+      { correct: false, text: '`@utils.setVariables`', why: 'Lets the LLM set variable values.' }
+    ],
+    explanation: 'Delegating with `@subagent.name` works like calling a tool: the other subagent runs, then flow returns to the original subagent.\n\n`@utils.transition to` hands over for good. If you want to come back, you need an explicit transition back, and that starts the original subagent from the beginning.',
+    source: SRC.ascriptTools
+  },
+
+  {
+    id: 'AG-020',
+    section: 'agents',
+    objective: 'Explain how an agent works and the building blocks of Agent Script',
+    group: 'transition-vs-delegate',
+    stem: 'Subagent A transitions to subagent B with `transition to`. Later B transitions back to A. Where does A start?',
+    options: [
+      { correct: true, text: 'At the beginning of subagent A', why: 'A transition back starts the subagent from the top.' },
+      { correct: false, text: 'At the line after the original `transition to`', why: 'Transitions don\'t remember where they left.' },
+      { correct: false, text: 'At the `start_agent` block', why: 'The transition targets A, not the router.' },
+      { correct: false, text: 'It doesn\'t. You can\'t transition back to a subagent you have left.', why: 'You can, with an explicit transition.' }
+    ],
+    explanation: '`transition to` runs immediately, stops the current block and passes control to the new subagent. There is no automatic return. A transition back starts the target subagent from the beginning.',
+    source: SRC.ascriptUtils
+  },
+
+  {
+    id: 'AG-021',
+    section: 'agents',
+    objective: 'Connect agents to channels such as digital experience, email, voice and Slack',
+    group: 'escalate',
+    stem: [
+      'An admin adds `escalate_to_human: @utils.escalate` to a subagent, but escalation doesn\'t work. What is missing?',
+      'What does `@utils.escalate` need before it can hand a conversation to a human service rep?'
+    ],
+    options: [
+      { correct: true, text: 'An active Omni-Channel connection, set in a `connection messaging` block with an outbound route type and name', why: 'Escalation routes through Omni-Channel.' },
+      { correct: false, text: 'A prompt template that writes the handover message', why: 'The escalation message is set on the connection block.' },
+      { correct: false, text: 'A Slack workspace connected to the org', why: 'Slack isn\'t needed for escalation.' },
+      { correct: false, text: 'A Testing Center test that covers escalation', why: 'Tests check behaviour. They don\'t enable it.' }
+    ],
+    explanation: 'The `connection messaging` block sets `escalation_message`, `outbound_route_type` (for example `"OmniChannelFlow"`) and `outbound_route_name`. `@utils.escalate` then hands the conversation to a human through that route.\n\n`escalate` is a reserved word, so you can\'t use it as a subagent or action name.',
+    source: SRC.ascriptUtils
+  },
+
+  {
+    id: 'AG-022',
+    section: 'agents',
+    objective: 'Explain how an agent works and the building blocks of Agent Script',
+    group: 'utils',
+    stem: 'Which util lets the agent end the conversation, for example once the customer says they need no more help?',
+    options: [
+      { correct: true, text: '`@utils.end_session`', why: 'Ends the conversation immediately.' },
+      { correct: false, text: '`@utils.escalate`', why: 'Hands over to a human. The session carries on.' },
+      { correct: false, text: '`@utils.transition to @subagent.start_agent`', why: 'Moves back to routing. It doesn\'t end anything.' },
+      { correct: false, text: '`@utils.setVariables`', why: 'Sets variable values.' }
+    ],
+    explanation: 'The utils are `transition to`, `setVariables`, `escalate` and `end_session`. Each can be exposed to the LLM as a tool with its own description and `available when` condition.',
+    source: SRC.ascriptUtils
+  },
+
+  {
+    id: 'AG-023',
+    section: 'agents',
+    objective: 'Select and configure standard topics, custom topics, standard actions and custom actions',
+    group: 'action-properties',
+    stem: [
+      'An action cancels a customer\'s order. The customer must agree before it runs. Which action property should be set?',
+      'Which action property makes the agent ask the customer to confirm before the action runs?'
+    ],
+    options: [
+      { correct: true, text: '`require_user_confirmation: True`', why: 'The customer must confirm first.' },
+      { correct: false, text: '`include_in_progress_indicator: True`', why: 'Shows a progress indicator while the action runs.' },
+      { correct: false, text: '`filter_from_agent: True` on the output', why: 'Hides the output from the agent\'s context.' },
+      { correct: false, text: '`available when @variables.confirmed == True`', why: 'Works only if something sets `confirmed`. The property is the direct way.' }
+    ],
+    explanation: 'Action properties include `description`, `inputs`, `outputs`, `target`, `label`, `include_in_progress_indicator` and `require_user_confirmation`. The description matters most: the LLM reads it when deciding whether to call the action.',
+    source: SRC.ascriptActions
+  },
+
+  {
+    id: 'AG-024',
+    section: 'agents',
+    objective: 'Explain the security context the agent runs in and how it affects actions',
+    group: 'action-properties',
+    stem: 'An action returns an internal risk score. Later logic needs it, but the LLM must never see it or mention it. What should the admin do?',
+    options: [
+      { correct: true, text: 'Set `filter_from_agent: True` on that output.', why: 'Keeps the output out of the agent\'s context.' },
+      { correct: false, text: 'Add a prompt instruction telling the LLM not to mention the score.', why: 'The LLM still sees it and might reveal it.' },
+      { correct: false, text: 'Turn on Trust Layer data masking for the field.', why: 'Masking works on prompt text sent to the LLM, not on hiding action outputs.' },
+      { correct: false, text: 'Leave the output undefined.', why: 'Then the logic can\'t store or use it either.' }
+    ],
+    explanation: 'By default an action\'s outputs stay in the agent\'s context for the whole session, so the LLM can use them in answers. `filter_from_agent: True` keeps an output out of that context while logic can still store it with `set`.',
+    source: SRC.ascriptActions
+  },
+
+  {
+    id: 'AG-025',
+    section: 'agents',
+    objective: 'Select and configure standard topics, custom topics, standard actions and custom actions',
+    stem: 'Which three target types can an Agent Script action\'s `target` point to?',
+    options: [
+      { correct: true, text: '`apex://`', why: 'Apex is a supported target.' },
+      { correct: true, text: '`flow://`', why: 'Flow is a supported target.' },
+      { correct: true, text: '`prompt://`', why: 'Prompt templates are a supported target.' },
+      { correct: false, text: '`lwc://`', why: 'Not an action target type.' },
+      { correct: false, text: '`report://`', why: 'Not an action target type.' },
+      { correct: false, text: '`email://`', why: 'Not an action target type.' }
+    ],
+    explanation: 'Targets use the form `{TARGET_TYPE}://{DEVELOPER_NAME}`, for example `flow://Get_Order` or `prompt://check_bookings`.',
+    source: SRC.ascriptActions
+  },
+
+  {
+    id: 'AG-026',
+    section: 'agents',
+    objective: 'Manage deterministic behaviour using filters, variables and template expressions',
+    group: 'variables',
+    stem: [
+      'An external app calls the Agent API and needs to set a custom variable\'s value. What must the variable have?',
+      'An admin wants to change a custom variable\'s value while testing the agent in simulate mode. Which property allows this?'
+    ],
+    options: [
+      { correct: true, text: '`visibility: "External"`', why: 'Lets an API set the value, and lets you change it in simulate mode.' },
+      { correct: false, text: '`visibility: "Internal"`', why: 'The default. Only the agent can set it.' },
+      { correct: false, text: 'It must be a `linked` variable', why: 'Linked variables can\'t be set at all. They come from their source.' },
+      { correct: false, text: 'A `description` property', why: 'Helps the LLM set it. It doesn\'t open it to APIs.' }
+    ],
+    explanation: 'Custom variables can have `mutable`, `description`, `label` and `visibility`. Visibility defaults to `Internal`. Set `External` to let an API set the value.',
+    source: SRC.ascriptVariables
+  },
+
+  {
+    id: 'AG-027',
+    section: 'agents',
+    objective: 'Manage deterministic behaviour using filters, variables and template expressions',
+    group: 'variables',
+    stem: 'Which two statements about linked variables are true?',
+    options: [
+      { correct: true, text: 'They can\'t have a default value.', why: 'The value always comes from the source.' },
+      { correct: true, text: 'The agent can\'t set their value.', why: 'They are read-only.' },
+      { correct: false, text: 'They can hold a list of objects.', why: 'Linked variables can\'t be objects or lists.' },
+      { correct: false, text: 'They must be declared `mutable`.', why: 'They can\'t be changed by the agent.' },
+      { correct: false, text: 'Their source can be any field on any object.', why: 'Sources are `@MessagingSession`, `@MessagingEndUser` and `@VoiceCall` properties.' }
+    ],
+    explanation: 'A linked variable is tied to a source, for example `contact_id: linked string` with `source: @MessagingEndUser.ContactId`. Supported sources include `@MessagingSession.Id`, `@MessagingSession.EndUserLanguage`, `@MessagingEndUser.ContactId` and `@VoiceCall.Id`.',
+    source: SRC.ascriptVariables
+  },
+
+  {
+    id: 'AG-028',
+    section: 'agents',
+    objective: 'Manage deterministic behaviour using filters, variables and template expressions',
+    group: 'variables',
+    stem: 'A string variable `member_email` might never have been set, or might be an empty string. How should a condition check that it has no usable value?',
+    options: [
+      { correct: true, text: 'Check for both `is None` and `== ""`', why: 'Covers "never set" and "set to empty".' },
+      { correct: false, text: 'Check `== 0`', why: 'That is for numbers.' },
+      { correct: false, text: 'Check `== False`', why: 'That is for booleans.' },
+      { correct: false, text: 'Check `is None` only', why: 'Misses a variable set to an empty string.' }
+    ],
+    explanation: '`None` means the variable has no value and works for any type. Strings can also be set to `""`. For string checks, Salesforce suggests testing both.',
+    source: SRC.ascriptVariables
+  },
+
+  {
+    id: 'AG-029',
+    section: 'agents',
+    objective: 'Explain the security context the agent runs in and how it affects actions',
+    group: 'agent-user',
+    stem: [
+      'In Agent Script, where is the user that a service agent runs as defined?',
+      'Which Agent Script setting decides whose permissions a service agent uses to reach Salesforce data?'
+    ],
+    options: [
+      { correct: true, text: '`default_agent_user` in the `access` block', why: 'Required for service agents. The agent runs as this user.' },
+      { correct: false, text: '`default_agent_user` in the `config` block', why: 'Deprecated there. It now belongs in the `access` block.' },
+      { correct: false, text: 'The `system` block\'s instructions', why: 'Instructions guide the LLM. They don\'t set a running user.' },
+      { correct: false, text: '`agent_type: AgentforceEmployeeAgent`', why: 'Sets the agent type, not the user.' }
+    ],
+    explanation: 'An agent runs in the context of a user, and that user\'s permissions grant or deny access to Salesforce data. For service agents, `default_agent_user` in the `access` block holds that user\'s username.\n\n`agent_type` in `config` is `AgentforceServiceAgent` (the default) or `AgentforceEmployeeAgent`.',
+    source: SRC.ascriptBlocks
+  },
+
+  {
+    id: 'AG-030',
+    section: 'agents',
+    objective: 'Explain the components and benefits of hybrid reasoning',
+    stem: [
+      'An admin turns off one runtime setting to make a knowledge agent reply faster. Soon after, it starts giving answers not backed by the knowledge articles. Which setting was turned off?',
+      'Which `runtime` setting checks the LLM\'s responses against source content to reduce hallucinations?'
+    ],
+    options: [
+      { correct: true, text: '`groundedness`', why: 'On by default. It checks answers against source content.' },
+      { correct: false, text: '`citation`', why: 'Adds source references to answers. It doesn\'t check them.' },
+      { correct: false, text: '`streaming`', why: 'Controls whether the reply arrives in chunks.' },
+      { correct: false, text: '`reset_to_initial_node`', why: 'Restarts each turn at `start_agent`.' }
+    ],
+    explanation: 'The `runtime` sub-block of `config` covers `streaming`, `thought_chunks`, `citation`, `groundedness` and `reset_to_initial_node`. The groundedness check takes extra time but reduces hallucinations. Leave it on for knowledge-heavy agents.',
+    source: SRC.ascriptBlocks
+  },
+
+  {
+    id: 'AG-031',
+    section: 'agents',
+    objective: 'Explain how an agent works and the building blocks of Agent Script',
+    stem: [
+      'Which block runs on every customer message and handles subagent classification, filtering and routing?',
+      'In Canvas view, what is the Agent Router in Agent Script?'
+    ],
+    options: [
+      { correct: true, text: 'The `start_agent` block', why: 'Called the Agent Router in Canvas view.' },
+      { correct: false, text: 'The `system` block', why: 'Holds global instructions and messages.' },
+      { correct: false, text: 'The `config` block', why: 'Holds agent settings and identity.' },
+      { correct: false, text: 'The first `subagent` block in the file', why: 'Order in the file doesn\'t make a subagent the router.' }
+    ],
+    explanation: '`start_agent` is a special subagent. Every customer utterance starts there, and it usually decides which subagent handles the request, often through `@utils.transition to` tools gated with `available when`.',
+    source: SRC.ascriptBlocks
+  },
+
+  {
+    id: 'AG-032',
+    section: 'agents',
+    objective: 'Select and configure standard topics, custom topics, standard actions and custom actions',
+    group: 'routing',
+    stem: [
+      'Customers asking about returns keep getting routed to the Order Status subagent. What should the Agentforce Specialist improve first?',
+      'An agent often picks the wrong subagent for a request. What does the reasoning engine mainly use to choose a subagent?'
+    ],
+    options: [
+      { correct: true, text: 'The subagents\' names and descriptions: clear, distinct and using the customer\'s own words', why: 'Classification relies on the name and description.' },
+      { correct: false, text: 'Add more actions to the Returns subagent', why: 'Actions are chosen after the subagent is picked.' },
+      { correct: false, text: 'Add more instructions to the Returns subagent', why: 'Instructions are used after the subagent is picked.' },
+      { correct: false, text: 'Increase the conversation history sent to the LLM', why: 'Doesn\'t fix overlapping descriptions.' }
+    ],
+    explanation: 'The reasoning engine matches the message to a subagent using the subagent\'s name and description (the classification description in the older builder). Overlapping descriptions cause misrouting.\n\nOnce a subagent is chosen, its scope, instructions and actions are added to the prompt.',
+    source: SRC.legacyGuide
+  },
+
+  {
+    id: 'AG-033',
+    section: 'agents',
+    objective: 'Select and configure standard topics, custom topics, standard actions and custom actions',
+    stem: 'Which two match Salesforce\'s design guidance for an agent?',
+    options: [
+      { correct: true, text: 'Around 10 to 15 subagents per agent', why: 'More, overlapping subagents reduce consistency.' },
+      { correct: true, text: 'No more than 15 actions per subagent', why: 'Keeps latency and confusion down.' },
+      { correct: false, text: 'At least 25 subagents, so every request has its own', why: 'Too many overlapping subagents hurt routing.' },
+      { correct: false, text: 'One action per subagent', why: 'Not a rule. Subagents often need several actions.' },
+      { correct: false, text: 'Put every instruction in the system block so all subagents share it', why: 'Instructions belong with the subagent they apply to.' }
+    ],
+    explanation: 'Salesforce recommends about 10 to 15 subagents per agent and no more than 15 actions per subagent. If an agent outgrows that, consider splitting it into several agents.',
+    source: SRC.legacyGuide
+  },
+
+  {
+    id: 'AG-034',
+    section: 'agents',
+    objective: 'Manage deterministic behaviour using filters, variables and template expressions',
+    group: 'deterministic-gate',
+    stem: [
+      'A refund must never be given for orders older than 30 days. Where should this rule be enforced?',
+      'Which is the most reliable place for a critical business rule such as a refund limit?'
+    ],
+    options: [
+      { correct: true, text: 'In the action\'s own logic (the flow or Apex that processes the refund)', why: 'Code always enforces it, whatever the LLM does.' },
+      { correct: false, text: 'In the subagent instructions', why: 'Instructions are interpreted by the LLM and aren\'t deterministic.' },
+      { correct: false, text: 'In the action\'s description', why: 'Descriptions help the LLM choose the action. They don\'t enforce rules.' },
+      { correct: false, text: 'In the welcome message, so customers know the rule', why: 'Telling customers isn\'t enforcing it.' }
+    ],
+    explanation: 'Instructions are non-deterministic. Salesforce\'s guidance is to put critical business rules in the action\'s code, or in deterministic Agent Script logic, rather than in natural-language instructions.',
+    source: SRC.legacyGuide
+  },
+
+  {
+    id: 'AG-035',
+    section: 'agents',
+    objective: 'Manage deterministic behaviour using filters, variables and template expressions',
+    group: 'variables',
+    stem: 'In the Agentforce builder, which statement about context variables and custom variables is true?',
+    options: [
+      { correct: true, text: 'Custom variables can be updated by actions. Context variables come from the session and don\'t change during it.', why: 'Context variables are set at session start.' },
+      { correct: false, text: 'Context variables can store action outputs.', why: 'Only custom variables can be action outputs.' },
+      { correct: false, text: 'Only context variables can be used in filters.', why: 'Both kinds can be used in filters.' },
+      { correct: false, text: 'Custom variables are filled from the pre-chat form.', why: 'Pre-chat data feeds context variables.' }
+    ],
+    explanation: 'Context variables come from the messaging session: Messaging Session fields, pre-chat data and earlier sessions. They are inputs to actions and filters but don\'t change.\n\nCustom variables store action outputs, track state such as "verified" and link actions together.',
+    source: SRC.legacyGuide
+  },
+
+  {
+    id: 'AG-036',
+    section: 'agents',
+    objective: 'Manage deterministic behaviour using filters, variables and template expressions',
+    group: 'deterministic-gate',
+    stem: 'Account and payment subagents must only be available once a customer is verified. What is the deterministic way to do this?',
+    options: [
+      { correct: true, text: 'Gate the router\'s transitions to those subagents with `available when @variables.verified == True` (a filter in the older builder).', why: 'Unavailable subagents can\'t be chosen.' },
+      { correct: false, text: 'Tell the router in its instructions to check verification first.', why: 'Instructions aren\'t deterministic.' },
+      { correct: false, text: 'Mention "verified customers only" in the subagent descriptions.', why: 'Descriptions guide classification. They don\'t block it.' },
+      { correct: false, text: 'Remove the subagents and add their actions to every other subagent.', why: 'Makes the problem worse.' }
+    ],
+    explanation: 'Filters (older builder) and `available when` (Agent Script) are system-level gates. They include or exclude subagents and actions based on variable values before the LLM chooses. Fewer options also improve routing accuracy.',
+    source: SRC.ascriptBlocks
+  },
+
+  {
+    id: 'AG-037',
+    section: 'agents',
+    objective: 'Identify when to use the Agent API',
+    group: 'agent-api-setup',
+    stem: [
+      'What must be set up in Salesforce before an external system can call the Agent API?',
+      'A developer is preparing to call the Agent API from a server-side integration. What do they need to create first?'
+    ],
+    options: [
+      { correct: true, text: 'An external client app with the client credentials flow and the api, chatbot_api and sfap_api scopes', why: 'All Agent API calls need a token from such an app.' },
+      { correct: false, text: 'An Experience Cloud site with guest access', why: 'Not used by the Agent API.' },
+      { correct: false, text: 'A Prompt Builder Flex template for each message', why: 'The API talks to an agent, not a template.' },
+      { correct: false, text: 'A named credential pointing at the external system', why: 'Named credentials are for Salesforce calling out, not for calling in.' }
+    ],
+    explanation: 'Create an external client app, enable OAuth with the api, refresh_token/offline_access, chatbot_api and sfap_api scopes, and turn on the client credentials flow with a Run As user. Use the consumer key and secret to get a token, then start a session.\n\nUse your My Domain URL, not the lightning.force.com domain.',
+    source: SRC.agentApiStart
+  },
+
+  {
+    id: 'AG-038',
+    section: 'agents',
+    objective: 'Identify when to use the Agent API',
+    group: 'agent-api-setup',
+    stem: 'An Agent API call to start a session includes `"bypassUser": true`. What does that do?',
+    options: [
+      { correct: true, text: 'The session runs as the agent\'s assigned user rather than the user tied to the token.', why: 'True means use the agent user.' },
+      { correct: false, text: 'It skips authentication for the call.', why: 'A token is always required.' },
+      { correct: false, text: 'It skips the Trust Layer for faster replies.', why: 'Not what this flag does.' },
+      { correct: false, text: 'It lets anonymous users call the API without a token.', why: 'A token is always required.' }
+    ],
+    explanation: 'With `bypassUser` true, the API uses the user assigned to the agent. With false, it uses the user associated with the token. The client credentials example sets it to true.',
+    source: SRC.agentApiStart
+  },
+
+  {
+    id: 'AG-039',
+    section: 'agents',
+    objective: 'Identify when to use the Agent API',
+    stem: [
+      'Which statement about the Agent API is true?',
+      'A team plans to use the Agent API. Which consideration should they know about?'
+    ],
+    options: [
+      { correct: true, text: 'It isn\'t supported for agents of type "Agentforce (Default)".', why: 'Stated in the Agent API considerations.' },
+      { correct: false, text: 'Calls have no timeout, so long actions always finish.', why: 'There is a 120-second timeout.' },
+      { correct: false, text: 'Usage doesn\'t consume any credits.', why: 'Agent API usage affects credit consumption.' },
+      { correct: false, text: 'It only works with employee agents.', why: 'Service agents are the common case.' }
+    ],
+    explanation: 'Agent API considerations: not supported for "Agentforce (Default)" agents, a 120-second timeout (a timed-out call returns HTTP 500), usage counts towards credits, and Government Cloud uses `api.gov.salesforce.com`.',
+    source: SRC.agentApiConsiderations
+  },
+
+  {
+    id: 'AG-040',
+    section: 'agents',
+    objective: 'Connect agents to channels such as digital experience, email, voice and Slack',
+    group: 'voice',
+    stem: [
+      'Where do you configure how an Agentforce Voice agent sounds, such as its voice and speaking speed?',
+      'A voice agent mispronounces a medicine name. Where can a custom pronunciation be added?'
+    ],
+    options: [
+      { correct: true, text: 'The `modality voice` block', why: 'Controls voice, speed, pronunciation and turn-taking.' },
+      { correct: false, text: 'The `language` block', why: 'Sets supported locales.' },
+      { correct: false, text: 'The `system` block\'s welcome message', why: 'Sets what is said, not how it sounds.' },
+      { correct: false, text: 'A Prompt Builder template', why: 'Templates generate text. They don\'t configure speech.' }
+    ],
+    explanation: '`modality voice` sets the voice, speed, style, a pronunciation dictionary, filler phrases while actions run and silence handling.\n\nVoice needs a fixed locale. With `adaptive: True` in the language block, adaptive mode is ignored on voice channels, so set a `default_locale`.',
+    source: SRC.ascriptBlocks
+  },
+
+  {
+    id: 'AG-041',
+    section: 'agents',
+    objective: 'Explain how an agent works and the building blocks of Agent Script',
+    stem: 'An employee agent should remember a user\'s preferences across conversations. How is this turned on, and what else is needed?',
+    options: [
+      { correct: true, text: 'Enable `memory` in the `context` block. Each employee in Lightning Experience also opts in.', why: 'Employee agent users opt in individually.' },
+      { correct: false, text: 'Make every variable `mutable`.', why: 'Variables last for a session, not across conversations.' },
+      { correct: false, text: 'Set `reset_to_initial_node: False`.', why: 'Controls where each turn starts, not memory.' },
+      { correct: false, text: 'Store preferences in a linked variable.', why: 'Linked variables are read-only session data.' }
+    ],
+    explanation: 'The `context` block has `memory` and `user_profile`, both off by default. Memory lets the agent recall details from earlier conversations. Turning it off later stops new memories but keeps the existing ones.\n\n`user_profile` adds the user\'s name, locale and time zone to the prompt.',
+    source: SRC.ascriptBlocks
+  },
+
+  {
+    id: 'AG-042',
+    section: 'agents',
+    objective: 'Connect agents to channels such as digital experience, email, voice and Slack',
+    stem: 'A service agent should chat with customers on the company\'s Experience Cloud help site. Which setup is used?',
+    options: [
+      { correct: true, text: 'An Enhanced Chat (Messaging for In-App and Web) channel with an Omni-Channel flow that routes conversations to the agent', why: 'The standard way to put a service agent on a website.' },
+      { correct: false, text: 'An employee agent added to the site\'s utility bar', why: 'Employee agents are for internal users.' },
+      { correct: false, text: 'Email-to-Case with the agent reading the inbox', why: 'Email, not chat.' },
+      { correct: false, text: 'The Agent API called from the site\'s footer', why: 'Possible for custom builds, but not the standard setup.' }
+    ],
+    explanation: 'Service agents use Omni-Channel. An Omni-Channel flow routes the messaging conversation to the agent, and the Enhanced Chat deployment puts the chat window on the site. The same Omni-Channel set-up is used to escalate to a human.',
+    source: SRC.ascriptBlocks
   },
 
   // ---------------- Prompt Engineering (20%) ----------------
